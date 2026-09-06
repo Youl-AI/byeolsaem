@@ -330,6 +330,55 @@
   }
 }
 
+/* 12년 아치 — 올해 칸만 켜진다(스펙 B §2). fill 전환은 컴포지터 밖이지만 path
+   하나 1회라 허용. 스타일시트의 fill이 프레젠테이션 속성을 이기므로 JSX의 fill
+   값은 그대로 두고 클래스만 얹는다. 열두 칸 순차 점등은 하지 않는다 — 칸의
+   순서는 정보가 아니다. */
+.dial-cur,
+.dial-cur-glyph,
+.dial-cur-name {
+  transition: fill 400ms cubic-bezier(0.16, 1, 0.3, 1) 500ms;
+}
+.dial-cur {
+  fill: rgba(201, 162, 39, 0.16);
+}
+.dial-cur-glyph {
+  fill: var(--color-gold-soft);
+}
+.dial-cur-name {
+  fill: var(--color-starlight);
+}
+[data-in="false"] .dial-cur {
+  fill: rgba(201, 162, 39, 0);
+}
+[data-in="false"] .dial-cur-glyph {
+  fill: rgba(227, 197, 104, 0.6);
+}
+[data-in="false"] .dial-cur-name {
+  fill: var(--color-starlight-dim);
+}
+.dial-age {
+  opacity: 0;
+}
+[data-in="true"] .dial-age {
+  animation: var(--animate-node-rise);
+  animation-delay: 700ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dial-cur,
+  .dial-cur-glyph,
+  .dial-cur-name {
+    transition: none;
+  }
+  .dial-age {
+    opacity: 1;
+  }
+  [data-in="true"] .dial-age {
+    animation: none;
+    animation-delay: 0ms !important;
+  }
+}
+
 /* 세 기둥은 항상 금색이다 — 등장 여부와 무관하게. 나머지 기호는 흐린 채로 남아
    "셋 밝힘, 나머지 흐림"을 CSS 한 줄이 맡는다. 스타일시트 규칙이 인라인
    fill 속성을 항상 이기므로, 이 셋은 호버(lit)로도 색이 바뀌지 않는다 —

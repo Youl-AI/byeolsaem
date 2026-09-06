@@ -119,6 +119,7 @@ function ProfectionDial({
       }`}
       role="img"
       aria-label={`프로펙션 다이얼 — 올해는 ${byHouse[curIdx]?.sign.ko}의 해`}
+      data-in={entered ? "true" : "false"}
     >
       {byHouse.map((y, i) => {
         const a0 = i * 30 - 15;
@@ -135,6 +136,7 @@ function ProfectionDial({
           <g key={y.age}>
             <path
               d={`M ${x0} ${y0} A ${R_OUT} ${R_OUT} 0 0 1 ${x1} ${y1} L ${x2} ${y2} A ${R_IN} ${R_IN} 0 0 0 ${x3} ${y3} Z`}
+              className={cur ? "dial-cur" : undefined}
               fill={cur ? "rgba(201,162,39,0.16)" : "rgba(26,31,61,0.35)"}
               stroke={cur ? "var(--color-gold)" : "rgba(201,162,39,0.25)"}
               strokeWidth={cur ? 1.4 : 0.8}
@@ -144,6 +146,7 @@ function ProfectionDial({
               y={gy}
               textAnchor="middle"
               dominantBaseline="central"
+              className={cur ? "dial-cur-glyph" : undefined}
               fill={cur ? "var(--color-gold-soft)" : "rgba(227,197,104,0.6)"}
               fontSize={16}
               style={{ fontFamily: ASTRO_FONT }}
@@ -156,6 +159,7 @@ function ProfectionDial({
               y={sy}
               textAnchor="middle"
               dominantBaseline="central"
+              className={cur ? "dial-cur-name" : undefined}
               fill={cur ? "var(--color-starlight)" : "var(--color-starlight-dim)"}
               fontSize={11.5}
               style={{ fontFamily: "var(--font-display)" }}
@@ -204,26 +208,28 @@ function ProfectionDial({
         />
       </g>
       <circle cx={C} cy={C} r={3.5} fill="var(--color-gold)" />
-      <text
-        x={C}
-        y={C - 22}
-        textAnchor="middle"
-        fill="var(--color-gold)"
-        fontSize={10}
-        style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.3em" }}
-      >
-        AGE
-      </text>
-      <text
-        x={C}
-        y={C + 32}
-        textAnchor="middle"
-        fill="var(--color-starlight)"
-        fontSize={30}
-        style={{ fontFamily: "var(--font-latin)" }}
-      >
-        {currentAge}
-      </text>
+      <g className="dial-age">
+        <text
+          x={C}
+          y={C - 22}
+          textAnchor="middle"
+          fill="var(--color-gold)"
+          fontSize={10}
+          style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.3em" }}
+        >
+          AGE
+        </text>
+        <text
+          x={C}
+          y={C + 32}
+          textAnchor="middle"
+          fill="var(--color-starlight)"
+          fontSize={30}
+          style={{ fontFamily: "var(--font-latin)" }}
+        >
+          {currentAge}
+        </text>
+      </g>
     </svg>
   );
 }
