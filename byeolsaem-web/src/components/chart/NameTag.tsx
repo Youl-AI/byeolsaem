@@ -1,4 +1,4 @@
-﻿import type { ZodiacSign } from "@/lib/zodiac";
+import type { ZodiacSign } from "@/lib/zodiac";
 
 /**
  * 이름표 — 태양·달·상승궁을 한 줄로. Co-Star의 `☉Scorpio ☽Pisces ↑Leo`와 같은
