@@ -8,10 +8,18 @@ import { ResultTabs } from "@/components/ui/ResultTabs";
 import { AspectBadge } from "@/components/ui/AspectBadge";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 import { NatalHero } from "@/components/chart/NatalReading";
-import { exampleSky } from "@/lib/example-sky";
+import { EXAMPLE_BIRTH, exampleMeeting, exampleSky } from "@/lib/example-sky";
 import { afterFirstSentence } from "@/lib/text";
+import { SynastryBody, SynastryHero } from "@/components/synastry/SynastryReading";
 
 const sign = (key: string) => ZODIAC_SIGNS.find((s) => s.key === key)!;
+
+/** 탭바의 모든 앵커가 같은 HTML 안의 구역 id를 가리킨다 — natal 최종 리뷰가 미뤄 둔 검사. */
+function expectTabsResolve(html: string) {
+  const targets = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1]);
+  expect(targets.length).toBeGreaterThan(0);
+  for (const id of targets) expect(html).toContain(`id="${id}"`);
+}
 
 describe("이름표", () => {
   it("세 기둥을 한 줄로 적는다", () => {
@@ -191,5 +199,33 @@ describe("세 기둥 읽기", () => {
   it("시각을 모르면 상승궁 자리는 null", () => {
     const { chart } = exampleSky();
     expect(chartPillars({ ...chart, ascendant: null }).ascendant).toBeNull();
+  });
+});
+
+describe("궁합 첫 화면", () => {
+  it("나·그쪽 이름표 → 금실 → 두 사람의 한 줄 → 공유 순서", () => {
+    const { mine, theirs, reading } = exampleMeeting();
+    const html = renderToStaticMarkup(
+      createElement(SynastryHero, { mine, theirs, reading, profile: { date: EXAMPLE_BIRTH.date }, activeId: null }),
+    );
+    const tags = [...html.matchAll(/aria-label="태양 /g)].map((m) => m.index!);
+    expect(tags).toHaveLength(2);
+    const iThreads = html.indexOf("<svg", tags[1]);
+    const iOne = html.indexOf("두 사람의 한 줄");
+    const iShare = html.indexOf("두 하늘을 카드 한 장으로");
+    expect(tags[0]).toBeLessThan(tags[1]);
+    expect(tags[1]).toBeLessThan(iThreads);
+    expect(iThreads).toBeLessThan(iOne);
+    expect(iOne).toBeLessThan(iShare);
+  });
+  it("탭의 앵커마다 같은 id의 구역이 있다", () => {
+    const { mine, theirs, reading } = exampleMeeting();
+    const html = renderToStaticMarkup(
+      createElement(SynastryBody, { mine, theirs, reading, chosen: null, onPick: () => {}, onActive: () => {} }),
+    );
+    expectTabsResolve(html);
+    // 이름 붙은 조합은 펼쳐져 있고 나머지는 접혀 있다.
+    expect(html).toContain('aria-expanded="true"');
+    expect(html).toContain('aria-expanded="false"');
   });
 });

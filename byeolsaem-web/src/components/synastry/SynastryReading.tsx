@@ -6,9 +6,16 @@ import { LENS_INTRO, RESONANCE_NOTE } from "@/content/atoms/synastry";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { useInView } from "@/hooks/useInView";
 import type { RitualData } from "@/components/hero/RitualForm";
+import type { BirthProfile } from "@/lib/birth-profile";
 import { formatBirthDate } from "@/lib/birth-profile";
-import { computeChart, type Chart } from "@/lib/chart";
+import { ASPECT_TYPES, computeChart, type Chart } from "@/lib/chart";
 import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
+import { AspectBadge } from "@/components/ui/AspectBadge";
+import { NameTag, chartPillars } from "@/components/chart/NameTag";
+import { ReadingCard } from "@/components/ui/ReadingCard";
+import { ResultTabs } from "@/components/ui/ResultTabs";
+import { CardSection, ResultSection } from "@/components/ui/ResultSection";
+import { toneLabel } from "@/components/ui/ToneBadge";
 import { Link } from "@/components/ui/Link";
 import { SIGN_SYMBOL, getSunSign } from "@/lib/zodiac";
 import { signArt } from "@/lib/share-card";
@@ -18,7 +25,6 @@ import { consumeInviteHash, type InvitePayload } from "@/lib/invite";
 import {
   synastryReading,
   type LensView,
-  type SynastryLine,
   type SynastryReading as SynastryReadingData,
 } from "@/lib/synastry-reading";
 import { ChartLoading, UnknownPlace } from "@/components/chart/NoProfile";
@@ -30,7 +36,6 @@ import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { MotionScope } from "@/components/ui/MotionScope";
 import { TalismanChip } from "@/components/ui/TalismanChip";
-import { ToneBadge } from "@/components/ui/ToneBadge";
 import { GoldThreads } from "./GoldThreads";
 
 /**
@@ -49,8 +54,6 @@ export function SynastryReading() {
   const [partner, setPartner] = useState<RitualData | null>(null);
   /** 아래 목록에서 짚고 있는 만남. 그림의 실 한 가닥이 이것을 따라 밝아진다. */
   const [activeId, setActiveId] = useState<string | null>(null);
-  /** 이름 없는 만남 중 지금 펼쳐져 있는 것. 이름 붙은 조합(✦)은 늘 펼쳐져 있다. */
-  const [openLineId, setOpenLineId] = useState<string | null>(null);
   /**
    * 이 관계의 무엇을 볼 것인가.
    *
@@ -171,117 +174,21 @@ export function SynastryReading() {
         )}
         {partner && theirChart && reading && (
           <>
-            {/* 두 사람의 한 줄 — 숫자보다 먼저, 이 관계가 어떤 짝인지부터(B안). */}
-            {reading.oneLiner && (
-              <div className="mb-12">
-                <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">
-                  두 사람의 한 줄
-                </p>
-                <p className="mt-3 max-w-[44ch] break-keep font-display text-2xl leading-normal text-starlight">
-                  {reading.oneLiner}
-                </p>
-                {reading.advice && (
-                  <div className="mt-6 max-w-[52ch] border-l-2 border-gold/45 bg-gold/[0.06] py-4 pl-5 pr-4">
-                    <p className="break-keep text-guide">
-                      <b className="font-normal text-gold-soft">해 볼 것</b>{" "}
-                      <span className="text-starlight-dim">{reading.advice.try}</span>
-                    </p>
-                    <p className="mt-2 break-keep text-guide">
-                      <b className="font-normal text-gold-soft">버릴 것</b>{" "}
-                      <span className="text-starlight-dim">{reading.advice.hold}</span>
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <Resonance reading={reading} />
-
-            <div className="mt-12">
-              <GoldThreads
-                mine={myChart}
-                theirs={theirChart}
-                lines={reading.lines}
-                activeId={activeId}
-              />
-            </div>
-
-            {reading.empty ? (
-              <p className="mt-10 max-w-[52ch] break-keep leading-relaxed text-starlight">
-                {reading.empty}
-              </p>
-            ) : (
-              <>
-                <div className="mt-10 flex flex-wrap gap-2.5">
-                  {reading.chips.map((chip) => (
-                    <TalismanChip key={chip.label} symbol={chip.symbol} label={chip.label} />
-                  ))}
-                </div>
-
-                <LensSection lens={reading.lens} chosen={chosen} onPick={setConcern} />
-
-                <section className="mt-16">
-                  <h2 className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
-                    두 하늘이 닿는 자리
-                    <span aria-hidden className="h-px flex-1 bg-gold/25" />
-                  </h2>
-                  <p className="max-w-[52ch] break-keep text-guide text-starlight-dim">
-                    {chosen ? `${chosen}에 걸리는 것을 앞에 두고, ` : ""}이름이 붙어 있는
-                    조합과 무게가 실린 것부터 {reading.lines.length}개입니다. 이름 붙은
-                    조합(✦)은 펼쳐 두었고 나머지는 눌러서 엽니다. 한 줄에 커서를 올리면
-                    위 그림에서 그 실이 밝아집니다.
-                  </p>
-                  <ul className="mt-8">
-                    {reading.lines.map((line) =>
-                      line.highlight ? (
-                        <LineRow
-                          key={line.id}
-                          line={line}
-                          onEnter={() => setActiveId(line.id)}
-                          onLeave={() => setActiveId(null)}
-                        />
-                      ) : (
-                        <CollapsedLineRow
-                          key={line.id}
-                          line={line}
-                          open={openLineId === line.id}
-                          onToggle={() =>
-                            setOpenLineId(openLineId === line.id ? null : line.id)
-                          }
-                          onEnter={() => setActiveId(line.id)}
-                          onLeave={() => setActiveId(null)}
-                        />
-                      ),
-                    )}
-                  </ul>
-                </section>
-              </>
-            )}
-
-            <CompositeSection mine={myChart} theirs={theirChart} />
-
-            {/* 궁합 결과도 밖으로 나갈 통로가 있어야 한다(정찰 ⑧). 그림은 내
-                태양 별자리 성좌 — 상대의 정보는 카드에도 남기지 않는다. */}
-            {reading.oneLiner && (
-              <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-gold/15 pt-8">
-                <SaveCardButton
-                  filename={`byeolsaem-synastry-${profile.date.replaceAll("-", "")}.png`}
-                  spec={() => ({
-                    name: "두 사람의 하늘",
-                    latin: "TWO SKIES",
-                    range: formatBirthDate(profile.date),
-                    symbol: SIGN_SYMBOL[getSunSign(profile.date).key],
-                    tagline: firstSentence(reading.oneLiner!),
-                    art: signArt(getSunSign(profile.date)),
-                  })}
-                />
-                <KakaoShareButton
-                  text={`두 사람의 하늘 — ${firstSentence(reading.oneLiner)}`}
-                  path="/synastry"
-                  imagePath="/og/synastry.png"
-                />
-              </div>
-            )}
+            <SynastryHero
+              mine={myChart}
+              theirs={theirChart}
+              reading={reading}
+              profile={profile}
+              activeId={activeId}
+            />
+            <SynastryBody
+              mine={myChart}
+              theirs={theirChart}
+              reading={reading}
+              chosen={chosen}
+              onPick={setConcern}
+              onActive={setActiveId}
+            />
 
             <div className="mt-8">
               <InviteButton profile={profile} />
@@ -299,6 +206,210 @@ export function SynastryReading() {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * 첫 화면 — 나·그쪽 이름표, 금실, 두 사람의 한 줄, 공유(스펙 C §4.1).
+ *
+ * 이름표는 계산된 차트에서 읽을 뿐 어디에도 쓰지 않는다. 상승궁은 각자 따로 —
+ * 한쪽만 시각을 몰라도 그쪽 이름표만 두 칸이다. "두 사람의 한 줄"이 이 화면의
+ * LCP 앵커라 등장 클래스를 붙이지 않는다.
+ */
+export function SynastryHero({
+  mine,
+  theirs,
+  reading,
+  profile,
+  activeId,
+}: {
+  mine: Chart;
+  theirs: Chart;
+  reading: SynastryReadingData;
+  profile: Pick<BirthProfile, "date">;
+  activeId: string | null;
+}) {
+  const me = chartPillars(mine);
+  const them = chartPillars(theirs);
+  return (
+    <div>
+      <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
+        <div>
+          <p className="mb-1.5 text-meta text-starlight-dim">나</p>
+          <NameTag sun={me.sun} moon={me.moon} ascendant={me.ascendant} />
+        </div>
+        <div>
+          <p className="mb-1.5 text-meta text-starlight-dim">그쪽</p>
+          <NameTag sun={them.sun} moon={them.moon} ascendant={them.ascendant} />
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <GoldThreads mine={mine} theirs={theirs} lines={reading.lines} activeId={activeId} />
+      </div>
+
+      {reading.oneLiner && (
+        <>
+          {/* 두 사람의 한 줄 — 숫자보다 먼저, 이 관계가 어떤 짝인지부터(B안). */}
+          <div className="mt-8">
+            <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">두 사람의 한 줄</p>
+            <p className="mt-3 max-w-[44ch] break-keep font-display text-2xl leading-normal text-starlight">
+              {reading.oneLiner}
+            </p>
+            {reading.advice && (
+              <div className="mt-6 max-w-[52ch] border-l-2 border-gold/45 bg-gold/[0.06] py-4 pl-5 pr-4">
+                <p className="break-keep text-guide">
+                  <b className="font-normal text-gold-soft">해 볼 것</b>{" "}
+                  <span className="text-starlight-dim">{reading.advice.try}</span>
+                </p>
+                <p className="mt-2 break-keep text-guide">
+                  <b className="font-normal text-gold-soft">버릴 것</b>{" "}
+                  <span className="text-starlight-dim">{reading.advice.hold}</span>
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* 궁합 결과도 밖으로 나갈 통로가 있어야 한다(정찰 ⑧). 그림은 내
+              태양 별자리 성좌 — 상대의 정보는 카드에도 남기지 않는다. */}
+          <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
+            <span className="w-full text-meta text-starlight-dim sm:w-auto">
+              두 하늘을 카드 한 장으로 —
+            </span>
+            <SaveCardButton
+              filename={`byeolsaem-synastry-${profile.date.replaceAll("-", "")}.png`}
+              spec={() => ({
+                name: "두 사람의 하늘",
+                latin: "TWO SKIES",
+                range: formatBirthDate(profile.date),
+                symbol: SIGN_SYMBOL[getSunSign(profile.date).key],
+                tagline: firstSentence(reading.oneLiner!),
+                art: signArt(getSunSign(profile.date)),
+              })}
+            />
+            <KakaoShareButton
+              text={`두 사람의 하늘 — ${firstSentence(reading.oneLiner)}`}
+              path="/synastry"
+              imagePath="/og/synastry.png"
+            />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** 각 이름(`line.aspectKey`)에서 각도를 — 인장이 그릴 벌어짐. */
+function aspectAngle(key: string): number {
+  return ASPECT_TYPES.find((t) => t.key === key)?.angle ?? 0;
+}
+
+/**
+ * 첫 화면 아래의 읽는 구간. 탭 넷 — 한눈에, {렌즈}으로, 닿는 자리, 세 번째 하늘
+ * (스펙 C §4.2). 만남은 카드다(§4.3): 용어는 작게 위, 이 만남의 이름은 크게 아래,
+ * 두 자리가 만나는 생활 문장이 그 밑, 본문은 접혀 있다. 이름 붙은 조합(✦)은
+ * 처음부터 펼쳐져 있다 — 아래 안내문이 그렇게 말한다.
+ */
+export function SynastryBody({
+  mine,
+  theirs,
+  reading,
+  chosen,
+  onPick,
+  onActive,
+}: {
+  mine: Chart;
+  theirs: Chart;
+  reading: SynastryReadingData;
+  chosen: string | null;
+  onPick: (concern: string) => void;
+  onActive: (id: string | null) => void;
+}) {
+  // ResultTabs의 관찰자가 items 정체성에 걸려 있다 — 매 렌더 새 배열을 주면
+  // 스크롤 스파이가 매번 다시 붙는다.
+  const tabs = useMemo(
+    () => [
+      { id: "overview", label: "한눈에" },
+      ...(reading.empty
+        ? []
+        : [
+            { id: "lens", label: reading.lens ? `${reading.lens.label}으로` : "무엇을 볼까요" },
+            { id: "lines", label: "닿는 자리" },
+          ]),
+      { id: "composite", label: "세 번째 하늘" },
+    ],
+    [reading.empty, reading.lens],
+  );
+
+  return (
+    // 탭바와 그 아래 전부가 한 상자 안에 있어야 한다 — sticky는 자기 컨테이닝
+    // 블록 밖으로 못 나간다.
+    <div className="mt-10">
+      <ResultTabs items={tabs} />
+
+      <ResultSection id="overview" title="한눈에">
+        <Resonance reading={reading} />
+        {reading.empty ? (
+          <p className="mt-10 max-w-[52ch] break-keep leading-relaxed text-starlight">
+            {reading.empty}
+          </p>
+        ) : (
+          <div className="mt-10 flex flex-wrap gap-2.5">
+            {reading.chips.map((chip) => (
+              <TalismanChip key={chip.label} symbol={chip.symbol} label={chip.label} />
+            ))}
+          </div>
+        )}
+      </ResultSection>
+
+      {!reading.empty && (
+        <>
+          <LensSection id="lens" lens={reading.lens} chosen={chosen} onPick={onPick} />
+
+          <CardSection
+            id="lines"
+            title="두 하늘이 닿는 자리"
+            intro={`${chosen ? `${chosen}에 걸리는 것을 앞에 두고, ` : ""}이름이 붙어 있는 조합과 무게가 실린 것부터 ${reading.lines.length}개입니다. 이름 붙은 조합(✦)은 펼쳐 두었고 나머지는 눌러서 엽니다. 한 줄에 커서를 올리면 위 그림에서 그 실이 밝아집니다.`}
+          >
+            {reading.lines.map((line, i) => (
+              <ReadingCard
+                key={line.id}
+                index={i}
+                defaultOpen={line.highlight !== null}
+                onPointerEnter={() => onActive(line.id)}
+                onPointerLeave={() => onActive(null)}
+                badge={
+                  <AspectBadge
+                    angle={aspectAngle(line.aspectKey)}
+                    harmony={line.harmony}
+                    aSymbol={line.mine.symbol}
+                    bSymbol={line.theirs.symbol}
+                    animate
+                    delay={i * 60}
+                    className="w-8"
+                  />
+                }
+                tech={`${line.highlighted ? "✦ " : ""}내 ${line.mine.ko} ${line.aspectKo} 그쪽 ${line.theirs.ko} · 오차 ${line.orb.toFixed(1)}도 · ${toneLabel(line.harmony)}`}
+                plain={
+                  <>
+                    {line.headline}
+                    {line.highlighted && <span className="sr-only"> 고른 관심사에 걸리는 항목입니다.</span>}
+                  </>
+                }
+                where={line.meeting}
+              >
+                <p>{line.body}</p>
+                {line.highlight && (
+                  <p className="border-l-2 border-gold/40 pl-4 text-starlight">{line.highlight}</p>
+                )}
+              </ReadingCard>
+            ))}
+          </CardSection>
+        </>
+      )}
+
+      <CompositeSection id="composite" mine={mine} theirs={theirs} />
     </div>
   );
 }
@@ -440,16 +551,18 @@ function Resonance({ reading }: { reading: SynastryReadingData }) {
  * 안에 다 있어서 다시 물을 것이 없다.
  */
 function LensSection({
+  id,
   lens,
   chosen,
   onPick,
 }: {
+  id: string;
   lens: LensView | null;
   chosen: string | null;
   onPick: (concern: string) => void;
 }) {
   return (
-    <section className="mt-16">
+    <section id={id} className="mt-16 scroll-mt-32">
       <h2 className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
         {lens ? `${lens.label}으로 본다면` : "무엇을 볼까요"}
         <span aria-hidden className="h-px flex-1 bg-gold/25" />
@@ -577,121 +690,3 @@ function useCountUp(target: number, run: boolean): number {
   return value;
 }
 
-/*
- * 탭 순서에는 넣지 않는다. 커서를 올리면 위 그림의 실이 밝아지지만 그것뿐이고,
- * 키보드로 들를 자리로 만들면 아무 일도 일어나지 않는 정거장이 열 개 생긴다 —
- * 화면 낭독기에는 "이 항목으로 무엇을 할 수 있다"는 신호로 들린다. 실이 밝아지는
- * 것은 커서를 쓰는 사람을 위한 덤이고, 내용은 이미 이 줄에 다 적혀 있다.
- */
-function LineRow({
-  line,
-  onEnter,
-  onLeave,
-}: {
-  line: SynastryLine;
-  onEnter: () => void;
-  onLeave: () => void;
-}) {
-  return (
-    <li
-      className={`border-t py-6 ${line.harmony > 0 ? "border-gold/40" : "border-gold/12"}`}
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-    >
-      <LineHead line={line} />
-      <p className="mt-3 max-w-[52ch] break-keep text-guide text-gold-soft">
-        {line.meeting} — {line.headline}
-      </p>
-      <p className="mt-2 max-w-[52ch] break-keep leading-relaxed text-starlight-dim">{line.body}</p>
-      {line.highlight && (
-        <p className="mt-3 max-w-[52ch] break-keep border-l-2 border-gold/40 pl-4 leading-relaxed text-starlight">
-          {line.highlight}
-        </p>
-      )}
-    </li>
-  );
-}
-
-function LineHead({ line }: { line: SynastryLine }) {
-  // span인 이유: 접힌 줄에서는 button 안에 서는데, p는 button의 콘텐츠 모델에
-  // 어긋나 하이드레이션 경고가 난다(natal PlacementHead와 같은 사정).
-  return (
-    <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-      {line.highlighted && (
-        <span className="text-meta tracking-[0.16em] text-gold" aria-hidden>
-          ✦
-        </span>
-      )}
-      <span className="font-display text-lg text-starlight">
-        내 <span className="astro-symbol">{line.mine.symbol}</span> {line.mine.ko}
-        <span className="mx-2 astro-symbol text-gold-soft">{line.aspectSymbol}</span>그쪽{" "}
-        <span className="astro-symbol">{line.theirs.symbol}</span> {line.theirs.ko}
-      </span>
-      <span className="text-meta text-starlight-dim">
-        {line.aspectKo} · 오차 {line.orb.toFixed(1)}도
-      </span>
-      <ToneBadge harmony={line.harmony} />
-      {line.highlighted && <span className="sr-only">고른 관심사에 걸리는 항목입니다.</span>}
-    </span>
-  );
-}
-
-/**
- * 이름 없는 만남 — 접혀 있다. 제목 줄의 별 표기 아래에 두 자리가 만나는 생활
- * 문장(meeting)을 주석처럼 남겨, 접힌 채로 훑어도 지도가 되게 한다.
- */
-function CollapsedLineRow({
-  line,
-  open,
-  onToggle,
-  onEnter,
-  onLeave,
-}: {
-  line: SynastryLine;
-  open: boolean;
-  onToggle: () => void;
-  onEnter: () => void;
-  onLeave: () => void;
-}) {
-  return (
-    <li
-      className={`border-t ${line.harmony > 0 ? "border-gold/40" : "border-gold/12"}`}
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-    >
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={onToggle}
-        className="flex w-full items-baseline gap-x-3 py-4 text-left"
-      >
-        <span
-          aria-hidden
-          className={`flex-none text-meta text-gold transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-            open ? "rotate-90" : ""
-          }`}
-        >
-          ›
-        </span>
-        <span className="min-w-0 flex-1">
-          <LineHead line={line} />
-          <span className="mt-1 block max-w-[52ch] break-keep text-meta text-starlight-dim">
-            — {line.meeting}
-          </span>
-        </span>
-      </button>
-      <div
-        className={`grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        }`}
-      >
-        <div className="overflow-hidden">
-          <div className="max-w-[52ch] pb-6 pl-6">
-            <p className="break-keep text-guide text-gold-soft">{line.headline}</p>
-            <p className="mt-2 break-keep leading-relaxed text-starlight-dim">{line.body}</p>
-          </div>
-        </div>
-      </div>
-    </li>
-  );
-}
