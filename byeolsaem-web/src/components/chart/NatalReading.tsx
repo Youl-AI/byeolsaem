@@ -173,7 +173,6 @@ export function NatalHero({
       <div className="mt-6 md:col-start-2 md:row-span-2 md:row-start-1 md:mt-0">
         <ChartWheel
           chart={chart}
-          spotlight={null}
           entrance="byeolsaem:wheel-entrance:natal"
           onSelect={onSelectPlanet}
         />
@@ -395,7 +394,7 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
         <CardSection
           id="aspects"
           title="별과 별 사이"
-          intro={`두 별이 특정한 각도로 만나면 서로의 작용이 섞입니다. 이것을 어스펙트라고 합니다. 당신 고유의 이야기가 진하게 걸린 것부터 ${reading.aspects.length}개를 골랐습니다.`}
+          intro={`두 별이 특정한 각도로 만나면 서로의 작용이 섞입니다. 이것을 어스펙트라고 합니다. 당신 고유의 이야기가 진하게 걸린 것부터 ${reading.aspects.length}개를 골랐습니다. 오브는 정확한 각도에서 얼마나 벗어났는지이고, 작을수록 그 성질이 뚜렷합니다.`}
         >
           {reading.aspects.map((item, i) => (
             <ReadingCard
@@ -647,8 +646,9 @@ function BirthRail({
 /**
  * 좌측 정렬 섹션. 제목 오른쪽으로 금선이 뻗어 읽는 폭의 끝을 표시한다.
  *
- * `id`는 탭바의 앵커이자 스크롤 스파이의 관찰 대상이다. `scroll-mt-24`는 붙박이
- * 탭바 높이만큼 — 앵커로 뛰면 제목이 탭바 밑에 숨지 않는다.
+ * `id`는 탭바의 앵커이자 스크롤 스파이의 관찰 대상이다. `scroll-mt-32`(128px)는
+ * 머리글 64px + 붙박이 탭바 약 48px을 함께 비운 것 — 앵커로 뛰면 제목이 둘 중
+ * 어느 것에도 숨지 않는다. 96px(`scroll-mt-24`)로는 둘의 합에 모자랐다.
  */
 function Section({
   id,
@@ -660,7 +660,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="mt-16 scroll-mt-24">
+    <section id={id} className="mt-16 scroll-mt-32">
       <h2 className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
         {title}
         <span aria-hidden className="h-px flex-1 bg-gold/25" />

@@ -228,8 +228,11 @@
 }
 
 /* 카드는 부모 섹션이 data-in="true"를 켜기 전까지 숨어 있다가 계단으로 뜬다.
-   감소 모드는 이동 없이 200ms 스밈만. */
-.reading-card {
+   숨김은 `[data-in]`을 단 부모 아래에서만 건다 — 관찰자를 달지 않은 곳에 카드를
+   쓰면 영영 opacity 0으로 남기 때문이다. 감소 모드는 이동 없이 스밈만이고 계단
+   delay는 0으로 못박는다 — 아래 일괄 규칙(`*` animation-delay 0)이 이미 하는 일을
+   여기서 한 번 더 적는 것은, 그 규칙이 좁아져도 계단이 되살아나지 않게 하려는 것이다. */
+[data-in] > .reading-card {
   opacity: 0;
 }
 [data-in="true"] > .reading-card {
@@ -241,6 +244,7 @@
   }
   [data-in="true"] > .reading-card {
     animation: soft-in 200ms ease-out both;
+    animation-delay: 0ms !important;
   }
 }
 
@@ -254,20 +258,37 @@
     transform: none;
   }
 }
+/* 각의 인장 — 카드와 같은 문에 걸린다. 인장은 카드 안에 있으므로 자손 선택자다
+   (직계 자식이 아니다). 걸어 두지 않으면 카드가 opacity 0인 채 마운트되는 동안
+   호가 다 그어져 버려, 카드가 뜰 때는 이미 끝나 있다. */
 .aspect-arc {
-  animation: var(--animate-arc-draw);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
 }
 .aspect-dot {
+  opacity: 0;
   transform-box: fill-box;
   transform-origin: center;
+}
+[data-in="true"] .aspect-arc {
+  animation: var(--animate-arc-draw);
+}
+[data-in="true"] .aspect-dot {
   animation: var(--animate-dot-in);
 }
 @media (prefers-reduced-motion: reduce) {
+  /* 감소 모드는 dash를 아예 쓰지 않는다 — soft-in은 opacity만 되돌리므로
+     dashoffset 1이 남아 있으면 호가 영영 안 보인다. */
   .aspect-arc {
-    animation: soft-in 200ms ease-out both;
+    stroke-dashoffset: 0;
   }
-  .aspect-dot {
+  [data-in="true"] .aspect-arc {
     animation: soft-in 200ms ease-out both;
+    animation-delay: 0ms !important;
+  }
+  [data-in="true"] .aspect-dot {
+    animation: soft-in 200ms ease-out both;
+    animation-delay: 0ms !important;
   }
 }
 
@@ -282,7 +303,8 @@ svg .wheel-core {
 /*
  * 원반 등장 — svg[data-entrance="true"]일 때만 돈다. 클래스와 delay는 항상 있어서
  * 표식만 붙이면 켜진다. 세션당 한 번(lib/once.ts). 감소 모드는 dash·scale 없이
- * 전부 200ms 스밈 한 번.
+ * 전부 스밈 한 번이고, 인라인 계단 delay도 0으로 못박는다 — 안 그러면 "덜 움직임"이
+ * 아니라 계단만 남는다(아래 `*` 일괄 규칙과 같은 값을 여기서도 적어 둔다).
  */
 svg[data-entrance="true"] .wheel-ring {
   animation: var(--animate-wheel-ring);
@@ -322,12 +344,14 @@ svg[data-entrance="true"] .wheel-core.wheel-tick {
   svg[data-entrance="true"] .wheel-glyph,
   svg[data-entrance="true"] .wheel-asp {
     animation: soft-in 200ms ease-out both;
+    animation-delay: 0ms !important;
   }
   svg[data-entrance="true"] .wheel-core {
     animation: none;
   }
   svg[data-entrance="true"] .wheel-core.wheel-tick {
     animation: soft-in 200ms ease-out both;
+    animation-delay: 0ms !important;
   }
 }
 

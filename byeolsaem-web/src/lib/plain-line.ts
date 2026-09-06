@@ -35,6 +35,7 @@ export function plainLine(planet: PlanetKey, house: number | null, sign: ZodiacS
   // 시각을 모르면 방이 없다 — 자리만 말하고 하우스를 꾸며 넣지 않는다.
   if (house === null) return `${area} — ${sign.ko}`;
   const override = PLAIN_OVERRIDES[`${planet}-${house}`];
-  if (override) return override;
+  // 빈 문자열도 "고쳐 적은 값"이다 — 존재 여부로만 판단한다.
+  if (override !== undefined) return override;
   return `${area}${iga(area)} ${HOUSE_AREAS[house]}에 있습니다`;
 }

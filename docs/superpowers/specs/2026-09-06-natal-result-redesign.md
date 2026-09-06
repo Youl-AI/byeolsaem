@@ -62,7 +62,7 @@ ShareRow       카드로 저장 · 원반 이미지로 저장 · 카카오 (기�
 |---|---|---|
 | 한눈에 | `overview` | |
 | 궁금해한 {lens.label} | `lens` | 생략 |
-| 별 열 개 | `planets` | 제목은 "열 개의 별"(기존 분기 유지) |
+| 열 개의 별 / 나머지 별들 | `planets` | 섹션 제목과 같은 문자열을 쓴다 — 하이라이트가 없으면 "열 개의 별", 있으면 "나머지 별들" |
 | 별 사이 | `aspects` | aspects 0개면 생략 |
 | 자세히 | `detail` | |
 
@@ -191,10 +191,10 @@ export const ASC_FACES: Record<string, string> = {
 | 0ms | 바깥 고리 | `pathLength=1`, dashoffset 1→0, `transform: rotate(-90deg)`로 12시에서 시계 방향 |
 | 120 + 40·i | 하우스 경계선 12 + 자리 기호 12 | opacity 0→1 |
 | 300 + 30·i | 행성 기호 10 (개인→사회→세대 순) | opacity 0→1, `scale(.9)→1`, `transform-box: fill-box` |
-| 500 + 60·i | 각 선(화면에 그리는 것만) | dashoffset 1→0 |
+| 500 + 50·min(i, 4) | 각 선(화면에 그리는 것만 세고, 다섯째에서 계단이 멈춘다) | dashoffset 1→0 |
 | 600 | 태양·달·상승궁 | fill 금색 + `drop-shadow`, `transition 400ms <등장>` |
 
-총 850ms. 중단 없음 — `pointer-events` 잠그지 않고 첫 프레임부터 `onSelect` 동작. **세션당 한 번:** `sessionStorage["byeolsaem:wheel-entrance"]`가 있으면 `entrance`를 끈다(완성 상태로 즉시). 감소 모드: dash·scale 제거, 모든 요소 opacity 200ms 한 번.
+총 약 1,000ms(코어 점등이 600ms에 시작해 1,000ms에 끝난다; 각 선은 그리는 것만 세어 다섯째까지 계단). 중단 없음 — `pointer-events` 잠그지 않고 첫 프레임부터 `onSelect` 동작. **세션당 한 번:** `sessionStorage["byeolsaem:wheel-entrance"]`가 있으면 `entrance`를 끈다(완성 상태로 즉시). 감소 모드: dash·scale 제거, 모든 요소 opacity 200ms 한 번.
 
 `SolarScope`의 `<ChartWheel>`도 `entrance`를 켠다. 키는 `byeolsaem:wheel-entrance:solar`.
 

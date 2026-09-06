@@ -260,7 +260,7 @@ it("dump", () => {
 
 Run: `npx vitest run src/test/zz-temp-plain.test.ts && cat /c/tmp/audit/plain-lines.txt && rm src/test/zz-temp-plain.test.ts`
 
-120줄을 읽는다. 어색한 줄(예: "밑바닥의 힘이 말과 가까운 관계에 있습니다")은 `PLAIN_OVERRIDES`에 `"pluto-3": "…"` 형식으로 자연스러운 한 문장을 적는다. 기준: 존댓말 `-습니다`, 20자 안팎, 용어 없음. 예외가 다섯을 넘으면 `HOUSE_AREAS` 원문이 문제이니 멈추고 보고한다.
+120줄을 읽는다. 어색한 줄(예: "밑바닥의 힘이 말과 가까운 관계에 있습니다")은 `PLAIN_OVERRIDES`에 `"pluto-3": "…"` 형식으로 자연스러운 한 문장을 적는다. 기준: 존댓말 `-습니다`, 20~30자(테스트가 HOUSE_AREAS 원문 포함과 "에 있습니다" 종결을 요구한다), 용어 없음. 예외가 다섯을 넘으면 `HOUSE_AREAS` 원문이 문제이니 멈추고 보고한다.
 
 - [ ] **Step 6: 재확인 + 커밋**
 

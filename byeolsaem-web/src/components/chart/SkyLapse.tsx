@@ -12,7 +12,7 @@ import { signAtLongitude } from "@/lib/zodiac";
  * 자리까지 2.6초에 한 번 돌고 멈춘다. 궤적은 바퀴마다 6px 안으로 들어가 목성
  * 세 바퀴가 겹치지 않는다. 슬라이더로 아무 시점에 세울 수 있다.
  *
- * 자동재생 없음. 첫 화면 원반 등장(850ms)과 겹치지 않도록 "자세히" 안에만 있다.
+ * 자동재생 없음. 첫 화면 원반 등장(약 1초)과 겹치지 않도록 "자세히" 안에만 있다.
  * 감소 모드는 끝 상태로 즉시 간다. 계산은 첫 재생 때 한 번(useMemo).
  *
  * 이 컴포넌트는 SVG 좌표를 프레임마다 갱신한다 — transform·opacity 원칙의 유일한
@@ -25,6 +25,11 @@ const R_TRAIL = 128;
 const R_NATAL = 88;
 const DURATION = 2600;
 const SIGNS = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
+/** 율리우스일 → 유닉스 밀리초. */
+const JD_EPOCH = 2440587.5;
+/** 율리우스년(365.25일) 밀리초 — 만 나이 근사. */
+const YEAR_MS = 31557600000;
+const START_CAPTION = "태어난 순간 — 바깥 고리의 다섯 별이 전부 제자리";
 const COLOR: Record<SlowBody, string> = {
   jupiter: "#e3c568",
   saturn: "#c9a227",
@@ -35,7 +40,7 @@ const COLOR: Record<SlowBody, string> = {
 
 export function SkyLapse({ chart, now }: { chart: Chart; now: Date }) {
   const asc = chart.ascendant ?? 0;
-  // 상승궁을 왼쭉(9시)에 두는 원반 규약. 황경이 늘수록 반시계.
+  // 상승궁을 왼쪽(9시)에 두는 원반 규약. 황경이 늘수록 반시계.
   const pt = (lon: number, r: number) => {
     const a = ((180 + (asc - lon)) * Math.PI) / 180;
     return [C + Math.cos(a) * r, C - Math.sin(a) * r] as const;
@@ -45,13 +50,36 @@ export function SkyLapse({ chart, now }: { chart: Chart; now: Date }) {
   const [t, setT] = useState(0);
   const raf = useRef(0);
 
-  useEffect(() => () => cancelAnimationFrame(raf.current), []);
+  /**
+   * 낭독은 **멈춘 자리에서만** 한다.
+   *
+   * 보이는 캡션은 프레임마다(재생) 또는 드래그 내내(슬라이더 onChange는 연속이다)
+   * 바뀐다. 그것을 그대로 aria-live에 물리면 스크린리더가 초당 수십 번 새 문장을
+   * 받아 쉬지 않고 읽는다. 그래서 보이는 쪽은 aria-hidden으로 덮고, 낭독용
+   * 문장은 250ms 동안 값이 더 안 오면 그때 한 번만 갈아 끼운다.
+   */
+  const [restCaption, setRestCaption] = useState(START_CAPTION);
+  const settle = useRef(0);
+  const latest = useRef(START_CAPTION);
+  const announce = () => {
+    window.clearTimeout(settle.current);
+    settle.current = window.setTimeout(() => setRestCaption(latest.current), 250);
+  };
+
+  useEffect(
+    () => () => {
+      cancelAnimationFrame(raf.current);
+      window.clearTimeout(settle.current);
+    },
+    [],
+  );
 
   const play = () => {
     setArmed(true);
     cancelAnimationFrame(raf.current);
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setT(1);
+      announce();
       return;
     }
     const start = performance.now();
@@ -60,15 +88,16 @@ export function SkyLapse({ chart, now }: { chart: Chart; now: Date }) {
       const p = Math.min(1, (ts - start) / DURATION);
       setT(ease(p));
       if (p < 1) raf.current = requestAnimationFrame(step);
+      else announce();
     };
     setT(0);
     raf.current = requestAnimationFrame(step);
   };
 
-  const at = (body: SlowBody) => {
+  const at = (body: SlowBody, tv: number = t) => {
     if (!lapse) return chart.placements.find((p) => p.planet === body)!.longitude;
     const s = lapse.series[body];
-    const idx = t * lapse.steps;
+    const idx = tv * lapse.steps;
     const i = Math.min(lapse.steps - 1, Math.floor(idx));
     return s[i] + (s[i + 1] - s[i]) * (idx - i);
   };
@@ -84,12 +113,22 @@ export function SkyLapse({ chart, now }: { chart: Chart; now: Date }) {
     return d;
   };
 
-  const years = Math.floor(((now.getTime() - (chart.julianDay - 2440587.5) * 86400000) / 31557600000) * t);
-  const satRev = lapse ? (at("saturn") - lapse.series.saturn[0]) / 360 : 0;
-  const caption =
-    t <= 0
-      ? "태어난 순간 — 바깥 고리의 다섯 별이 전부 제자리"
-      : `만 ${years}세 · 토성 ${satRev.toFixed(2)}바퀴${satRev > 0.97 && satRev < 1.06 ? " — 토성 리턴" : ""}`;
+  const lived = now.getTime() - (chart.julianDay - JD_EPOCH) * 86400000;
+  /** 끝 상태(스펙 §6) — 오늘 날짜 · 만 나이 · 토성/목성 바퀴. */
+  const endCaption = lapse
+    ? `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 · 만 ${Math.floor(
+        lived / YEAR_MS,
+      )}세 — 토성 ${lapse.travel.saturn.toFixed(2)}바퀴 · 목성 ${lapse.travel.jupiter.toFixed(2)}바퀴`
+    : "";
+  const captionAt = (tv: number): string => {
+    if (tv <= 0) return START_CAPTION;
+    if (tv >= 1 && endCaption) return endCaption;
+    const years = Math.floor((lived / YEAR_MS) * tv);
+    const rev = lapse ? (at("saturn", tv) - lapse.series.saturn[0]) / 360 : 0;
+    return `만 ${years}세 · 토성 ${rev.toFixed(2)}바퀴${rev > 0.97 && rev < 1.06 ? " — 토성 리턴" : ""}`;
+  };
+  const caption = captionAt(t);
+  latest.current = caption;
 
   return (
     <figure className="mt-8">
@@ -151,13 +190,21 @@ export function SkyLapse({ chart, now }: { chart: Chart; now: Date }) {
             setArmed(true);
             cancelAnimationFrame(raf.current);
             setT(Number(e.target.value) / 360);
+            // 드래그 중에는 낭독하지 않는다 — 손을 멈춘 뒤 한 번만.
+            announce();
           }}
           className="w-56 accent-gold-soft"
         />
       </div>
-      <figcaption aria-live="polite" className="mt-3 break-keep text-center font-display text-guide text-starlight">
+      <figcaption
+        aria-hidden
+        className="mt-3 break-keep text-center font-display text-guide text-starlight"
+      >
         {caption}
       </figcaption>
+      <p aria-live="polite" className="sr-only">
+        {restCaption}
+      </p>
       {lapse && (
         <table className="mx-auto mt-6 text-meta tabular-nums text-starlight-dim">
           <thead>

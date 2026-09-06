@@ -10,6 +10,9 @@ import { useEffect, useRef, useState } from "react";
  * 탭은 링크다. 상태를 따로 갖지 않고 `#id`로 이동하며, 현재 위치는 관찰자가
  * 표시만 한다. 키보드로는 링크를 Tab으로 오가고 Enter로 이동한다.
  *
+ * `top-16`은 머리글 높이다 — `nav/Veil.tsx`의 헤더가 `fixed top-0 h-16`이라
+ * `top-0`으로 두면 탭바가 그 아래로 들어가 통째로 가려진다(2026-09-06 실측).
+ *
  * 밑줄은 300ms. 결과를 훑는 동안 여러 번 누르는 자리라 더 길면 손가락보다
  * 늦어진다 — 사용자가 시연을 보고 300ms로 정했다(2026-09-06).
  */
@@ -36,19 +39,25 @@ export function ResultTabs({ items }: { items: { id: string; label: string }[] }
     return () => observer.disconnect();
   }, [items]);
 
-  // 밑줄 위치 — 현재 링크의 자리로.
+  // 밑줄 위치 — 현재 링크의 자리로. 탭이 넘치면 탭바 **자기 스크롤러만** 움직인다:
+  // scrollIntoView는 조상 스크롤러(문서)까지 함께 굴려서, 스크롤 스파이가 탭을
+  // 바꿀 때마다 페이지가 제멋대로 튀었다(2026-09-06 실측).
   useEffect(() => {
-    const el = nav.current?.querySelector<HTMLAnchorElement>(`a[href="#${current}"]`);
-    if (!el) return;
+    const navEl = nav.current;
+    const el = navEl?.querySelector<HTMLAnchorElement>(`a[href="#${current}"]`);
+    if (!navEl || !el) return;
     setBar({ left: el.offsetLeft, width: el.offsetWidth });
-    el.scrollIntoView({ inline: "nearest", block: "nearest" });
+    navEl.scrollTo({
+      left: el.offsetLeft - navEl.clientWidth / 2 + el.offsetWidth / 2,
+      behavior: "smooth",
+    });
   }, [current]);
 
   return (
     <nav
       ref={nav}
       aria-label="결과 구역"
-      className="sticky top-0 z-20 -mx-1 flex gap-x-5 overflow-x-auto border-b border-gold/20 bg-ink/95 px-1 pb-2.5 pt-3 text-meta backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="sticky top-16 z-20 -mx-1 flex gap-x-5 overflow-x-auto border-b border-gold/20 bg-ink/95 px-1 pb-2.5 pt-3 text-meta backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {items.map((item) => (
         <a
