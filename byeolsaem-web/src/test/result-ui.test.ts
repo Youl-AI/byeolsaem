@@ -7,6 +7,7 @@ import { ReadingCard } from "@/components/ui/ReadingCard";
 import { ResultTabs } from "@/components/ui/ResultTabs";
 import { AspectBadge } from "@/components/ui/AspectBadge";
 import { ChartWheel } from "@/components/chart/ChartWheel";
+import { NatalHero } from "@/components/chart/NatalReading";
 import { exampleSky } from "@/lib/example-sky";
 
 const sign = (key: string) => ZODIAC_SIGNS.find((s) => s.key === key)!;
@@ -94,5 +95,27 @@ describe("원반 등장", () => {
     expect(html).toContain("animation-delay:120ms"); // 첫 눈금
     // 서버 렌더에서는 등장 표식이 없다 — 마운트 후 세션 확인으로 켜진다.
     expect(html).not.toContain('data-entrance="true"');
+  });
+});
+
+describe("첫 화면", () => {
+  it("이름표 → 원반 → 한 줄 → 공유 순서", () => {
+    const { chart, reading } = exampleSky();
+    const html = renderToStaticMarkup(
+      createElement(NatalHero, {
+        chart,
+        reading,
+        profile: { date: "1995-07-14" },
+        onSelectPlanet: () => {},
+      }),
+    );
+    const iTag = html.indexOf('aria-label="태양 게자리');
+    const iWheel = html.indexOf("천궁도 원반");
+    const iOne = html.indexOf("당신을 한 줄로");
+    const iShare = html.indexOf("이 하늘을 카드 한 장으로");
+    expect(iTag).toBeGreaterThan(-1);
+    expect(iTag).toBeLessThan(iWheel);
+    expect(iWheel).toBeLessThan(iOne);
+    expect(iOne).toBeLessThan(iShare);
   });
 });

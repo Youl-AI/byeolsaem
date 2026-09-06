@@ -25,6 +25,20 @@ export const metadata: Metadata = {
 };
 
 export default function NatalPage() {
+  // 차트가 있으면 그리지 않는다 — 이 300px을 이름표와 원반에 내준다(스펙 §4.1).
+  const intro = (
+    <header className="mx-auto max-w-xl text-center">
+      <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">NATAL CHART</p>
+      <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">
+        나의 천궁도
+      </h1>
+      <p className="mx-auto mt-5 max-w-md break-keep leading-relaxed text-starlight-dim">
+        태어난 순간 하늘에 실제로 있었던 것을 계산한 결과입니다. 계산도 풀이도 이
+        브라우저 안에서 끝나며, 어디로도 전송되지 않습니다.
+      </p>
+    </header>
+  );
+
   return (
     // 시안 B는 왼쪽에 출생 정보 기둥을 세우므로 그만큼 폭이 더 필요하다.
     // 본문 자체는 52자에서 끊기니 넓혀도 줄이 길어지지 않는다(§11.4).
@@ -48,22 +62,14 @@ export default function NatalPage() {
       <PlaceBand src="/world/place-natal.webp">
         <div className="natal-candle" />
       </PlaceBand>
-      <header className="mx-auto max-w-xl text-center">
-        <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">NATAL CHART</p>
-        <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">
-          나의 천궁도
-        </h1>
-        <p className="mx-auto mt-5 max-w-md break-keep leading-relaxed text-starlight-dim">
-          태어난 순간 하늘에 실제로 있었던 것을 계산한 결과입니다. 계산도 풀이도 이
-          브라우저 안에서 끝나며, 어디로도 전송되지 않습니다.
-        </p>
-      </header>
-
       {/* 예시 하늘은 서버가 그려 넘긴다 — 클라이언트 안에서 만들면 HTML에 남지
           않는다(ExampleSky 주석 참고). 저장된 출생 정보가 있으면 하이드레이션
-          뒤에 NatalReading이 자기 차트로 바꿔 끼운다. */}
+          뒤에 NatalReading이 자기 차트로 바꿔 끼운다.
+
+          헤더는 차트가 없을 때만 — 차트가 있으면 첫 화면 300px을 이름표·원반에
+          내준다. SSR 시점에는 profile이 항상 null이라 HTML에는 남는다. */}
       <div className="mt-14">
-        <NatalReading fallback={<ExampleSky />} />
+        <NatalReading intro={intro} fallback={<ExampleSky />} />
       </div>
 
       {/* 차트는 브라우저가 그리므로 HTML에는 남지 않는다. 누구의 차트인지와 무관하게
