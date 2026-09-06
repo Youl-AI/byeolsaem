@@ -45,7 +45,7 @@ The Pattern의 카드 문법이 가장 배울 것이 많았다 — 위에 작게
 ```
 BORN 레일 (기존 BirthRail)
 NameTag        ☉ 게자리 · ☽ 물병자리 · ↑ 처녀자리
-ChartWheel     spotlight 셋(태양·달·상승궁) 밝힘, 나머지 흐림, 등장 850ms
+ChartWheel     태양·달·상승궁 금색(CSS .wheel-core), 나머지 흐림, 등장 약 1,000ms(§7.1)
 oneLiner       "당신을 한 줄로" (기존)
 ShareRow       카드로 저장 · 원반 이미지로 저장 · 카카오 (기존 세 버튼, 위치만 이동)
 ```
