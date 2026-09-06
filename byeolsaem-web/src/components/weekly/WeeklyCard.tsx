@@ -63,12 +63,6 @@ export function WeeklyCard({ initial, builtAt }: { initial: WeeklyData; builtAt:
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => setNow(new Date()), []);
   const { profile, ready } = useBirthProfile();
-  // 별길의 첫 등장 연출 — 마운트 두 프레임 뒤에 페이드인.
-  const [entered, setEntered] = useState(false);
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
-    return () => cancelAnimationFrame(raf);
-  }, []);
 
   const data = useMemo(() => (now ? weeklyData(now) : initial), [now, initial]);
   /** "내 차트에는"에서 지금 펼쳐진 줄. 천궁도의 별 사전과 같은 아코디언 문법. */
@@ -105,7 +99,6 @@ export function WeeklyCard({ initial, builtAt }: { initial: WeeklyData; builtAt:
           events={data.events}
           touches={touches}
           now={now}
-          entered={entered}
         />
       </div>
 

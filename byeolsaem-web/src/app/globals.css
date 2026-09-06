@@ -83,6 +83,7 @@
   --animate-wheel-tick: soft-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-wheel-glyph: dot-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-wheel-asp: river-draw 300ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  --animate-week-draw: river-draw 1000ms cubic-bezier(0.33, 1, 0.68, 1) both;
 }
 
 /*
@@ -288,6 +289,43 @@
   }
   [data-in="true"] .aspect-dot {
     animation: soft-in 200ms ease-out both;
+    animation-delay: 0ms !important;
+  }
+}
+
+/* 주간 별길 — 선이 그어지고 정거장이 차례로 켜진다(홈 TimePath와 같은 문법,
+   스펙 B §1). 선은 pathLength=1 dash 그리기, 정거장은 node-rise 계단. 오늘
+   정거장의 숨쉬는 링은 등장이 끝난 뒤(1200ms)부터 숨쉬고, 그 전에는 첫
+   키프레임(옅음)에 머문다(backwards). 감소 모드: 전부 완성 상태. */
+.week-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+[data-in="true"] .week-line {
+  animation: var(--animate-week-draw);
+}
+.week-stop {
+  opacity: 0;
+}
+[data-in="true"] .week-stop {
+  animation: var(--animate-node-rise);
+}
+[data-in="true"] .week-today-ring {
+  animation-delay: 1200ms;
+  animation-fill-mode: backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .week-line {
+    stroke-dashoffset: 0;
+  }
+  [data-in="true"] .week-line {
+    animation: none;
+  }
+  .week-stop {
+    opacity: 1;
+  }
+  [data-in="true"] .week-stop {
+    animation: none;
     animation-delay: 0ms !important;
   }
 }
