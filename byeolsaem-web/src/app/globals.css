@@ -84,6 +84,7 @@
   --animate-wheel-glyph: dot-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-wheel-asp: river-draw 300ms cubic-bezier(0.33, 1, 0.68, 1) both;
   --animate-week-draw: river-draw 1000ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  --animate-halo-breathe: halo-breathe 3.4s ease-in-out infinite;
 }
 
 /*
@@ -376,6 +377,31 @@
   [data-in="true"] .dial-age {
     animation: none;
     animation-delay: 0ms !important;
+  }
+}
+
+/* 홈 히어로의 달무리 호흡(스펙 B §5). 바깥 링만 숨쉬고 안쪽 동심원은 정지.
+   lonely-star와 같은 3.4s. 도착 장면(arrival)에서만 — 의식이 시작되어 달이
+   Flip으로 옮겨지는 동안에는 애니메이션을 떼어 링을 원래 크기로 돌려 둔다.
+   배경 별하늘(three.js 자전)과 지속 모션이 둘이 되는 것은 브레인스토밍에서
+   짚었고 사용자가 시연을 본 뒤 넣기로 정했다. */
+@keyframes halo-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 0.5;
+  }
+}
+.hero-halo[data-breathing="true"] {
+  animation: var(--animate-halo-breathe);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-halo[data-breathing="true"] {
+    animation: none;
   }
 }
 

@@ -260,7 +260,7 @@ export function HeroSequence() {
             커튼과 별이 그 아래서 살짝 가라앉아 글이 뜬다. 경계가 없어 상자로
             보이지 않는다. 하이엔드 히어로의 표준 수법. */}
         <div className="hero-scrim pointer-events-none absolute inset-0" aria-hidden />
-        <Moon className={MOON_POSITION[scene]} />
+        <Moon className={MOON_POSITION[scene]} breathing={scene === "arrival"} />
 
         {(scene === "arrival" || scene === "altar") && (
           <div
