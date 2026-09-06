@@ -9,6 +9,7 @@ import {
   type AspectMode,
 } from "@/content/atoms/aspects";
 import { ASCENDANT_ATOMS, MIDHEAVEN_ATOMS } from "@/content/atoms/ascendant";
+import { ASC_FACES, SIGN_FACES } from "@/content/atoms/life";
 import { CONCERN_LENSES, lensFor } from "@/content/atoms/concerns";
 import { HOUSES } from "@/content/atoms/houses";
 import { PLANET_IN_HOUSE } from "@/content/atoms/planet-in-house";
@@ -60,6 +61,20 @@ describe("아톰 DB — 빈칸이 없어야 한다", () => {
     }
     expect(Object.keys(ASCENDANT_ATOMS)).toHaveLength(12);
     expect(Object.keys(MIDHEAVEN_ATOMS)).toHaveLength(12);
+  });
+
+  /**
+   * 상승궁 카드의 첫 줄 "남들이 처음 보는 나는 ___ 사람"의 빈칸.
+   * 태양 카드(SIGN_FACES.out)와 같은 자리일 때 두 카드가 같은 말을 하면
+   * 안 되므로 문자열이 겹치지 않는지도 본다.
+   */
+  it("ASC_FACES가 열두 자리를 채우고 태양 얼굴과 겹치지 않는다", () => {
+    for (const key of SIGN_KEYS) {
+      expect(ASC_FACES[key], key).toBeTruthy();
+      expect(ASC_FACES[key].length, key).toBeGreaterThan(3);
+      expect(ASC_FACES[key], key).not.toBe(SIGN_FACES[key].out);
+    }
+    expect(Object.keys(ASC_FACES)).toHaveLength(12);
   });
 
   it("하우스가 1번부터 12번까지 순서대로 있다", () => {

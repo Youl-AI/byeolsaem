@@ -137,6 +137,28 @@ export const SIGN_FACES: Record<string, { out: string; in: string }> = {
 };
 
 /**
+ * 상승궁의 첫인상 — 상승궁 카드 첫 줄 "남들이 처음 보는 나는 ___ 사람"의 빈칸.
+ *
+ * SIGN_FACES.out(태양의 겉)과 다른 말이어야 한다. 태양과 상승궁이 같은 자리인
+ * 사람은 두 카드를 나란히 보는데, 같은 구절이 두 번 서면 하나가 틀린 것처럼
+ * 읽힌다. 결은 ASCENDANT_ATOMS의 첫 문장을 따른다.
+ */
+export const ASC_FACES: Record<string, string> = {
+  aries: "먼저 말을 꺼내는",
+  taurus: "느긋해 보이는",
+  gemini: "말이 잘 통하는",
+  cancer: "낯을 가리는",
+  leo: "눈에 잘 띄는",
+  virgo: "단정하고 조심스러운",
+  libra: "예의가 몸에 붙은",
+  scorpio: "속을 잘 안 보이는",
+  sagittarius: "거리감이 없는",
+  capricorn: "나이보다 어른스러운",
+  aquarius: "어딘가 남다른",
+  pisces: "부드럽고 순한",
+};
+
+/**
  * 템플릿을 채운다. `{자리}` 뒤에 조사가 붙어 있으면 받침을 보고 고른다.
  * "{자리}가 넓어지는" + "밀어붙이는 힘" → "밀어붙이는 힘이 넓어지는".
  */
