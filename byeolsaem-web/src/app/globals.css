@@ -73,6 +73,8 @@
   --animate-retro-draw: river-draw 1500ms cubic-bezier(0.33, 1, 0.68, 1) both;
   --animate-retro-back: river-draw 900ms cubic-bezier(0.33, 1, 0.68, 1) both;
   --animate-soft-in: soft-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* 결과 카드 진입. 섹션이 화면에 들어올 때 60ms 계단으로 따라 올라온다. */
+  --animate-card-in: card-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /*
@@ -203,6 +205,34 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 카드는 부모 섹션이 data-in="true"를 켜기 전까지 숨어 있다가 계단으로 뜬다.
+   감소 모드는 이동 없이 200ms 스밈만. */
+.reading-card {
+  opacity: 0;
+}
+[data-in="true"] > .reading-card {
+  animation: var(--animate-card-in);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading-card {
+    transform: none;
+  }
+  [data-in="true"] > .reading-card {
+    animation: soft-in 200ms ease-out both;
   }
 }
 
