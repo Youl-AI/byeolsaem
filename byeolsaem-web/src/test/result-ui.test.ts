@@ -6,6 +6,8 @@ import { NameTag, nameTagText } from "@/components/chart/NameTag";
 import { ReadingCard } from "@/components/ui/ReadingCard";
 import { ResultTabs } from "@/components/ui/ResultTabs";
 import { AspectBadge } from "@/components/ui/AspectBadge";
+import { ChartWheel } from "@/components/chart/ChartWheel";
+import { exampleSky } from "@/lib/example-sky";
 
 const sign = (key: string) => ZODIAC_SIGNS.find((s) => s.key === key)!;
 
@@ -78,5 +80,19 @@ describe("각 인장", () => {
   it("기본은 정지 그림 그대로", () => {
     const html = renderToStaticMarkup(createElement(AspectBadge, { angle: 120, harmony: 1 }));
     expect(html).not.toContain("pathLength");
+  });
+});
+
+describe("원반 등장", () => {
+  it("요소마다 계단 클래스와 지연이 붙어 있다", () => {
+    const { chart } = exampleSky();
+    const html = renderToStaticMarkup(createElement(ChartWheel, { chart, entrance: null }));
+    expect(html).toContain('class="wheel-ring"');
+    expect((html.match(/wheel-tick/g) ?? []).length).toBeGreaterThanOrEqual(24); // 자리 12 + 하우스 12
+    expect((html.match(/wheel-glyph/g) ?? []).length).toBeGreaterThanOrEqual(10);
+    expect(html).toContain("animation-delay:300ms"); // 첫 행성
+    expect(html).toContain("animation-delay:120ms"); // 첫 눈금
+    // 서버 렌더에서는 등장 표식이 없다 — 마운트 후 세션 확인으로 켜진다.
+    expect(html).not.toContain('data-entrance="true"');
   });
 });

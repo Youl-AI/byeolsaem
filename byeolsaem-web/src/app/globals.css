@@ -78,6 +78,11 @@
   /* 각 인장 — 호가 A에서 B까지 그어진다(300ms). 두 점은 등장 곡선. */
   --animate-arc-draw: river-draw 300ms cubic-bezier(0.33, 1, 0.68, 1) both;
   --animate-dot-in: dot-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* 원반 등장 850ms. 고리→눈금→기호→각 선 순서. 계단은 인라인 delay. */
+  --animate-wheel-ring: river-draw 400ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  --animate-wheel-tick: soft-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-wheel-glyph: dot-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-wheel-asp: river-draw 300ms cubic-bezier(0.33, 1, 0.68, 1) both;
 }
 
 /*
@@ -263,6 +268,54 @@
   }
   .aspect-dot {
     animation: soft-in 200ms ease-out both;
+  }
+}
+
+/* 세 기둥은 항상 금색이다 — 등장 여부와 무관하게. 나머지 기호는 흐린 채로 남아
+   "셋 밝힘, 나머지 흐림"을 CSS 한 줄이 맡는다. 호버(lit)는 여전히 우선한다. */
+svg .wheel-core {
+  fill: var(--color-gold-soft);
+}
+
+/*
+ * 원반 등장 — svg[data-entrance="true"]일 때만 돈다. 클래스와 delay는 항상 있어서
+ * 표식만 붙이면 켜진다. 세션당 한 번(lib/once.ts). 감소 모드는 dash·scale 없이
+ * 전부 200ms 스밈 한 번.
+ */
+svg[data-entrance="true"] .wheel-ring {
+  animation: var(--animate-wheel-ring);
+}
+svg[data-entrance="true"] .wheel-tick {
+  animation: var(--animate-wheel-tick);
+}
+svg[data-entrance="true"] .wheel-glyph {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: var(--animate-wheel-glyph);
+}
+svg[data-entrance="true"] .wheel-asp {
+  animation: var(--animate-wheel-asp);
+}
+svg[data-entrance="true"] .wheel-core {
+  animation: wheel-core 400ms cubic-bezier(0.16, 1, 0.3, 1) 600ms both;
+}
+@keyframes wheel-core {
+  from {
+    filter: none;
+  }
+  to {
+    filter: drop-shadow(0 0 6px rgba(227, 197, 104, 0.55));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  svg[data-entrance="true"] .wheel-ring,
+  svg[data-entrance="true"] .wheel-tick,
+  svg[data-entrance="true"] .wheel-glyph,
+  svg[data-entrance="true"] .wheel-asp {
+    animation: soft-in 200ms ease-out both;
+  }
+  svg[data-entrance="true"] .wheel-core {
+    animation: none;
   }
 }
 

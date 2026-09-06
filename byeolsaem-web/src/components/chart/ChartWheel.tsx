@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ASPECT_TYPES, formatPlacement, houseOf, type Chart } from "@/lib/chart";
 import { HOUSES } from "@/content/atoms/houses";
-import { PLANET_BY_KEY, type PlanetKey } from "@/lib/planets";
+import { onceInSession } from "@/lib/once";
+import { PLANET_BY_KEY, PLANETS, type PlanetKey } from "@/lib/planets";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 
 /**
@@ -71,6 +72,7 @@ export function ChartWheel({
   onSelect,
   onActiveChange,
   spotlight = null,
+  entrance = null,
 }: {
   chart: Chart;
   /** 기호를 눌렀을 때. 아래 본문의 그 별 자리로 데려가는 데 쓴다. */
@@ -82,7 +84,16 @@ export function ChartWheel({
    * 기계가 정한 차례보다 사람이 지금 보고 있는 것이 먼저다.
    */
   spotlight?: WheelSpotlight | null;
+  /** 세션 키를 주면 첫 방문에 850ms 등장 모션이 돈다. null이면 정지. */
+  entrance?: string | null;
 }) {
+  // 등장은 마운트 뒤에 결정한다 — 서버 HTML은 완성 상태여야 하고(크롤러),
+  // 세션 표식은 브라우저에만 있다.
+  const [entering, setEntering] = useState(false);
+  useEffect(() => {
+    if (entrance && onceInSession(entrance)) setEntering(true);
+  }, [entrance]);
+
   const rotation = chart.ascendant ?? 0;
   const cusps = chart.houseCusps;
   const [active, setActive] = useState<PlanetKey | null>(null);
@@ -101,6 +112,9 @@ export function ChartWheel({
     cluster = gap < 9 ? cluster + 1 : 0;
     radii.set(sorted[i].planet, PLANET_RING - (cluster % 3) * 21);
   }
+
+  // 등장 계단 순서 — 개인 → 사회 → 세대(PLANETS 배열 순서가 곧 그 순서다).
+  const entranceOrder = new Map(PLANETS.map((p, i) => [p.key, i]));
 
   const describe = (planet: PlanetKey) => describeSelection(chart, planet);
 
@@ -121,9 +135,21 @@ export function ChartWheel({
       // role="img"로 두면 "초점 갈 자식을 가진 이미지"가 되어 규격에 어긋난다.
       role="group"
       aria-label="태어난 순간의 행성 배치를 그린 천궁도 원반"
+      data-entrance={entering ? "true" : undefined}
     >
       {/* 별자리 띠 */}
-      <circle cx={CENTER} cy={CENTER} r={OUTER} fill="none" stroke="var(--color-gold)" strokeWidth="1" opacity=".5" />
+      <circle
+        cx={CENTER}
+        cy={CENTER}
+        r={OUTER}
+        fill="none"
+        stroke="var(--color-gold)"
+        strokeWidth="1"
+        opacity=".5"
+        className="wheel-ring"
+        pathLength={1}
+        transform={`rotate(-90 ${CENTER} ${CENTER})`}
+      />
       <circle cx={CENTER} cy={CENTER} r={OUTER - SIGN_BAND} fill="none" stroke="var(--color-gold)" strokeWidth="1" opacity=".35" />
 
       {ZODIAC_SIGNS.map((sign, i) => {
@@ -132,7 +158,7 @@ export function ChartWheel({
         const inner = pointAt(start, rotation, OUTER - SIGN_BAND);
         const label = pointAt(start + 15, rotation, OUTER - SIGN_BAND / 2);
         return (
-          <g key={sign.key}>
+          <g key={sign.key} className="wheel-tick" style={{ animationDelay: `${120 + i * 40}ms` }}>
             <line x1={edge.x} y1={edge.y} x2={inner.x} y2={inner.y} stroke="var(--color-gold)" strokeWidth=".7" opacity=".4" />
             <text
               x={label.x}
@@ -162,7 +188,7 @@ export function ChartWheel({
             const horizonLit = ascLit && i === 0;
             const number = pointAt(cusp + 15, rotation, HOUSE_RING - 11);
             return (
-              <g key={cusp}>
+              <g key={cusp} className="wheel-tick" style={{ animationDelay: `${120 + i * 40}ms` }}>
                 <line
                   x1={outer.x}
                   y1={outer.y}
@@ -192,7 +218,7 @@ export function ChartWheel({
       {/* 어스펙트. 두 별을 잇는 선이고, 정확한 각도에 가까울수록 진하다.
           별 하나가 짚어지면 그 별에 걸린 선만 남기고 나머지는 물러난다 —
           "이 별이 무엇과 이어져 있는가"가 그림에서 바로 보여야 한다. */}
-      {chart.aspects.slice(0, 14).map((aspect) => {
+      {chart.aspects.slice(0, 14).map((aspect, index) => {
         const a = chart.placements.find((p) => p.planet === aspect.a)!;
         const b = chart.placements.find((p) => p.planet === aspect.b)!;
         const from = pointAt(a.longitude, rotation, ASPECT_RING);
@@ -210,7 +236,9 @@ export function ChartWheel({
             stroke={harmonious ? "var(--color-gold-soft)" : "var(--color-starlight-dim)"}
             strokeWidth={aspect.type.key === "conjunction" ? 0 : touched ? 1.6 : 0.9}
             opacity={focus ? (touched ? 0.95 : base * 0.25) : base}
-            className="transition-[stroke-width,opacity,stroke,fill,font-size] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            pathLength={1}
+            style={{ animationDelay: `${500 + index * 60}ms` }}
+            className="wheel-asp transition-[stroke-width,opacity,stroke,fill,font-size] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
           />
         );
       })}
@@ -243,7 +271,8 @@ export function ChartWheel({
                 onSelect?.(placement.planet);
               }
             }}
-            className="cursor-pointer outline-none [&:focus-visible>circle:first-of-type]:stroke-gold-soft"
+            className="wheel-glyph cursor-pointer outline-none [&:focus-visible>circle:first-of-type]:stroke-gold-soft"
+            style={{ animationDelay: `${300 + (entranceOrder.get(placement.planet) ?? 0) * 30}ms` }}
           >
             {/* 손가락과 커서가 닿는 범위. 기호보다 넉넉해야 모바일에서 눌린다. */}
             <circle cx={at.x} cy={at.y} r="18" fill="transparent" stroke="transparent" strokeWidth="1.5" />
@@ -276,7 +305,9 @@ export function ChartWheel({
               dominantBaseline="central"
               fontSize="14"
               fill={lit ? "var(--color-gold-soft)" : "var(--color-starlight)"}
-              className="astro-symbol transition-colors duration-300"
+              className={`${
+                placement.planet === "sun" || placement.planet === "moon" ? "wheel-core " : ""
+              }astro-symbol transition-colors duration-300`}
             >
               {planet.symbol}
             </text>
@@ -316,7 +347,8 @@ export function ChartWheel({
             fontSize={ascLit ? 12 : 10}
             fill={ascLit ? "var(--color-gold-soft)" : "var(--color-gold)"}
             letterSpacing="1"
-            className="transition-[stroke-width,opacity,stroke,fill,font-size] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{ animationDelay: "600ms" }}
+            className="wheel-core wheel-tick transition-[stroke-width,opacity,stroke,fill,font-size] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
           >
             ASC
           </text>

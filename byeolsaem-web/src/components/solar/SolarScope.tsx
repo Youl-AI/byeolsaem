@@ -102,7 +102,7 @@ export function SolarScope({ builtAt }: { builtAt: string }) {
           효과가 없다. */}
       <figure className="mt-8 flex flex-wrap items-start justify-center gap-x-10 gap-y-6">
         <div className="w-full max-w-[460px] flex-none">
-          <ChartWheel chart={data.chart} />
+          <ChartWheel chart={data.chart} entrance="byeolsaem:wheel-entrance:solar" />
         </div>
         <figcaption className="min-w-0 flex-1 basis-64">
           <ChartWheelLegend />
