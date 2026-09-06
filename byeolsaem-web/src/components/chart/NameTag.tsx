@@ -1,4 +1,24 @@
-import type { ZodiacSign } from "@/lib/zodiac";
+import type { Chart } from "@/lib/chart";
+import { signAtLongitude, type ZodiacSign } from "@/lib/zodiac";
+
+/**
+ * 차트에서 세 기둥의 별자리를 읽는다. 궁합이 나와 그쪽의 이름표를 같은 함수로
+ * 만든다(스펙 C §3). 상승궁은 `chart.ascendant`가 null이면 null — 시각을 모르면
+ * 계산하지 않는다는 원칙 그대로.
+ */
+export function chartPillars(chart: Chart): {
+  sun: ZodiacSign;
+  moon: ZodiacSign;
+  ascendant: ZodiacSign | null;
+} {
+  const sun = chart.placements.find((p) => p.planet === "sun")!.sign;
+  const moon = chart.placements.find((p) => p.planet === "moon")!.sign;
+  return {
+    sun,
+    moon,
+    ascendant: chart.ascendant === null ? null : signAtLongitude(chart.ascendant),
+  };
+}
 
 /**
  * 이름표 — 태양·달·상승궁을 한 줄로. Co-Star의 `☉Scorpio ☽Pisces ↑Leo`와 같은

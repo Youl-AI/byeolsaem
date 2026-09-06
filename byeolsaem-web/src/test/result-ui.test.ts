@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
-import { NameTag, nameTagText } from "@/components/chart/NameTag";
+import { NameTag, chartPillars, nameTagText } from "@/components/chart/NameTag";
 import { ReadingCard } from "@/components/ui/ReadingCard";
 import { ResultTabs } from "@/components/ui/ResultTabs";
 import { AspectBadge } from "@/components/ui/AspectBadge";
@@ -157,5 +157,39 @@ describe("첫 화면", () => {
     expect(iTag).toBeLessThan(iWheel);
     expect(iWheel).toBeLessThan(iOne);
     expect(iOne).toBeLessThan(iShare);
+  });
+});
+
+describe("카드 prop", () => {
+  const base = {
+    badge: "♂",
+    tech: "화성 · 처녀자리 25° · 1하우스",
+    plain: "밀어붙이는 힘이 당신 자신과 첫인상에 있습니다",
+    where: "따져서 이깁니다.",
+  };
+  it("defaultOpen이면 처음부터 펼쳐져 있다", () => {
+    const html = renderToStaticMarkup(createElement(ReadingCard, { ...base, defaultOpen: true }, createElement("p", null, "본문")));
+    expect(html).toContain('aria-expanded="true"');
+    expect(html).toContain(">접기<");
+    expect(html).toContain("grid-rows-[1fr]");
+  });
+  it("open을 주면 부모가 쥔다 — defaultOpen보다 우선", () => {
+    const html = renderToStaticMarkup(
+      createElement(ReadingCard, { ...base, defaultOpen: true, open: false, onToggle: () => {} }, createElement("p", null, "본문")),
+    );
+    expect(html).toContain('aria-expanded="false"');
+  });
+});
+
+describe("세 기둥 읽기", () => {
+  it("예시 하늘의 태양은 게자리, 상승궁이 있다", () => {
+    const { chart } = exampleSky();
+    const pillars = chartPillars(chart);
+    expect(pillars.sun.key).toBe("cancer");
+    expect(pillars.ascendant).not.toBeNull();
+  });
+  it("시각을 모르면 상승궁 자리는 null", () => {
+    const { chart } = exampleSky();
+    expect(chartPillars({ ...chart, ascendant: null }).ascendant).toBeNull();
   });
 });

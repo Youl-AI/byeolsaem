@@ -1,7 +1,6 @@
 "use client";
 import { useMemo, useRef } from "react";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
-import { useInView } from "@/hooks/useInView";
 import { formatBirthDate, type BirthProfile } from "@/lib/birth-profile";
 import { formatPlacement, type Chart } from "@/lib/chart";
 import { plainLine } from "@/lib/plain-line";
@@ -16,6 +15,7 @@ import { AspectBadge } from "@/components/ui/AspectBadge";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
 import { ReadingCard } from "@/components/ui/ReadingCard";
+import { CardSection, ResultSection } from "@/components/ui/ResultSection";
 import { ResultTabs } from "@/components/ui/ResultTabs";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { toneLabel } from "@/components/ui/ToneBadge";
@@ -428,7 +428,7 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
         </CardSection>
       )}
 
-      <Section id="detail" title="점성술로 자세히">
+      <ResultSection id="detail" title="점성술로 자세히">
         <ChartWheelLegend />
         {/* 어떤 방식으로 나눈 하우스인지 화면에서 말한다 — chart.ts가 홀사인을
             고르며 "방식을 화면에 밝힌다"고 약속한 그 자리다. 옛 원반 캡션에
@@ -538,38 +538,8 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
             </GoldButton>
           </div>
         </div>
-      </Section>
+      </ResultSection>
     </div>
-  );
-}
-
-/**
- * 카드 묶음 섹션. 화면에 들어오면 data-in을 켜서 카드 계단이 시작된다.
- *
- * 카드는 이 div의 **직계 자식**이어야 한다 — globals.css의 진입 규칙이
- * `[data-in="true"] > .reading-card`라서 중간에 li나 래퍼가 끼면 켜지지 않는다.
- */
-function CardSection({
-  id,
-  title,
-  intro,
-  children,
-}: {
-  id: string;
-  title: string;
-  intro?: string;
-  children: React.ReactNode;
-}) {
-  const [ref, inView] = useInView<HTMLDivElement>(0.2);
-  return (
-    <Section id={id} title={title}>
-      {intro && (
-        <p className="mb-4 max-w-[52ch] break-keep text-guide text-starlight-dim">{intro}</p>
-      )}
-      <div ref={ref} data-in={inView ? "true" : "false"} className="space-y-2.5">
-        {children}
-      </div>
-    </Section>
   );
 }
 
@@ -642,33 +612,6 @@ function BirthRail({
         고치기
       </button>
     </aside>
-  );
-}
-
-/**
- * 좌측 정렬 섹션. 제목 오른쪽으로 금선이 뻗어 읽는 폭의 끝을 표시한다.
- *
- * `id`는 탭바의 앵커이자 스크롤 스파이의 관찰 대상이다. `scroll-mt-32`(128px)는
- * 머리글 64px + 붙박이 탭바 약 48px을 함께 비운 것 — 앵커로 뛰면 제목이 둘 중
- * 어느 것에도 숨지 않는다. 96px(`scroll-mt-24`)로는 둘의 합에 모자랐다.
- */
-function Section({
-  id,
-  title,
-  children,
-}: {
-  id?: string;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section id={id} className="mt-16 scroll-mt-32">
-      <h2 className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
-        {title}
-        <span aria-hidden className="h-px flex-1 bg-gold/25" />
-      </h2>
-      {children}
-    </section>
   );
 }
 

@@ -198,9 +198,9 @@ function SkyBand({ sky }: { sky: TodaySky }) {
 }
 
 /** 열 행성이 오늘 어느 자리에 있는가. 역행 중인 별은 그렇게 말한다. */
-export function PlanetsNow({ sky }: { sky: TodaySky }) {
+export function PlanetsNow({ sky, id }: { sky: TodaySky; id?: string }) {
   return (
-    <section className="mt-16">
+    <section id={id} className="mt-16 scroll-mt-32">
       <h2 className="mb-2 flex items-center gap-4 break-keep font-display text-xl text-starlight">
         오늘의 하늘, 열 개의 별
         <span aria-hidden className="h-px flex-1 bg-gold/25" />
@@ -237,14 +237,14 @@ export function PlanetsNow({ sky }: { sky: TodaySky }) {
 }
 
 /** 다가오는 삭망 — 칼럼이 시키는 "신월에 세우고 보름에 돌아보기"의 실제 날짜. */
-export function ComingMoons({ now }: { now: Date }) {
+export function ComingMoons({ now, id }: { now: Date; id?: string }) {
   const { newMoon, fullMoon } = useMemo(() => nextLunations(now), [now]);
   // 먼저 오는 쪽을 앞에 — "다음"이라는 말의 상식.
   const ordered = [newMoon, fullMoon].sort(
     (a, b) => Date.parse(a.date) - Date.parse(b.date),
   );
   return (
-    <div className="mt-8 max-w-[52ch] border-l-2 border-gold/40 pl-5">
+    <div id={id} className="mt-8 max-w-[52ch] scroll-mt-32 border-l-2 border-gold/40 pl-5">
       <p className="text-meta tracking-[0.18em] text-gold">다가오는 달</p>
       {ordered.map((l) => (
         <p key={l.kind} className="mt-2 break-keep text-guide text-starlight">

@@ -14,6 +14,10 @@ import React, { useId, useState } from "react";
  *
  * 진입 계단은 부모가 `data-in="true"`를 켤 때 시작한다(globals.css .reading-card).
  * index × 60ms 뒤에 각자 뜬다.
+ *
+ * 여닫기는 기본으로 카드가 스스로 쥔다. `open`을 주면 부모가 쥔다(한 해의 강 점이
+ * 카드를 열어 주는 계약). `defaultOpen`은 처음부터 펼쳐 두는 카드(궁합의 이름 붙은
+ * 조합). 포인터 진입/이탈은 궁합의 금실 밝히기가 쓴다 — 스펙 C §3.
  */
 export const ReadingCard: React.FC<
   React.PropsWithChildren<{
@@ -23,15 +27,40 @@ export const ReadingCard: React.FC<
     plain: React.ReactNode;
     where: string;
     index?: number;
+    defaultOpen?: boolean;
+    open?: boolean;
+    onToggle?: () => void;
+    onPointerEnter?: () => void;
+    onPointerLeave?: () => void;
   }>
-> = ({ id, badge, tech, plain, where, index = 0, children }) => {
-  const [open, setOpen] = useState(false);
+> = ({
+  id,
+  badge,
+  tech,
+  plain,
+  where,
+  index = 0,
+  defaultOpen = false,
+  open,
+  onToggle,
+  onPointerEnter,
+  onPointerLeave,
+  children,
+}) => {
+  const [selfOpen, setSelfOpen] = useState(defaultOpen);
+  const isOpen = open ?? selfOpen;
+  const toggle = () => {
+    if (onToggle) onToggle();
+    if (open === undefined) setSelfOpen((v) => !v);
+  };
   const bodyId = useId();
   return (
     <article
       id={id}
       className="reading-card relative scroll-mt-28 rounded-xl bg-ink-raised px-4 py-3.5"
       style={{ animationDelay: `${index * 60}ms` }}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
     >
       <span aria-hidden className="astro-symbol absolute right-4 top-3 text-base text-gold-soft">
         {badge}
@@ -41,17 +70,17 @@ export const ReadingCard: React.FC<
       <p className="mt-1 break-keep text-meta text-starlight-dim">{where}</p>
       <button
         type="button"
-        aria-expanded={open}
+        aria-expanded={isOpen}
         aria-controls={bodyId}
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggle}
         className="mt-2 border-b border-gold/40 pb-0.5 text-meta text-gold-soft transition-colors hover:text-starlight"
       >
-        {open ? "접기" : "더 읽기"}
+        {isOpen ? "접기" : "더 읽기"}
       </button>
       <div
         id={bodyId}
         className={`grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
         }`}
       >
         <div className="overflow-hidden">
