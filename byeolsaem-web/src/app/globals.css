@@ -75,6 +75,9 @@
   --animate-soft-in: soft-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
   /* 결과 카드 진입. 섹션이 화면에 들어올 때 60ms 계단으로 따라 올라온다. */
   --animate-card-in: card-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* 각 인장 — 호가 A에서 B까지 그어진다(300ms). 두 점은 등장 곡선. */
+  --animate-arc-draw: river-draw 300ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  --animate-dot-in: dot-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /*
@@ -232,6 +235,33 @@
     transform: none;
   }
   [data-in="true"] > .reading-card {
+    animation: soft-in 200ms ease-out both;
+  }
+}
+
+@keyframes dot-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.aspect-arc {
+  animation: var(--animate-arc-draw);
+}
+.aspect-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: var(--animate-dot-in);
+}
+@media (prefers-reduced-motion: reduce) {
+  .aspect-arc {
+    animation: soft-in 200ms ease-out both;
+  }
+  .aspect-dot {
     animation: soft-in 200ms ease-out both;
   }
 }

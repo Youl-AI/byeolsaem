@@ -5,6 +5,7 @@ import { ZODIAC_SIGNS } from "@/lib/zodiac";
 import { NameTag, nameTagText } from "@/components/chart/NameTag";
 import { ReadingCard } from "@/components/ui/ReadingCard";
 import { ResultTabs } from "@/components/ui/ResultTabs";
+import { AspectBadge } from "@/components/ui/AspectBadge";
 
 const sign = (key: string) => ZODIAC_SIGNS.find((s) => s.key === key)!;
 
@@ -62,5 +63,20 @@ describe("탭바", () => {
     expect(html).toContain('href="#detail"');
     expect(html.match(/aria-current="location"/g)).toHaveLength(1);
     expect(html).toContain('aria-label="결과 구역"');
+  });
+});
+
+describe("각 인장", () => {
+  it("animate면 호에 pathLength와 계단 지연이 붙는다", () => {
+    const html = renderToStaticMarkup(
+      createElement(AspectBadge, { angle: 120, harmony: 1, animate: true, delay: 120 }),
+    );
+    expect(html).toContain('pathLength="1"');
+    expect(html).toContain('class="aspect-arc"');
+    expect(html).toContain("animation-delay:120ms");
+  });
+  it("기본은 정지 그림 그대로", () => {
+    const html = renderToStaticMarkup(createElement(AspectBadge, { angle: 120, harmony: 1 }));
+    expect(html).not.toContain("pathLength");
   });
 });
