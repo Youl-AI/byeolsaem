@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 import { NameTag, nameTagText } from "@/components/chart/NameTag";
 import { ReadingCard } from "@/components/ui/ReadingCard";
+import { ResultTabs } from "@/components/ui/ResultTabs";
 
 const sign = (key: string) => ZODIAC_SIGNS.find((s) => s.key === key)!;
 
@@ -42,5 +43,24 @@ describe("카드", () => {
     expect(html).toContain("animation-delay:180ms");
     // 본문은 DOM에 있다(크롤러용). 접힘은 CSS(grid-rows 0fr)로 한다.
     expect(html).toContain("감정으로 밀지 않고");
+  });
+});
+
+describe("탭바", () => {
+  it("항목마다 앵커 링크가 있고 첫 항목이 현재다", () => {
+    const html = renderToStaticMarkup(
+      createElement(ResultTabs, {
+        items: [
+          { id: "overview", label: "한눈에" },
+          { id: "planets", label: "별 열 개" },
+          { id: "detail", label: "자세히" },
+        ],
+      }),
+    );
+    expect(html).toContain('href="#overview"');
+    expect(html).toContain('href="#planets"');
+    expect(html).toContain('href="#detail"');
+    expect(html.match(/aria-current="location"/g)).toHaveLength(1);
+    expect(html).toContain('aria-label="결과 구역"');
   });
 });
