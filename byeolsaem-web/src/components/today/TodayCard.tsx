@@ -88,7 +88,7 @@ export function TodayCard({
   return (
     <>
       {/* 카운트다운 띠 — 이 페이지에 "내일 또 확인할 숫자"를 하나 세운다(정찰 ②). */}
-      <RetroBand now={clockNow} />
+      <RetroBand now={clockNow} live={now !== null} />
       <div className="grid items-start gap-10 md:grid-cols-[150px_minmax(0,1fr)] md:gap-12">
       <aside
         className="border-b border-gold/18 pb-5 md:sticky md:top-24 md:border-b-0 md:border-r md:pb-0 md:pr-5 md:text-right"

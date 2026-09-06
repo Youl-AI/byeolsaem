@@ -1,10 +1,12 @@
 "use client";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@/components/ui/Link";
 import { nextLunations } from "@/lib/lunation";
+import { onceInSession } from "@/lib/once";
 import { PLANET_BY_KEY } from "@/lib/planets";
 import { mercuryRetrogrades } from "@/lib/retrograde";
-import { formatKstMonthDay, retrogradeStatus } from "@/lib/retrograde-clock";
+import { formatKstMonthDay, kstParts, retrogradeStatus } from "@/lib/retrograde-clock";
+import { retroNumber, rollStart } from "@/lib/retro-roll";
 import type { TodaySky } from "@/lib/today";
 import { SIGN_SYMBOL, ZODIAC_SIGNS } from "@/lib/zodiac";
 
@@ -19,27 +21,33 @@ import { SIGN_SYMBOL, ZODIAC_SIGNS } from "@/lib/zodiac";
  * 앞면 카드와 같은 원칙이다.
  */
 
+const DAY_MS = 86400000;
+/** 어제 값→오늘 값. 한 칸 움직이는 데 300ms — 손가락보다 늦지 않다. */
+const ROLL_MS = 300;
+
 /** 역행까지/역행 끝까지 카운트다운 띠. 사이트 전체에서 유일한 "내일 또 볼 숫자". */
-export function RetroBand({ now }: { now: Date }) {
-  const status = useMemo(() => {
+export function RetroBand({ now, live }: { now: Date; /** now가 방문자의 지금인가(빌드 시각이 아닌가). 굴림은 그때만. */ live: boolean }) {
+  const { status, yesterday } = useMemo(() => {
     // 앞뒤로 넉넉히 — 진행 중인 구간을 놓치지 않으려면 과거도 조금 본다.
-    const from = new Date(now.getTime() - 120 * 86400000);
-    const to = new Date(now.getTime() + 540 * 86400000);
-    return retrogradeStatus(mercuryRetrogrades(from, to), now);
+    const from = new Date(now.getTime() - 120 * DAY_MS);
+    const to = new Date(now.getTime() + 540 * DAY_MS);
+    const periods = mercuryRetrogrades(from, to);
+    return {
+      status: retrogradeStatus(periods, now),
+      yesterday: retrogradeStatus(periods, new Date(now.getTime() - DAY_MS)),
+    };
   }, [now]);
 
-  if (status.state === "unknown") return null;
+  // 훅은 이른 return보다 앞에 — 모르는 상태여도 호출 순서는 같아야 한다.
+  const target = retroNumber(status);
+  const shown = useRoll(live ? rollStart(yesterday, status) : null, target, now);
+
+  if (status.state === "unknown" || target === null) return null;
 
   const line =
     status.state === "retrograde"
-      ? {
-          d: `D-${status.daysLeft}`,
-          text: `수성 역행 중 — ${formatKstMonthDay(status.period.end)}에 끝납니다`,
-        }
-      : {
-          d: `D-${status.daysUntil}`,
-          text: `다음 수성 역행 — ${formatKstMonthDay(status.next.start)}부터`,
-        };
+      ? { text: `수성 역행 중 — ${formatKstMonthDay(status.period.end)}에 끝납니다` }
+      : { text: `다음 수성 역행 — ${formatKstMonthDay(status.next.start)}부터` };
 
   return (
     // 상자가 아니라 금선 두 줄 사이의 한 행 — 이 사이트의 구획 문법 그대로다.
@@ -50,13 +58,53 @@ export function RetroBand({ now }: { now: Date }) {
       <span className="astro-symbol text-gold-soft" aria-hidden>
         ☿
       </span>
-      <span className="font-display text-lg text-gold-soft">{line.d}</span>
+      {/* tabular-nums — 굴리는 동안 폭이 흔들리지 않는다. */}
+      <span className="font-display text-lg tabular-nums text-gold-soft">D-{shown ?? target}</span>
       <span className="break-keep text-guide text-starlight-dim">{line.text}</span>
       <span className="ml-auto text-meta text-gold-soft transition-transform group-hover:translate-x-1 motion-reduce:translate-x-0">
         자세히 →
       </span>
     </Link>
   );
+}
+
+/**
+ * 어제 값에서 오늘 값으로 300ms에 굴린다(스펙 B §4). 하루 첫 방문에만 —
+ * 열쇠 `byeolsaem:retro-roll:<YYYY-MM-DD>`. start가 null이면(굴릴 것이 없으면)
+ * rAF를 시작하지 않는다. 감소 모드는 오늘 값 즉시.
+ */
+function useRoll(start: number | null, target: number | null, now: Date): number | null {
+  const [value, setValue] = useState<number | null>(target);
+
+  useEffect(() => {
+    if (start === null || target === null) {
+      setValue(target);
+      return;
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setValue(target);
+      return;
+    }
+    const p = kstParts(now.toISOString());
+    const key = `byeolsaem:retro-roll:${p.year}-${String(p.month).padStart(2, "0")}-${String(p.day).padStart(2, "0")}`;
+    if (!onceInSession(key)) {
+      setValue(target);
+      return;
+    }
+    setValue(start);
+    const t0 = performance.now();
+    let frame = 0;
+    const tick = (t: number) => {
+      const k = Math.min(1, (t - t0) / ROLL_MS);
+      // 등장 곡선의 큐빅 근사. 정수만 — 반 칸은 없다.
+      setValue(Math.round(start + (target - start) * (1 - (1 - k) ** 3)));
+      if (k < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [start, target, now]);
+
+  return value;
 }
 
 const ASTRO_FONT = '"Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols2", "Noto Sans Symbols", sans-serif';
