@@ -17,6 +17,11 @@ import { ToneBadge } from "@/components/ui/ToneBadge";
 import { MoonDisc } from "./MoonDisc";
 import { ComingMoons, PlanetsNow, RetroBand } from "./SkyNow";
 
+/** `2026-09-07` 꼴 — 하루 한 번 연출의 열쇠에 쓴다. */
+function dateKey(date: { year: number; month: number; day: number }): string {
+  return `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
+}
+
 /**
  * 오늘의 카드.
  *
@@ -129,7 +134,12 @@ export function TodayCard({
               symbol="☽"
               width={240}
             >
-              <MoonDisc illumination={sky.moon.illumination} phase={sky.moon.phase.key} />
+              <MoonDisc
+                illumination={sky.moon.illumination}
+                phase={sky.moon.phase.key}
+                /* 마운트 전(빌드 시점 하늘)에는 정지 — now가 잡혀 오늘 값이 된 뒤 한 번만 차오른다. */
+                fill={now ? `byeolsaem:moon-fill:${dateKey(sky.date)}` : null}
+              />
             </ArchCard>
             {/* "오늘의 내 카드"를 들고 나가는 두 갈래 길(스펙 §6.2·§6.3).
                 파일 이름에 날짜가 들어 내일 또 저장해도 어제 것을 덮어쓰지 않는다. */}
