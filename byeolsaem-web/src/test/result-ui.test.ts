@@ -11,6 +11,9 @@ import { NatalHero } from "@/components/chart/NatalReading";
 import { EXAMPLE_BIRTH, exampleMeeting, exampleSky } from "@/lib/example-sky";
 import { afterFirstSentence } from "@/lib/text";
 import { SynastryBody, SynastryHero } from "@/components/synastry/SynastryReading";
+import { TodayBody } from "@/components/today/TodayCard";
+import { todaySky } from "@/lib/today";
+import { todayBack } from "@/lib/today-reading";
 
 const sign = (key: string) => ZODIAC_SIGNS.find((s) => s.key === key)!;
 
@@ -227,5 +230,26 @@ describe("궁합 첫 화면", () => {
     // 이름 붙은 조합은 펼쳐져 있고 나머지는 접혀 있다.
     expect(html).toContain('aria-expanded="true"');
     expect(html).toContain('aria-expanded="false"');
+  });
+});
+
+describe("오늘의 결과 구간", () => {
+  const when = new Date("2026-09-07T03:00:00Z");
+  it("뒤집은 뒤: 탭의 앵커마다 같은 id의 구역이 있다", () => {
+    const { chart } = exampleSky();
+    const sky = todaySky(when);
+    const back = todayBack(sky, chart, null);
+    const html = renderToStaticMarkup(createElement(TodayBody, { back, sky, now: when }));
+    expectTabsResolve(html);
+    expect(html).toContain('href="#today-transits"');
+    expect(html).toContain('href="#today-planets"');
+    expect(html).toContain('href="#today-moons"');
+  });
+  it("뒤집기 전에는 탭이 없고 열 개의 별·다가오는 달만 있다", () => {
+    const sky = todaySky(when);
+    const html = renderToStaticMarkup(createElement(TodayBody, { back: null, sky, now: when }));
+    expect(html).not.toContain('aria-label="결과 구역"');
+    expect(html).toContain("오늘의 하늘, 열 개의 별");
+    expect(html).toContain("다가오는 달");
   });
 });
