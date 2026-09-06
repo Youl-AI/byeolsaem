@@ -27,6 +27,7 @@ The Pattern의 카드 문법이 가장 배울 것이 많았다 — 위에 작게
 - **transform과 opacity만 움직인다.** 예외는 `SkyLapse`의 SVG 좌표 갱신 하나. 이유는 §7.
 - **감소 모드는 "덜"이지 "없음"이 아니다.** 이동·dash 제거, opacity 200ms는 남긴다.
 - 카카오 공유 이미지는 `/og/sign/<태양>.png` 정적 파일 유지. 정적 내보내기라 사용자별 OG를 만들 수 없고, 바꿀 이유도 약하다.
+- 카드의 둘째 줄이 본문 첫 문장이므로 펼친 본문은 둘째 문장부터 — 문장은 한 번만 보인다(2026-09-07 결정).
 
 ## 3. 범위
 
@@ -70,9 +71,9 @@ ShareRow       카드로 저장 · 원반 이미지로 저장 · 카카오 (기�
 
 | 카드 | tech (작게) | plain (크게) | where (둘째 줄) | 더 읽기 |
 |---|---|---|---|---|
-| ☉ | 태양 · {자리} {도}° | 겉으로는 **{SIGN_FACES[sun].out}** 사람 | `core.sun.inSign` 첫 문장 | `core.sun.inSign` 전체 |
-| ☽ | 달 · {자리} {도}° | 혼자일 때는 **{SIGN_FACES[moon].in}** 사람 | `core.moon.inSign` 첫 문장 | 전체 |
-| ASC | 상승궁 · {자리} | 남들이 처음 보는 나는 **{ASC_FACES[asc]}** 사람 | `core.ascendant.text` 첫 문장 | 전체 |
+| ☉ | 태양 · {자리} {도}° | 겉으로는 **{SIGN_FACES[sun].out}** 사람 | `core.sun.inSign` 첫 문장 | 첫 문장을 뺀 나머지(`afterFirstSentence`) |
+| ☽ | 달 · {자리} {도}° | 혼자일 때는 **{SIGN_FACES[moon].in}** 사람 | `core.moon.inSign` 첫 문장 | 첫 문장을 뺀 나머지 |
+| ASC | 상승궁 · {자리} | 남들이 처음 보는 나는 **{ASC_FACES[asc]}** 사람 | `core.ascendant.text` 첫 문장 | 첫 문장을 뺀 나머지 |
 
 상승궁 없음: 셋째 카드 대신 기존 문구 "상승궁은 태어난 시각을 알아야 정해집니다…"를 카드 없이 한 줄로.
 
@@ -88,7 +89,7 @@ ShareRow       카드로 저장 · 원반 이미지로 저장 · 카카오 (기�
 | tech | `{planet.ko} · {자리} {도}°` + (하우스 있으면 ` · {n}하우스`) + (역행이면 ` · ℞`) |
 | plain | `plainLine(planet, house)` — §5.2 |
 | where | `inSign` 첫 문장 |
-| 더 읽기 | `inSign` 전체 + `inHouse`(있으면) + 세대 행성 안내문(기존) |
+| 더 읽기 | 첫 문장을 뺀 나머지(`afterFirstSentence`) + `inHouse`(있으면) + 세대 행성 안내문(기존) |
 
 순서는 기존 `assembleReading`이 정한 그대로(하이라이트 → 개인 → 사회 → 세대).
 
@@ -100,7 +101,7 @@ ShareRow       카드로 저장 · 원반 이미지로 저장 · 카카오 (기�
 | tech | `{a.ko} {type.ko} {b.ko} · 오브 {orb}도 · {strengthKo}` |
 | plain | `aspect.headline` (기존) |
 | where | `aspect.body` 첫 문장 |
-| 더 읽기 | `aspect.body` 전체 |
+| 더 읽기 | 첫 문장을 뺀 나머지(`afterFirstSentence`) |
 
 ### 4.7 자세히
 

@@ -10,3 +10,13 @@ export function firstSentence(text: string): string {
   const end = text.indexOf("다.");
   return end === -1 ? text : text.slice(0, end + 2);
 }
+
+/**
+ * 첫 문장을 뺀 나머지. 카드는 둘째 줄에 첫 문장을 이미 보여 주므로, 펼친 본문이
+ * 같은 문장으로 다시 시작하면 반복으로 읽힌다(2026-09-07 실측). 첫 문장만 있는
+ * 글이면 빈 문자열 — 부르는 쪽이 빈 <p>를 그리지 않게 한다.
+ */
+export function afterFirstSentence(text: string): string {
+  const end = text.indexOf("다.");
+  return end === -1 ? "" : text.slice(end + 2).trim();
+}

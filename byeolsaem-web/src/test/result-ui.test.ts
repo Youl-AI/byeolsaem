@@ -9,6 +9,7 @@ import { AspectBadge } from "@/components/ui/AspectBadge";
 import { ChartWheel } from "@/components/chart/ChartWheel";
 import { NatalHero } from "@/components/chart/NatalReading";
 import { exampleSky } from "@/lib/example-sky";
+import { afterFirstSentence } from "@/lib/text";
 
 const sign = (key: string) => ZODIAC_SIGNS.find((s) => s.key === key)!;
 
@@ -47,6 +48,40 @@ describe("카드", () => {
     expect(html).toContain("animation-delay:180ms");
     // 본문은 DOM에 있다(크롤러용). 접힘은 CSS(grid-rows 0fr)로 한다.
     expect(html).toContain("감정으로 밀지 않고");
+  });
+
+  it("둘째 줄(where)의 첫 문장을 본문에서 반복하지 않는다", () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        ReadingCard,
+        {
+          badge: "♂",
+          tech: "화성 · 처녀자리 25° · 1하우스",
+          plain: "밀어붙이는 힘이 당신 자신과 첫인상에 있습니다",
+          where: "A다.",
+          index: 3,
+        },
+        createElement("p", null, afterFirstSentence("A다. B다.")),
+      ),
+    );
+    expect(html).toContain("B다.");
+    expect(html).not.toContain("A다. B다.");
+  });
+});
+
+describe("첫 문장 빼기", () => {
+  it("첫 문장을 떼고 나머지만 남긴다", () => {
+    expect(
+      afterFirstSentence(
+        "지키는 것으로 자기를 증명합니다. 내 사람이라 부를 수 있는 범위를 넓히며 삽니다.",
+      ),
+    ).toBe("내 사람이라 부를 수 있는 범위를 넓히며 삽니다.");
+  });
+  it("한 문장뿐이면 빈 문자열", () => {
+    expect(afterFirstSentence("한 문장뿐입니다.")).toBe("");
+  });
+  it("마침표가 없으면 빈 문자열", () => {
+    expect(afterFirstSentence("마침표 없음")).toBe("");
   });
 });
 

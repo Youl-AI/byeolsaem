@@ -8,7 +8,7 @@ import { plainLine } from "@/lib/plain-line";
 import { PLANET_BY_KEY, type PlanetKey } from "@/lib/planets";
 import { describeElements, type Reading, type ReadingPlacement } from "@/lib/reading";
 import { shareWheel, wheelArt } from "@/lib/share-card";
-import { firstSentence } from "@/lib/text";
+import { afterFirstSentence, firstSentence } from "@/lib/text";
 import { SIGN_SYMBOL } from "@/lib/zodiac";
 import { requestRitual } from "@/lib/ritual";
 import { ASC_FACES, SIGN_FACES } from "@/content/atoms/life";
@@ -296,7 +296,7 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
           }
           where={firstSentence(core.sun.inSign)}
         >
-          <p>{core.sun.inSign}</p>
+          {afterFirstSentence(core.sun.inSign) && <p>{afterFirstSentence(core.sun.inSign)}</p>}
         </ReadingCard>
         <ReadingCard
           index={1}
@@ -318,7 +318,7 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
           }
           where={firstSentence(core.moon.inSign)}
         >
-          <p>{core.moon.inSign}</p>
+          {afterFirstSentence(core.moon.inSign) && <p>{afterFirstSentence(core.moon.inSign)}</p>}
         </ReadingCard>
         {core.ascendant ? (
           <ReadingCard
@@ -336,7 +336,9 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
             }
             where={firstSentence(core.ascendant.text)}
           >
-            <p>{core.ascendant.text}</p>
+            {afterFirstSentence(core.ascendant.text) && (
+              <p>{afterFirstSentence(core.ascendant.text)}</p>
+            )}
           </ReadingCard>
         ) : (
           <p className="mt-3 max-w-[52ch] break-keep text-guide text-starlight-dim">
@@ -420,7 +422,7 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
               where={firstSentence(item.body)}
             >
               <p className="text-gold-soft">{item.theme}</p>
-              <p>{item.body}</p>
+              {afterFirstSentence(item.body) && <p>{afterFirstSentence(item.body)}</p>}
             </ReadingCard>
           ))}
         </CardSection>
@@ -593,7 +595,7 @@ function PlanetCard({ item, index }: { item: ReadingPlacement; index: number }) 
       plain={plainLine(item.planet.key, item.house?.number ?? null, item.placement.sign)}
       where={firstSentence(item.inSign)}
     >
-      <p>{item.inSign}</p>
+      {afterFirstSentence(item.inSign) && <p>{afterFirstSentence(item.inSign)}</p>}
       {item.inHouse && <p>{item.inHouse}</p>}
       {item.planet.tier === "generational" && (
         <p className="text-meta">
