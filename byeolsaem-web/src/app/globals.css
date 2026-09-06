@@ -272,7 +272,9 @@
 }
 
 /* 세 기둥은 항상 금색이다 — 등장 여부와 무관하게. 나머지 기호는 흐린 채로 남아
-   "셋 밝힘, 나머지 흐림"을 CSS 한 줄이 맡는다. 호버(lit)는 여전히 우선한다. */
+   "셋 밝힘, 나머지 흐림"을 CSS 한 줄이 맡는다. 스타일시트 규칙이 인라인
+   fill 속성을 항상 이기므로, 이 셋은 호버(lit)로도 색이 바뀌지 않는다 —
+   호버 링·틱 선의 밝기는 그대로 바뀐다. */
 svg .wheel-core {
   fill: var(--color-gold-soft);
 }
@@ -299,6 +301,13 @@ svg[data-entrance="true"] .wheel-asp {
 svg[data-entrance="true"] .wheel-core {
   animation: wheel-core 400ms cubic-bezier(0.16, 1, 0.3, 1) 600ms both;
 }
+/* ASC는 눈금이면서 기둥이다 — 둘 다 켠다. 인라인 animation-delay(600ms)가 두
+   애니메이션에 같이 적용된다. */
+svg[data-entrance="true"] .wheel-core.wheel-tick {
+  animation:
+    var(--animate-wheel-tick),
+    wheel-core 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 @keyframes wheel-core {
   from {
     filter: none;
@@ -316,6 +325,9 @@ svg[data-entrance="true"] .wheel-core {
   }
   svg[data-entrance="true"] .wheel-core {
     animation: none;
+  }
+  svg[data-entrance="true"] .wheel-core.wheel-tick {
+    animation: soft-in 200ms ease-out both;
   }
 }
 
