@@ -13,9 +13,13 @@
       보이게 하기, 신뢰 신호(/method) 더하기. 넷째(칼럼 증량)가 가장 약했다.
 - [ ] **칼럼 스물일곱 편 눈으로 다시 읽기.** 한 세션에 늘린 글이라 결이 비슷하다.
       어색한 편은 사람이 손대는 것이 맞다.
+- [ ] **스펙 B — 산재 모션 다섯** (`docs/superpowers/specs/2026-09-06-scattered-motion.md`). 건마다 커밋 하나.
+- [ ] **스펙 C — synastry·today·yearly에 ResultTabs·ReadingCard 적용.** natal에서 만든 컴포넌트 재사용. 첫 화면은 셋 다 이미 그림이 있어 natal보다 작다.
+- [ ] natal 재구성 배포 — main 병합 후 루트에서 `npx wrangler deploy`, 그 뒤 byeolsaem.com/natal에서 같은 실측 반복.
 
 ## 되돌릴지 정할 것
 
+- [ ] natal 재구성(`git revert 0685106 0f164c0`) — 애드센스 결과와 반응 보고.
 - [ ] **/natal 예시 하늘을 서버로 내린 것 — 애드센스 결과를 보고 판단.**
       `ceebba5` 다음 커밋 하나로 끝나므로 `git revert` 한 번이면 되돌아간다.
       바뀐 것: 저장된 출생 정보를 읽기 전에도 예시 하늘이 그대로 보인다(예전에는
