@@ -109,10 +109,15 @@ describe("첫 화면", () => {
         onSelectPlanet: () => {},
       }),
     );
+    const iH1 = html.indexOf("나의 천궁도");
     const iTag = html.indexOf('aria-label="태양 게자리');
     const iWheel = html.indexOf("천궁도 원반");
     const iOne = html.indexOf("당신을 한 줄로");
     const iShare = html.indexOf("이 하늘을 카드 한 장으로");
+    // 페이지 헤더가 접히면 이 sr-only h1이 문서 제목을 대신한다 — 첫 요소여야 한다.
+    expect(iH1).toBeGreaterThan(-1);
+    expect(html).toContain('<h1 class="sr-only">나의 천궁도</h1>');
+    expect(iH1).toBeLessThan(iTag);
     expect(iTag).toBeGreaterThan(-1);
     expect(iTag).toBeLessThan(iWheel);
     expect(iWheel).toBeLessThan(iOne);

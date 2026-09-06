@@ -18,6 +18,7 @@ import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
 import { ReadingCard } from "@/components/ui/ReadingCard";
 import { ResultTabs } from "@/components/ui/ResultTabs";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
+import { toneLabel } from "@/components/ui/ToneBadge";
 import { ChartWheel, ChartWheelLegend } from "./ChartWheel";
 import { NameTag } from "./NameTag";
 import { ChartLoading, UnknownPlace } from "./NoProfile";
@@ -268,10 +269,11 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
   );
 
   return (
-    <>
-      <div className="mt-10">
-        <ResultTabs items={tabs} />
-      </div>
+    // 탭바와 그 아래 전부가 한 상자 안에 있어야 한다. sticky는 자기 컨테이닝
+    // 블록 밖으로 못 나가므로, 탭만 감싸면 그 div의 높이가 곧 탭 높이라 첫
+    // 스크롤에 그대로 밀려 나간다 — 붙는 것처럼 보이지도 않는다.
+    <div className="mt-10">
+      <ResultTabs items={tabs} />
 
       {/* 세 기둥. 이 셋을 모르면 나머지는 배경이다. */}
       <CardSection id="overview" title="한눈에">
@@ -408,10 +410,13 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
                   bSymbol={item.b.symbol}
                   animate
                   delay={i * 60}
-                  className="w-10"
+                  /* w-8 = ReadingCard 용어 줄이 비워 둔 pr-8. 더 넓으면 겹친다. */
+                  className="w-8"
                 />
               }
-              tech={`${item.a.ko} ${item.aspect.type.ko} ${item.b.ko} · 오브 ${item.aspect.orb.toFixed(1)}도 · ${item.strengthKo}`}
+              /* 결(순풍·마찰·겹침)을 글자로 붙인다 — 인장은 aria-hidden이라
+                 접힌 카드에서는 색 말고 아무것도 말하지 않는다. */
+              tech={`${item.a.ko} ${item.aspect.type.ko} ${item.b.ko} · 오브 ${item.aspect.orb.toFixed(1)}도 · ${item.strengthKo} · ${toneLabel(item.aspect.type.harmony)}`}
               plain={item.headline}
               where={firstSentence(item.body)}
             >
@@ -424,6 +429,12 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
 
       <Section id="detail" title="점성술로 자세히">
         <ChartWheelLegend />
+        {/* 어떤 방식으로 나눈 하우스인지 화면에서 말한다 — chart.ts가 홀사인을
+            고르며 "방식을 화면에 밝힌다"고 약속한 그 자리다. 옛 원반 캡션에
+            있던 문장을 그대로 옮겼다. */}
+        <p className="mt-4 max-w-[52ch] break-keep text-guide text-starlight-dim">
+          <Term name="하우스" />는 <Term name="홀사인" /> 방식으로 나눴습니다.
+        </p>
 
         {/* 이 화면을 읽는 법. 볼 것이 많은 화면이라, 무엇이 중요하고 어떤 순서로
             읽으면 되는지 말해 준다 — 태양·달·상승궁을 모르는 채로
@@ -527,7 +538,7 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
           </div>
         </div>
       </Section>
-    </>
+    </div>
   );
 }
 
