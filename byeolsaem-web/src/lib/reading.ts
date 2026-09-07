@@ -2,7 +2,7 @@ import { ASPECT_MEANINGS, PAIR_READINGS, modeOf, pairKey, pairTheme } from "@/co
 import { ASCENDANT_ATOMS, MIDHEAVEN_ATOMS } from "@/content/atoms/ascendant";
 import { lensFor, type ConcernLens } from "@/content/atoms/concerns";
 import { HOUSE_AREAS, PLANET_AREAS, SIGN_FACES } from "@/content/atoms/life";
-import { basisLines } from "./basis";
+import { angleLabel, basisLines } from "./basis";
 import { eun, iga } from "./josa";
 import { firstSentence } from "./text";
 import { HOUSE_BY_NUMBER, type House } from "@/content/atoms/houses";
@@ -276,7 +276,7 @@ function composeLifework(aspects: ReadingAspect[]): Reading["lifework"] {
   if (!friction) return null;
   return {
     text: `${firstSentence(friction.body)} 편한 배치는 아니지만, 당신을 실제로 움직여 온 것도 이 마찰입니다.`,
-    basis: `${friction.a.ko} ${friction.aspect.type.angle === 0 ? "겹침" : `${friction.aspect.type.angle}도`} ${friction.b.ko} · 태어난 순간부터 평생 가는 각도`,
+    basis: `${friction.a.ko} ${angleLabel(friction.aspect.type.angle)} ${friction.b.ko} · 태어난 순간부터 평생 가는 각도`,
   };
 }
 

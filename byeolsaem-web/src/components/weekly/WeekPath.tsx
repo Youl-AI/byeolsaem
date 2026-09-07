@@ -1,5 +1,6 @@
 "use client";
 import { useMemo } from "react";
+import { angleLabel } from "@/lib/basis";
 import type { CalendarEvent } from "@/lib/calendar-events";
 import { eventTitle } from "@/lib/calendar-copy";
 import { kstParts } from "@/lib/retrograde-clock";
@@ -135,7 +136,7 @@ function HorizontalPath({ days, label, className }: { days: DayCell[]; label: st
                   <circle key={j} cx={cx} cy={LINE + 38 + j * 11} r={2.6} fill="rgba(232,228,216,0.75)" />
                 ))}
                 <text x={cx} y={LINE + 46 + Math.min(d.touches.length, 3) * 11} fill="rgba(154,150,168,0.9)" fontSize={10.5}>
-                  {d.touches[0].movingKo}–{d.touches[0].fixedKo} {d.touches[0].angle === 0 ? "겹침" : `${d.touches[0].angle}°`}
+                  {d.touches[0].movingKo}–{d.touches[0].fixedKo} {angleLabel(d.touches[0].angle, { symbol: true })}
                   {d.touches.length > 1 ? ` 외 ${d.touches.length - 1}` : ""}
                 </text>
               </g>
@@ -196,7 +197,7 @@ function VerticalPath({ days, label, className }: { days: DayCell[]; label: stri
                 className="week-stop"
                 style={{ animationDelay: `${310 + 110 * i}ms` }}
               >
-                {d.touches[0].movingKo}–{d.touches[0].fixedKo} {d.touches[0].angle === 0 ? "겹침" : `${d.touches[0].angle}°`}
+                {d.touches[0].movingKo}–{d.touches[0].fixedKo} {angleLabel(d.touches[0].angle, { symbol: true })}
                 {d.touches.length > 1 ? ` 외 ${d.touches.length - 1}` : ""}
               </text>
             )}

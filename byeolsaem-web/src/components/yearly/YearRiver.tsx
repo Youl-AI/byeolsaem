@@ -1,6 +1,7 @@
 "use client";
 import { useId, useState } from "react";
 import { useInView } from "@/hooks/useInView";
+import { angleLabel } from "@/lib/basis";
 import { monthTicks } from "@/lib/year-track";
 import type { YearReadingEvent } from "@/lib/yearly-reading";
 
@@ -144,7 +145,7 @@ export function YearRiver({
               <g
                 tabIndex={0}
                 role="button"
-                aria-label={`${event.dateLine} — ${event.moving.ko} ${event.angle === 0 ? "겹침" : `${event.angle}도`} 내 ${event.fixed.ko}`}
+                aria-label={`${event.dateLine} — ${event.moving.ko} ${angleLabel(event.angle)} 내 ${event.fixed.ko}`}
                 className="cursor-pointer outline-none"
                 onClick={() => onSelect(event)}
                 onKeyDown={(e) => {

@@ -10,7 +10,7 @@ import {
 } from "@/content/atoms/life";
 import { MOON_PHASE_LINES, QUIET_DAY, TRANSIT_FRAMES } from "@/content/atoms/today";
 import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
-import { basisLines } from "./basis";
+import { angleLabel, basisLines } from "./basis";
 import type { Chart } from "./chart";
 import {
   formatPassageDate,
@@ -138,7 +138,7 @@ export function todayBack(sky: TodaySky, natal: Chart, concern?: string | null):
     // 이야기를 하게 되고, 어느 쪽이 오늘인지 알 수 없어진다.
     chips: transits.slice(0, 3).map((t) => ({
       symbol: t.moving.symbol,
-      label: `${t.moving.ko}–${t.fixed.ko} ${t.angle === 0 ? "겹침" : `${t.angle}도`}`,
+      label: `${t.moving.ko}–${t.fixed.ko} ${angleLabel(t.angle)}`,
     })),
   };
 }

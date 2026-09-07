@@ -16,7 +16,7 @@ import {
   SATURN_YEAR,
   YEAR_FRAMES,
 } from "@/content/atoms/yearly";
-import { basisLines } from "./basis";
+import { angleLabel, basisLines } from "./basis";
 import type { Chart } from "./chart";
 import { recurrenceLabel } from "./passage";
 import { afterFirstSentence, firstSentence } from "./text";
@@ -276,7 +276,7 @@ export function yearReading(natal: Chart, year: number, concern?: string | null)
     .slice(0, 3)
     .map((e) => ({
       symbol: e.moving.symbol,
-      label: `${e.moving.ko}–내 ${e.fixed.ko} ${e.angle === 0 ? "겹침" : `${e.angle}도`}`,
+      label: `${e.moving.ko}–내 ${e.fixed.ko} ${angleLabel(e.angle)}`,
     }));
 
   // 올해의 머리: 관심사에 걸린 사건이 있으면 그중 가장 오래가는 것, 없으면

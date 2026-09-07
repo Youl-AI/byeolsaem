@@ -1,7 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { basisLines } from "@/lib/basis";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { angleLabel, basisLines } from "@/lib/basis";
 
 const base = { tense: "transit" as const, a: "saturn" as const, b: "uranus" as const, angle: 60, orb: 0.3, house: 7 };
+
+function collectSourceFiles(dir: string, found: string[] = []): string[] {
+  for (const entry of readdirSync(dir)) {
+    const path = join(dir, entry);
+    if (statSync(path).isDirectory()) {
+      collectSourceFiles(path, found);
+    } else if (entry.endsWith(".ts") || entry.endsWith(".tsx")) {
+      found.push(path);
+    }
+  }
+  return found;
+}
 
 describe("근거 세 줄", () => {
   it("언제나 세 줄이다", () => {
@@ -68,5 +82,23 @@ describe("근거 세 줄", () => {
       "0.8도 차이라 뚜렷한 만남입니다.",
     ]);
     expect(basisLines({ ...base, tense: "synastry", b: "moon", house: null })[1]).toBe("그쪽 달이 마음이 놓이는 자리를 맡고 있습니다.");
+  });
+});
+
+describe("각 라벨 — angleLabel", () => {
+  it("0도는 겹침, 그 외는 숫자+도", () => {
+    expect(angleLabel(0)).toBe("겹침");
+    expect(angleLabel(60)).toBe("60도");
+  });
+
+  it("소스 트리 어디에도 손으로 만든 각===0?겹침 삼항연산자가 남아 있지 않다", () => {
+    const root = join(import.meta.dirname, "..");
+    const offenders: string[] = [];
+    for (const path of collectSourceFiles(root)) {
+      if (path.endsWith("basis.ts")) continue; // angleLabel 자신의 정의
+      const text = readFileSync(path, "utf8");
+      if (/===\s*0\s*\?\s*"겹침"/.test(text)) offenders.push(path);
+    }
+    expect(offenders, offenders.join(", ")).toEqual([]);
   });
 });

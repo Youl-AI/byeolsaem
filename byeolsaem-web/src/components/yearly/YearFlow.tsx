@@ -2,6 +2,7 @@
 import { useId, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { angleLabel } from "@/lib/basis";
 import { refreshOnBodyGrowth } from "@/lib/pin";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import {
@@ -281,7 +282,7 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
                 {current.caption}
               </p>
               <p className="mt-2 text-meta text-starlight-dim">
-                {current.angle === 0 ? "겹침" : `${current.angle}도`} · {current.countLine} 힘이 도는 기간은{" "}
+                {angleLabel(current.angle)} · {current.countLine} 힘이 도는 기간은{" "}
                 {current.span}입니다.
               </p>
             </div>

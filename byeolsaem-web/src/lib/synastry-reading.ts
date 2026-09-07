@@ -11,7 +11,7 @@ import {
   SYNASTRY_ASPECTS,
   SYNASTRY_HIGHLIGHTS,
 } from "@/content/atoms/synastry";
-import { basisLines } from "./basis";
+import { angleLabel, basisLines } from "./basis";
 import type { Chart } from "./chart";
 import { gwa, iga } from "./josa";
 import { PLANET_BY_KEY, type Planet, type PlanetKey } from "./planets";
@@ -265,7 +265,7 @@ export function synastryReading(
     // 칩은 목록의 앞 세 개다. 따로 고르면 칩과 목록이 서로 다른 이야기를 한다.
     chips: lines.slice(0, 3).map((line) => ({
       symbol: line.mine.symbol,
-      label: `내 ${line.mine.ko}–그쪽 ${line.theirs.ko} ${line.angle === 0 ? "겹침" : `${line.angle}도`}`,
+      label: `내 ${line.mine.ko}–그쪽 ${line.theirs.ko} ${angleLabel(line.angle)}`,
     })),
   };
 }

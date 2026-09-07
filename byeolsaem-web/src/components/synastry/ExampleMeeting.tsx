@@ -1,4 +1,5 @@
 "use client";
+import { angleLabel } from "@/lib/basis";
 import { EXAMPLE_PARTNER_BIRTH, exampleMeeting } from "@/lib/example-sky";
 import { requestRitual } from "@/lib/ritual";
 import { CompositeSection } from "./CompositeSection";
@@ -77,7 +78,7 @@ export function ExampleMeeting() {
                 <span className="astro-symbol">{named.theirs.symbol}</span> {named.theirs.ko}
               </span>
               <span className="text-meta text-starlight-dim">
-                {named.angle === 0 ? "겹침" : `${named.angle}도`} · 오브 {named.orb.toFixed(1)}도
+                {angleLabel(named.angle)} · 오브 {named.orb.toFixed(1)}도
               </span>
               <ToneBadge harmony={named.harmony} />
             </span>

@@ -37,7 +37,24 @@ export interface BasisInput {
 
 const COUNT_KO = ["", "한", "두", "세", "네", "다섯"] as const;
 
+/**
+ * 각을 화면에 쓰는 유일한 자리 — "60도", 0도는 "겹침". 화면 전체가 이 낱말 하나만
+ * 쓴다(스펙 §2 "각은 숫자로 말한다"). 각자 손으로 `angle === 0 ? "겹침" : ...`을
+ * 다시 쓰던 아홉 자리를 여기로 모았다 — basis.test.ts가 재발을 막는다.
+ *
+ * `symbol: true`는 WeekPath의 SVG 라벨 전용이다. 그 라벨은 폭이 좁은 고정폭
+ * 칸(`fontSize=10.5`, 길 아래 매달린 추)에 들어가는데 "도"(한글 전각)가 "°"보다
+ * 넓어 두 줄로 밀린다 — 그 한 자리만 기호를 쓴다.
+ */
+export function angleLabel(angle: number, opts?: { symbol?: boolean }): string {
+  if (angle === 0) return "겹침";
+  return opts?.symbol ? `${angle}°` : `${angle}도`;
+}
+
 function firstLine(tense: BasisTense, a: string, b: string, angle: number): string {
+  // 0도 갈래는 angleLabel과 동사 어미까지 함께 바뀐다("겹쳐 있었습니다"/"겹칩니다")
+  // — 명사 라벨 하나를 문장에 끼워 넣는 다른 자리들과 달리 문장 전체가 갈리므로
+  // angleLabel로 옮기면 오히려 두 갈래를 하나의 함수 뒤에 숨기게 된다. 그대로 둔다.
   if (tense === "natal") {
     return angle === 0
       ? `태어날 때 ${a}${gwa(a)} ${b}${iga(b)} 한자리에 겹쳐 있었습니다.`
