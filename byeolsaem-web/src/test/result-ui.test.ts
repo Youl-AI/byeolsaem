@@ -571,7 +571,7 @@ describe("카드 밖에도 각 이름이 없다", () => {
 /** 카드 하나의 조각들 — ReadingCard가 쓰는 클래스가 유일한 출처다. */
 function cardsOf(html: string): { meta: string; plain: string; where: string; basis: string[]; all: string }[] {
   const strip = (s: string) => s.replace(/<[^>]+>/g, "").trim();
-  return [...html.matchAll(/<article class="reading-card[\s\S]*?<\/article>/g)].map((m) => {
+  return [...html.matchAll(/<article[^>]*?class="reading-card[\s\S]*?<\/article>/g)].map((m) => {
     const card = m[0];
     const meta = card.match(/<p class="pr-8 text-\[0\.72rem\][^"]*">([\s\S]*?)<\/p>/)?.[1] ?? "";
     const plain = card.match(/<p class="mt-0\.5 break-keep font-display[^"]*">([\s\S]*?)<\/p>/)?.[1] ?? "";
@@ -614,7 +614,9 @@ describe("카드 문법 불변식 — 다섯 화면", () => {
   // 소유한 자리 — 머리줄·둘째 줄·근거 세 줄 — 에서만 막는다.
   it("카드 어디에도 각 이름이 없다", () => {
     for (const [name, html] of screens()) {
-      for (const c of cardsOf(html)) {
+      const cards = cardsOf(html);
+      expect(cards.length, name).toBeGreaterThan(0);
+      for (const c of cards) {
         expect(c.all, name).not.toMatch(/육분|삼각|사각|대립/);
       }
     }
