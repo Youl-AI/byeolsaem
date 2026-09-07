@@ -70,8 +70,8 @@ export const ReadingCard: React.FC<
   const bodyId = useId();
   return (
     <article
-      id={id}
       className="reading-card relative scroll-mt-28 rounded-xl bg-ink-raised px-4 py-3.5"
+      id={id}
       style={{ animationDelay: `${index * 60}ms` }}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}

@@ -7,7 +7,7 @@ import { ReadingCard } from "@/components/ui/ReadingCard";
 import { ResultTabs } from "@/components/ui/ResultTabs";
 import { AspectBadge } from "@/components/ui/AspectBadge";
 import { ChartWheel } from "@/components/chart/ChartWheel";
-import { NatalHero } from "@/components/chart/NatalReading";
+import { NatalBody, NatalHero } from "@/components/chart/NatalReading";
 import { EXAMPLE_BIRTH, exampleMeeting, exampleSky } from "@/lib/example-sky";
 import { afterFirstSentence } from "@/lib/text";
 import { YearEventRows } from "@/components/yearly/YearEventRows";
@@ -565,5 +565,85 @@ describe("카드 밖에도 각 이름이 없다", () => {
       }),
     );
     expect(html).not.toMatch(FORBIDDEN);
+  });
+});
+
+/** 카드 하나의 조각들 — ReadingCard가 쓰는 클래스가 유일한 출처다. */
+function cardsOf(html: string): { meta: string; plain: string; where: string; basis: string[]; all: string }[] {
+  const strip = (s: string) => s.replace(/<[^>]+>/g, "").trim();
+  return [...html.matchAll(/<article class="reading-card[\s\S]*?<\/article>/g)].map((m) => {
+    const card = m[0];
+    const meta = card.match(/<p class="pr-8 text-\[0\.72rem\][^"]*">([\s\S]*?)<\/p>/)?.[1] ?? "";
+    const plain = card.match(/<p class="mt-0\.5 break-keep font-display[^"]*">([\s\S]*?)<\/p>/)?.[1] ?? "";
+    const where = card.match(/<p class="mt-1 break-keep text-meta[^"]*">([\s\S]*?)<\/p>/)?.[1] ?? "";
+    const basis = [...card.matchAll(/<p data-basis-line[^>]*>([\s\S]*?)<\/p>/g)].map((b) => strip(b[1]));
+    return { meta: strip(meta), plain: strip(plain), where: strip(where), basis, all: strip(card) };
+  });
+}
+
+describe("카드 문법 불변식 — 다섯 화면", () => {
+  const when = new Date("2026-09-07T03:00:00Z");
+  const screens = (): [string, string][] => {
+    const { chart, reading } = exampleSky();
+    const { mine, theirs, reading: meet } = exampleMeeting();
+    const sky = todaySky(when);
+    return [
+      ["오늘", renderToStaticMarkup(createElement(TodayBody, { back: todayBack(sky, chart, "연애운"), sky, now: when }))],
+      ["한 해", renderToStaticMarkup(createElement(YearEventRows, { year: 2026, events: yearReading(chart, 2026, null).events, openId: null, onToggle: () => {} }))],
+      ["천궁도", renderToStaticMarkup(createElement(NatalBody, { chart, reading, now: when }))],
+      ["궁합", renderToStaticMarkup(createElement(SynastryBody, { mine, theirs, reading: meet, chosen: null, activeId: null, onPick: () => {}, onActive: () => {} }))],
+    ];
+  };
+
+  it("where는 plain 안에 글자 그대로 들어 있지 않다", () => {
+    for (const [name, html] of screens()) {
+      const cards = cardsOf(html);
+      expect(cards.length, name).toBeGreaterThan(0);
+      for (const c of cards) {
+        expect(c.where.length, `${name}: ${c.plain}`).toBeGreaterThan(0);
+        expect(c.plain.includes(c.where), `${name}: "${c.where}"가 "${c.plain}" 안에 있다`).toBe(false);
+      }
+    }
+  });
+
+  // 금지어 검사의 범위 (2026-09-08 판단, 진행 원장에 근거가 있다).
+  // 각 이름(육분·삼각·사각·대립)은 아톰의 주석에만 있고 사용자 문자열에는 없다 —
+  // 그래서 카드 전체에서 막는다. 반면 '마찰'·'순풍'은 ASPECT_MEANINGS.body와
+  // planet-in-house의 산문 속 보통명사다("이 마찰은 불편하지만…"). 스펙이 겨눈 것은
+  // toneLabel이 찍어 내던 라벨이지 산문이 아니므로, 그 둘과 '오차'는 이 재설계가
+  // 소유한 자리 — 머리줄·둘째 줄·근거 세 줄 — 에서만 막는다.
+  it("카드 어디에도 각 이름이 없다", () => {
+    for (const [name, html] of screens()) {
+      for (const c of cardsOf(html)) {
+        expect(c.all, name).not.toMatch(/육분|삼각|사각|대립/);
+      }
+    }
+  });
+
+  it("머리줄·둘째 줄·근거에는 결 이름과 오차도 없다", () => {
+    for (const [name, html] of screens()) {
+      const cards = cardsOf(html);
+      expect(cards.length, name).toBeGreaterThan(0);
+      for (const c of cards) {
+        expect([c.meta, c.where, ...c.basis].join(" "), name).not.toMatch(/오차|순풍|마찰/);
+      }
+    }
+  });
+
+  // 이 불변식은 근거가 있는 카드에만 건다(2026-09-08 판단, task-10-report.md에 근거가
+  // 있다). NatalBody는 세 기둥 카드(태양·달·상승궁)와 열 개의 별 카드도 reading-card로
+  // 그리지만, Task 8이 근거를 붙인 것은 별과 별 사이의 "각" 카드뿐이다 — 그 둘은 이
+  // 재설계의 범위 밖이라 근거 없이 그대로 남았다. basis는 ReadingCard에서부터 있으면
+  // 세 줄, 없으면 소제목째 안 그리는 선택 슬롯이다(스펙 §3.1 "비어 있으면 소제목도
+  // 없다"). 오늘·한 해·궁합의 카드는 전부 근거를 갖고 있어 이 좁힘이 그 셋에는 아무
+  // 영향이 없다.
+  it("근거가 있는 카드는 세 줄이다", () => {
+    for (const [name, html] of screens()) {
+      const withBasis = cardsOf(html).filter((c) => c.basis.length > 0);
+      expect(withBasis.length, name).toBeGreaterThan(0);
+      for (const c of withBasis) {
+        expect(c.basis.length, `${name}: ${c.plain}`).toBe(3);
+      }
+    }
   });
 });

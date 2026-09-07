@@ -244,7 +244,7 @@ export function NatalHero({
  * 11,105px를 탭 없이 스크롤하던 것이 문제였다(2026-09-06 실측). 구역은 그대로
  * 두고 붙잡아 줄 손잡이만 얹었다.
  */
-function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; now: Date }) {
+export function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; now: Date }) {
   const { core } = reading;
   // 관심사에 걸린 별은 자기 섹션으로, 나머지는 사전 섹션으로 갈라 세운다.
   const highlighted = reading.lens ? reading.placements.filter((p) => p.highlighted) : [];
