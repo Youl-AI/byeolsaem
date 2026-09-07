@@ -77,7 +77,7 @@ function targetsOf(type: AspectType): number[] {
 }
 
 /** 별의 황경이 목표 황경과 같아지는 순간을 이분법으로 좁힌다. */
-function refineCrossing(planet: PlanetKey, target: number, lowJd: number, highJd: number): number {
+export function refineCrossing(planet: PlanetKey, target: number, lowJd: number, highJd: number): number {
   const offset = (jd: number) => norm180(longitudeOf(planet, jd) - target);
   let low = lowJd;
   let high = highJd;
