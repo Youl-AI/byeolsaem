@@ -1,4 +1,5 @@
 import { TRANSIT_FRAME, TRANSIT_SELF, TRANSIT_SKY } from "@/content/atoms/transits";
+import { basisLines } from "./basis";
 import { eventsBetween, type CalendarEvent } from "./calendar-events";
 import { eventTitle } from "./calendar-copy";
 import { ASPECT_TYPES, angleBetween, longitudeOf, type Chart } from "./chart";
@@ -97,12 +98,14 @@ export interface WeeklyTouch {
   date: string;
   dowKo: string;
   text: string;
-  /** 별길 그림의 짧은 라벨 — "금성–화성 육분" 꼴로 조립한다. */
+  /** 별길 그림의 짧은 라벨 — "금성–화성 60°" 꼴로 조립한다. */
   movingKo: string;
   fixedKo: string;
-  aspectKo: string;
+  /** 별길 그림의 라벨에 쓰는 각도 숫자. */
+  angle: number;
   /** 펼치면 나오는 풀이 — 트랜싯 아톰 세 조각을 이어 붙인다. */
   detail: string;
+  basis: [string, string, string];
 }
 
 /**
@@ -125,16 +128,26 @@ export function weeklyPersonal(weekStart: Date, natal: Chart): WeeklyTouch[] {
           const orb = Math.abs(angleBetween(movingLon, fixed.longitude) - type.angle);
           if (orb > 1) continue;
           const key = `${moving.key}-${fixed.planet}-${type.key}`;
+          const fixedKo = planetKo.get(fixed.planet) ?? fixed.planet;
+          const meets = type.angle === 0 ? "겹칩니다" : `${type.angle}도를 이룹니다`;
           const touch: WeeklyTouch = {
             date: at.toISOString(),
             dowKo,
             // natal 별 이름 10개(태양·달·수성·금성·화성·목성·토성·천왕성·해왕성·명왕성)는
             // 전부 받침으로 끝나므로 "과"가 항상 맞다("와"를 쓰면 어긋난다).
-            text: `${dowKo}요일 — 하늘의 ${moving.ko}이 내 ${planetKo.get(fixed.planet)}과 ${type.ko}을 이룹니다.`,
+            text: `${dowKo}요일 — 하늘의 ${moving.ko}이 내 ${fixedKo}과 ${meets}.`,
             movingKo: moving.ko,
-            fixedKo: planetKo.get(fixed.planet) ?? fixed.planet,
-            aspectKo: type.ko,
-            detail: `하늘의 ${moving.ko} — ${TRANSIT_SKY[moving.key]}. 내 ${planetKo.get(fixed.planet)} — ${TRANSIT_SELF[fixed.planet]}. ${TRANSIT_FRAME[type.key]}`,
+            fixedKo,
+            angle: type.angle,
+            detail: `하늘의 ${moving.ko} — ${TRANSIT_SKY[moving.key]}. 내 ${fixedKo} — ${TRANSIT_SELF[fixed.planet]}. ${TRANSIT_FRAME[type.key]}`,
+            basis: basisLines({
+              tense: "transit",
+              a: moving.key,
+              b: fixed.planet,
+              angle: type.angle,
+              orb,
+              house: fixed.house,
+            }),
           };
           const prev = best.get(key);
           if (!prev || orb < prev.orb) best.set(key, { orb, touch });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { kstWeekStart, weeklyData, weeklyPersonal } from "@/lib/weekly-reading";
 import { computeChart } from "@/lib/chart";
+import { exampleSky } from "@/lib/example-sky";
 
 describe("kstWeekStart", () => {
   it("일요일(KST)은 그 주 월요일로 돌아간다", () => {
@@ -52,6 +53,21 @@ describe("weeklyPersonal", () => {
       latitude: 37.5665, longitude: 126.978, timezoneOffsetHours: 9,
     });
     const touches = weeklyPersonal(kstWeekStart(new Date(Date.UTC(2026, 9, 20))), natal);
-    for (const t of touches) expect(t.text).not.toMatch(/와 (합|육분|사각|삼각|대립)/);
+    for (const t of touches) expect(t.text).toMatch(/과 (겹칩니다|\d+도를 이룹니다)\.$/);
+  });
+});
+
+describe("주간 — 내 차트에 닿는 각", () => {
+  it("줄마다 각도 숫자와 근거 세 줄, 각 이름은 없다", () => {
+    const { chart } = exampleSky();
+    // 2026-09-07 월요일 0시 KST
+    const touches = weeklyPersonal(new Date("2026-09-06T15:00:00Z"), chart);
+    expect(touches.length).toBeGreaterThan(0);
+    for (const t of touches) {
+      expect(t.text).toMatch(/(\d+도를 이룹니다|겹칩니다)\.$/);
+      expect(t.basis).toHaveLength(3);
+      expect([t.text, t.detail, ...t.basis].join(" ")).not.toMatch(/오차|육분|삼각|사각|대립|순풍|마찰/);
+      expect(typeof t.angle).toBe("number");
+    }
   });
 });

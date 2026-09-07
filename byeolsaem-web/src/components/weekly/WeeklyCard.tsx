@@ -46,9 +46,15 @@ function TouchRow({
         }`}
       >
         <div className="overflow-hidden">
-          <p className="max-w-[48ch] break-keep pb-4 pl-6 text-meta leading-relaxed text-starlight-dim">
-            {touch.detail}
-          </p>
+          <div className="max-w-[48ch] break-keep pb-4 pl-6 text-meta leading-relaxed text-starlight-dim">
+            <p>{touch.detail}</p>
+            <p className="mt-3 font-latin text-eyebrow tracking-[0.2em] text-gold">왜 이게 보이나요</p>
+            {touch.basis.map((line, i) => (
+              <p key={i} data-basis-line className="mt-1.5">
+                {line}
+              </p>
+            ))}
+          </div>
         </div>
       </div>
     </li>
