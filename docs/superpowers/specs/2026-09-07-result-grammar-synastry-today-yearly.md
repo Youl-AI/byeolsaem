@@ -156,3 +156,10 @@ natal에만 있던 것을 셋이 함께 쓰도록 꺼낸다. 새 컴포넌트는
 ## 9. 검증
 
 건마다 `npx tsc --noEmit && npx vitest run`, 마지막에 `npm run build`. 배포하지 않고 `npx serve byeolsaem-web/out -l 4173`으로 세 페이지를 390×844에서 실측: 궁합(상대 입력 후) 첫 화면 순서·탭 top 64·카드 계단, 오늘 뒤집기 후 탭 등장·`#today-transits` 스크롤, 한 해 좁은 화면 탭·강 점 → 카드 열림.
+
+## 10. 구현 기록 (2026-09-07)
+
+- §3: `ResultSection`·`CardSection`은 `src/components/ui/ResultSection.tsx`. `ReadingCard`의 `open`은 `defaultOpen`보다 우선한다(부모가 쥐면 카드는 스스로 바꾸지 않는다).
+- §5.1: 렌즈가 없을 때 나머지 트랜짓 구역의 라벨은 "오늘의 각" — 이 스펙이 새로 넣은 유일한 낱말.
+- §6.2: 한 해 탭은 `flow === false`(마운트 뒤 판정)에서만 선다. 서버 HTML에는 없다.
+- §4.3·§5.2·§6.1: 카드의 `where`에는 앞의 줄표(—)를 붙이지 않는다. natal이 세운 표기이고 세 화면이 그것을 따른다.

@@ -81,3 +81,12 @@
 ## 7. 검증 · 커밋
 
 건마다 커밋 하나. 각각 `npx tsc --noEmit && npx vitest run && npm run build`, 배포 후 dev-browser로 해당 페이지 모바일 390 실측(감소 모드 on/off 두 번). 순서: 1 → 2 → 3 → 4 → 5.
+
+## 8. 구현 기록 (2026-09-07)
+
+- §1 주간 별길: 선은 `scaleX` 대신 `pathLength=1` + `stroke-dashoffset`(그리기 토큰, 1000ms) — 이 저장소의 SVG 선 그리기 문법 그대로. `<line>`에 `transform-box: fill-box`는 높이 0 bbox 위에서 원점을 재야 해 피했다. 트리거는 `useInView`(0.25)로 바꾸고 `WeeklyCard`의 rAF `entered`를 지웠다.
+- §2 12년 아치: 최종 색은 기존 값 유지(`rgba(201,162,39,0.16)`). 나이 마커 = 다이얼 중앙 `AGE`+숫자.
+- §3 오늘의 달: `MoonDisc` prop은 `fill?: string | null`(세션 열쇠) — `ChartWheel`의 `entrance`와 같은 계약. `TodayCard`는 `now`를 안 뒤에만 열쇠를 준다(빌드 시점 하늘로 한 번, 오늘로 한 번 도는 것을 막는다). 경로 식은 `src/lib/moon-path.ts`.
+- §4 역행 띠: `RetroBand` prop `live`(같은 이유). 굴림 판정은 `src/lib/retro-roll.ts`.
+- §5 달무리: `HeroSequence`에는 ScrollTrigger가 없다 — 달은 단추로 시작하는 Flip이 옮긴다. `scene === "arrival"`에서만 숨쉬고 의식이 시작되면 `animation: none`(paused가 아니라 제거 — 커진 채 얼어붙지 않게).
+- 표기 하나: 하네스가 도구 인자의 네 자리 유니코드 이스케이프를 실제 문자로 정규화해서, 구현자가 ES2015 코드 포인트 형식으로 적은 것을 그 뒤 저장소 표기로 통일했다(커밋 7233d98·f88d19e). 두 형식은 같은 문자열로 컴파일된다.

@@ -13,9 +13,9 @@
       보이게 하기, 신뢰 신호(/method) 더하기. 넷째(칼럼 증량)가 가장 약했다.
 - [ ] **칼럼 스물일곱 편 눈으로 다시 읽기.** 한 세션에 늘린 글이라 결이 비슷하다.
       어색한 편은 사람이 손대는 것이 맞다.
-- [ ] **스펙 B — 산재 모션 다섯** (`docs/superpowers/specs/2026-09-06-scattered-motion.md`). 건마다 커밋 하나.
-- [ ] **스펙 C — synastry·today·yearly에 ResultTabs·ReadingCard 적용.** natal에서 만든 컴포넌트 재사용. 첫 화면은 셋 다 이미 그림이 있어 natal보다 작다.
-- [ ] natal 재구성 배포 — main 병합 후 루트에서 `npx wrangler deploy`, 그 뒤 byeolsaem.com/natal에서 같은 실측 반복.
+- [x] **스펙 B — 산재 모션 다섯** (`docs/superpowers/specs/2026-09-06-scattered-motion.md`). 건마다 커밋 하나. — 2026-09-07 구현(브랜치 scattered-motion-result-grammar)
+- [x] **스펙 C — synastry·today·yearly에 ResultTabs·ReadingCard 적용.** natal에서 만든 컴포넌트 재사용. 첫 화면은 셋 다 이미 그림이 있어 natal보다 작다. — 2026-09-07 구현(브랜치 scattered-motion-result-grammar)
+- [ ] natal 재구성 배포 — main 병합 후 루트에서 `npx wrangler deploy`, 그 뒤 byeolsaem.com/natal에서 같은 실측 반복. 이 브랜치(스펙 B·C)도 같은 배포에 실린다.
 
 ## 되돌릴지 정할 것
 
@@ -86,6 +86,13 @@
 - [ ] **호라삿타이(태국 점성술).** 넣는다면 계산 축이 하나 더 생긴다 — 항성시라
       아야남사(회귀↔항성 보정, 현재 약 24도) 처리와 태국 요일 체계가 따로 필요하다.
       지금 엔진은 회귀시 전용. DC 반응을 보고 정한다.
+
+- [ ] **한 해 핀 무대 경로의 탭바.** 넓은 화면 + 감소 모드 아님에서는 `YearFlow`의
+      무대가 `sticky top-0 h-screen`이라 탭바(`sticky top-16`)와 겹쳐 두지 않았다.
+      무대 위 48px을 비우고 탭을 얹을지, 그 화면은 스크롤이 목차라 그대로 둘지 판단.
+- [ ] **궁합 카드 → 금실 밝히기의 거리.** 금실이 첫 화면으로 올라가 카드 목록과
+      한 화면 넘게 떨어졌다. 커서를 올려도 실이 밝아지는 것이 보이지 않으면
+      카드 옆에 작은 금실 축소판을 두거나 연결을 뺀다.
 
 ## 끝난 것 (2026-09-05)
 
