@@ -68,6 +68,46 @@ describe("통과 기간", () => {
     expect(passage.progress).toBeNull();
   });
 
+  it("290일째에 오브를 벗어나 400일 안에 돌아오지 않아도 그 마지막 오브 안 날을 끝으로 삼는다", () => {
+    // 미래 방향으로 290일까지는 오브 안(0), 그 뒤 400일까지는 오브 밖(10) — 다시
+    // 안 돌아온다. 벗어난 뒤 빈틈이 110일(<=120)이라 MERGE_GAP_DAYS 조기 종료도
+    // 트리거되지 않는다 — edge()가 탐색 범위를 다 쓰고 그냥 null을 반환하던 자리.
+    const lon = synthetic((d) => (d <= 290 ? 0 : 10));
+    const passage = transitPassage("saturn", 0, 0, TODAY, lon)!;
+    expect(passage.end).not.toBeNull();
+    expect(Math.round(passage.end!.jd - TODAY)).toBe(290);
+  });
+
+  it("불변식 — 예시 차트에서 한 해에 걸친 여러 날짜 중, 시작이 있는 느린 트랜짓은 끝도 있다", () => {
+    const { chart } = exampleSky();
+    const sampleDates = [
+      "2026-01-15T03:00:00Z",
+      "2026-02-15T03:00:00Z",
+      "2026-03-15T03:00:00Z",
+      "2026-04-15T03:00:00Z",
+      "2026-05-15T03:00:00Z",
+      "2026-06-15T03:00:00Z",
+      "2026-07-15T03:00:00Z",
+      "2026-08-15T03:00:00Z",
+      "2026-09-15T03:00:00Z",
+      "2026-10-15T03:00:00Z",
+      "2026-11-15T03:00:00Z",
+      "2026-12-15T03:00:00Z",
+    ];
+    let checked = 0;
+    for (const iso of sampleDates) {
+      const sky = todaySky(new Date(iso));
+      for (const t of findTransits(sky, chart, 40)) {
+        const natal = chart.placements.find((p) => p.planet === t.natal)!;
+        const passage = transitPassage(t.transiting, natal.longitude, t.type.angle, sky.julianDay);
+        if (!passage) continue;
+        checked += 1;
+        if (passage.start !== null) expect(passage.end).not.toBeNull();
+      }
+    }
+    expect(checked).toBeGreaterThan(0);
+  });
+
   it("목표 황경을 한 번만 지나가면 정점도 하나, 그 위치까지 고정한다", () => {
     // natal 0도, 각 0도 — 목표는 0도 하나뿐. d=0과 d=1 사이에서 지나간다(정확히 d=0.5는
     // 피한다 — jd가 항상 정수라 |d|를 그대로 쓰면 목표를 정수 날짜에 정확히 밟아 부호가

@@ -59,7 +59,13 @@ function edge(orbAt: (jd: number) => number, todayJd: number, dir: -1 | 1): numb
       if (gap > MERGE_GAP_DAYS) return lastIn;
     }
   }
-  return null;
+  // 탐색 범위(400일)를 다 쓴 시점에 이미 오브 밖(gap > 0)이면, 다시 들어올지는
+  // 모르지만 마지막으로 오브 안이었던 날은 안다 — 그것이 관찰 가능한 끝이다.
+  // gap이 MERGE_GAP_DAYS(120일)를 넘지 않은 채 탐색이 끝나는 경우가 있다(280~400일
+  // 사이에 벗어나는 통과) — 그때도 null을 반환하면 진행 중인 통과의 끝 날짜와
+  // 진행 막대가 통째로 사라진다(토성 5월 9일–2027년 3월 25일, 320일짜리 통과가
+  // 실측에서 그랬다). 아직 오브 안(gap === 0)이면 끝을 모르는 것이 맞으므로 null.
+  return gap > 0 ? lastIn : null;
 }
 
 export function transitPassage(
