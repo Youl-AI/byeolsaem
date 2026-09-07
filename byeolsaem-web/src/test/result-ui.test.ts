@@ -308,9 +308,11 @@ describe("궁합 첫 화면", () => {
       }),
     );
     expectTabsResolve(html);
-    // 이름 붙은 조합은 펼쳐져 있고 나머지는 접혀 있다.
-    expect(html).toContain('aria-expanded="true"');
-    expect(html).toContain('aria-expanded="false"');
+    // 이름 붙은 조합은 펼쳐져 있고 나머지는 접혀 있다. 근거 줄이 하우스를 말하면
+    // 그 안의 용어(하우스)도 자기 버튼을 갖고 항상 aria-expanded="false"로
+    // 뜨므로, 카드 자체의 열고 닫기 버튼만 그 문구("접기"/"더 읽기")로 센다.
+    expect(html).toContain(">접기<");
+    expect(html).toContain(">더 읽기<");
   });
 });
 
