@@ -79,7 +79,11 @@ function thirdLine(input: BasisInput): string {
   if (orb === null) {
     const labels = input.exactLabels ?? [];
     if (labels.length <= 1) return `${labels[0] ?? "올해"}에 정확히 맞습니다.`;
-    return `${labels.join(" · ")}, ${COUNT_KO[labels.length] ?? labels.length} 번에 걸쳐 맞습니다.`;
+    // COUNT_KO는 다섯까지다("세 번"처럼 낱말과 "번" 사이에 띄어쓰기가 있다). 그
+    // 너머(오늘의 findYearEvents로는 도달 불가)는 숫자로 떨어지는데, 숫자는
+    // "번"과 붙여 쓴다("6번") — 그대로 이어 쓰면 "6 번"처럼 뜬 공백이 생긴다.
+    const count = COUNT_KO[labels.length] ? `${COUNT_KO[labels.length]} 번` : `${labels.length}번`;
+    return `${labels.join(" · ")}, ${count}에 걸쳐 맞습니다.`;
   }
   const o = orb.toFixed(1);
   if (tense === "natal") return `${o}도 차이라 ${orb < 2 ? "뚜렷한" : "옅은"} 배선입니다.`;

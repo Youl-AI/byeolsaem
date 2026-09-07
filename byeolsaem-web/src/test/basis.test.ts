@@ -65,6 +65,13 @@ describe("근거 세 줄", () => {
     );
   });
 
+  it("정확한 날이 다섯을 넘으면(오늘의 코드로는 도달 불가) 숫자 앞에 뜬 공백이 없다", () => {
+    const labels = ["1월 1일", "2월 2일", "3월 3일", "4월 4일", "5월 5일", "6월 6일"];
+    expect(basisLines({ ...base, orb: null, exactLabels: labels })[2]).toBe(
+      `${labels.join(" · ")}, 6번에 걸쳐 맞습니다.`,
+    );
+  });
+
   it("natal 시제", () => {
     expect(basisLines({ ...base, tense: "natal", a: "sun", b: "moon", angle: 90, orb: 1.2, house: 4 })).toEqual([
       "태어날 때 태양과 달이 90도였습니다.",
