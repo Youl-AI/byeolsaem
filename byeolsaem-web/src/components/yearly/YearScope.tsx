@@ -20,6 +20,7 @@ import {
 import { UnknownPlace } from "@/components/chart/NoProfile";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
+import { ResultTabs } from "@/components/ui/ResultTabs";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { TalismanChip } from "@/components/ui/TalismanChip";
 import { YearEventRows } from "./YearEventRows";
@@ -38,6 +39,11 @@ import { YearRiver } from "./YearRiver";
  */
 export function YearScope({ backdrops }: { backdrops: YearBackdrop[] }) {
   const [year, setYear] = useState(backdrops[0].year);
+  // 넓은 화면 + 감소 모드 아님 → 붙박인 가로 강(YearFlow). 아니면 접힌 카드 목록.
+  // 마운트 뒤에 정한다 — 서버 HTML에는 탭이 없어야 하이드레이션이 어긋나지 않는다.
+  // null은 "아직 모른다".
+  const [flow, setFlow] = useState<boolean | null>(null);
+  useEffect(() => setFlow(pinCapable()), []);
 
   // 서버가 만든 HTML은 빌드 시점의 해를 고른 상태다. 보는 사람의 달력이 이미
   // 다음 해로 넘어갔으면 마운트한 뒤 그쪽으로 옮긴다. 11월부터 다음 해를 보여
@@ -49,11 +55,22 @@ export function YearScope({ backdrops }: { backdrops: YearBackdrop[] }) {
 
   const current = backdrops.find((b) => b.year === year) ?? backdrops[0];
 
+  // 좁은 화면과 감소 모드의 탭 둘(스펙 C §6.2). 핀 무대 경로에는 두지 않는다 —
+  // 무대가 sticky top-0 h-screen이라 탭바(sticky top-16)와 겹친다.
+  const tabs = useMemo(
+    () => [
+      { id: `year-${current.year}`, label: `${current.year}년, 모두에게` },
+      { id: "personal-year", label: "당신의 날짜" },
+    ],
+    [current.year],
+  );
+
   return (
     <div className="grid items-start gap-10 md:grid-cols-[150px_minmax(0,1fr)] md:gap-12">
       <YearRail backdrops={backdrops} year={current.year} onPick={setYear} />
 
       <div className="min-w-0">
+        {flow === false && <ResultTabs items={tabs} />}
         {backdrops.map((backdrop) => (
           <BackdropSection
             key={backdrop.year}
@@ -61,7 +78,7 @@ export function YearScope({ backdrops }: { backdrops: YearBackdrop[] }) {
             hidden={backdrop.year !== current.year}
           />
         ))}
-        <PersonalYear year={current.year} />
+        <PersonalYear year={current.year} flow={flow === true} />
       </div>
     </div>
   );
@@ -138,9 +155,14 @@ function BackdropSection({ backdrop, hidden }: { backdrop: YearBackdrop; hidden:
   const collapsed = ready && profile !== null && !open;
 
   return (
-    <section hidden={hidden} aria-labelledby={`year-${backdrop.year}`}>
+    <section
+      id={`year-${backdrop.year}`}
+      hidden={hidden}
+      className="mt-10 scroll-mt-32"
+      aria-labelledby={`year-${backdrop.year}-title`}
+    >
       <h2
-        id={`year-${backdrop.year}`}
+        id={`year-${backdrop.year}-title`}
         className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight"
       >
         {backdrop.year}년, 모두에게 같은 부분
@@ -288,13 +310,8 @@ function SlowPlanet({
  * 그 위에서 각도가 맞는 순간을 이분법으로 좁히는 일이라, 해가 바뀌거나 차트가
  * 바뀔 때만 다시 하도록 묶어 둔다.
  */
-function PersonalYear({ year }: { year: number }) {
+function PersonalYear({ year, flow }: { year: number; flow: boolean }) {
   const { profile, ready } = useBirthProfile();
-  // 넓은 화면 + 감소 모드 아님 → 붙박인 가로 강. 아니면 접힌 목록(§11.5의
-  // 폴백). 이 값은 마운트 시점에 한 번 정한다 — 이 아래 내용 전체가 어차피
-  // 마운트 뒤에야 그려지므로(출생 정보는 브라우저만 안다) 서버와 어긋날 일이
-  // 없고, 스크롤 중에 창 크기가 바뀌어 무대가 뒤집히는 것보다 낫다.
-  const [flow] = useState(() => pinCapable());
   /** 접힌 목록에서 지금 열려 있는 사건. 강의 점을 눌러도 열린다. */
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -314,7 +331,7 @@ function PersonalYear({ year }: { year: number }) {
 
   if (!ready) {
     return (
-      <section className="mt-20 border-t border-gold/15 pt-12">
+      <section id="personal-year" className="mt-20 scroll-mt-32 border-t border-gold/15 pt-12">
         <p className="text-guide text-starlight-dim" aria-live="polite">
           하늘을 여는 중입니다.
         </p>
@@ -324,7 +341,7 @@ function PersonalYear({ year }: { year: number }) {
 
   if (profile && !reading) {
     return (
-      <section className="mt-20 border-t border-gold/15 pt-12">
+      <section id="personal-year" className="mt-20 scroll-mt-32 border-t border-gold/15 pt-12">
         <UnknownPlace city={profile.city} />
       </section>
     );
@@ -332,7 +349,7 @@ function PersonalYear({ year }: { year: number }) {
 
   if (!profile || !reading) {
     return (
-      <section className="mt-20 border-t border-gold/15 pt-12">
+      <section id="personal-year" className="mt-20 scroll-mt-32 border-t border-gold/15 pt-12">
         <h2 className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
           여기서부터는 당신의 해
           <span aria-hidden className="h-px flex-1 bg-gold/25" />
@@ -355,7 +372,7 @@ function PersonalYear({ year }: { year: number }) {
   }
 
   return (
-    <section className="mt-20 border-t border-gold/15 pt-12">
+    <section id="personal-year" className="mt-20 scroll-mt-32 border-t border-gold/15 pt-12">
       <h2 className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
         {year}년, 당신의 날짜
         <span aria-hidden className="h-px flex-1 bg-gold/25" />

@@ -10,6 +10,8 @@ import { ChartWheel } from "@/components/chart/ChartWheel";
 import { NatalHero } from "@/components/chart/NatalReading";
 import { EXAMPLE_BIRTH, exampleMeeting, exampleSky } from "@/lib/example-sky";
 import { afterFirstSentence } from "@/lib/text";
+import { YearEventRows } from "@/components/yearly/YearEventRows";
+import { yearReading } from "@/lib/yearly-reading";
 import { SynastryBody, SynastryHero } from "@/components/synastry/SynastryReading";
 import { TodayBody } from "@/components/today/TodayCard";
 import { todaySky } from "@/lib/today";
@@ -251,5 +253,21 @@ describe("오늘의 결과 구간", () => {
     expect(html).not.toContain('aria-label="결과 구역"');
     expect(html).toContain("오늘의 하늘, 열 개의 별");
     expect(html).toContain("다가오는 달");
+  });
+});
+
+describe("한 해의 사건 카드", () => {
+  it("사건마다 카드 하나, openId인 카드만 펼쳐져 있고, 카드 id는 사건 id", () => {
+    const { chart } = exampleSky();
+    const events = yearReading(chart, 2026, null).events;
+    expect(events.length).toBeGreaterThan(0);
+    const html = renderToStaticMarkup(
+      createElement(YearEventRows, { year: 2026, events, openId: events[0].id, onToggle: () => {} }),
+    );
+    expect(html.match(/aria-expanded=/g)).toHaveLength(events.length);
+    expect(html.match(/aria-expanded="true"/g)).toHaveLength(1);
+    expect(html).toContain(`id="${events[0].id}"`);
+    expect(html).toContain("힘이 도는 기간은");
+    expect(html).toContain('class="reading-card');
   });
 });
