@@ -55,15 +55,8 @@ export function YearScope({ backdrops }: { backdrops: YearBackdrop[] }) {
 
   const current = backdrops.find((b) => b.year === year) ?? backdrops[0];
 
-  // 좁은 화면과 감소 모드의 탭 둘(스펙 C §6.2). 핀 무대 경로에는 두지 않는다 —
-  // 무대가 sticky top-0 h-screen이라 탭바(sticky top-16)와 겹친다.
-  const tabs = useMemo(
-    () => [
-      { id: `year-${current.year}`, label: `${current.year}년, 모두에게` },
-      { id: "personal-year", label: "당신의 날짜" },
-    ],
-    [current.year],
-  );
+  // ResultTabs의 관찰자가 items 정체성에 걸려 있다.
+  const tabs = useMemo(() => yearTabs(current.year), [current.year]);
 
   return (
     <div className="grid items-start gap-10 md:grid-cols-[150px_minmax(0,1fr)] md:gap-12">
@@ -83,6 +76,21 @@ export function YearScope({ backdrops }: { backdrops: YearBackdrop[] }) {
       </div>
     </div>
   );
+}
+
+/**
+ * 좁은 화면과 감소 모드의 탭 둘(스펙 C §6.2). 핀 무대 경로에는 두지 않는다 —
+ * 무대가 sticky top-0 h-screen이라 탭바(sticky top-16)와 겹친다.
+ *
+ * 앵커가 닿을 구역은 아래 두 곳이다: 해마다 하나씩 그리는 BackdropSection의
+ * `year-{year}`와, 언제나 하나뿐인 `personal-year`. 셋의 id가 어긋나면 탭이
+ * 죽은 앵커가 되므로 명세를 밖으로 내어 테스트가 구역과 대조한다.
+ */
+export function yearTabs(year: number): { id: string; label: string }[] {
+  return [
+    { id: `year-${year}`, label: `${year}년, 모두에게` },
+    { id: "personal-year", label: "당신의 날짜" },
+  ];
 }
 
 function YearRail({

@@ -11,11 +11,19 @@ import { NatalHero } from "@/components/chart/NatalReading";
 import { EXAMPLE_BIRTH, exampleMeeting, exampleSky } from "@/lib/example-sky";
 import { afterFirstSentence } from "@/lib/text";
 import { YearEventRows } from "@/components/yearly/YearEventRows";
-import { yearReading } from "@/lib/yearly-reading";
+import { yearBackdrop, yearReading } from "@/lib/yearly-reading";
 import { SynastryBody, SynastryHero } from "@/components/synastry/SynastryReading";
 import { TodayBody } from "@/components/today/TodayCard";
 import { todaySky } from "@/lib/today";
 import { todayBack } from "@/lib/today-reading";
+import { QUIET_DAY } from "@/content/atoms/today";
+import { YearScope, yearTabs } from "@/components/yearly/YearScope";
+
+/** 탭바 안의 앵커 수. 본문의 다른 조각 링크에 휘둘리지 않는다. */
+function tabCount(html: string): number {
+  const bar = html.match(/aria-label="결과 구역"[\s\S]*?<\/nav>/);
+  return bar ? (bar[0].match(/href="#/g) ?? []).length : 0;
+}
 
 const sign = (key: string) => ZODIAC_SIGNS.find((s) => s.key === key)!;
 
@@ -237,9 +245,10 @@ describe("궁합 첫 화면", () => {
 
 describe("오늘의 결과 구간", () => {
   const when = new Date("2026-09-07T03:00:00Z");
+  const sky = todaySky(when);
+
   it("뒤집은 뒤: 탭의 앵커마다 같은 id의 구역이 있다", () => {
     const { chart } = exampleSky();
-    const sky = todaySky(when);
     const back = todayBack(sky, chart, null);
     const html = renderToStaticMarkup(createElement(TodayBody, { back, sky, now: when }));
     expectTabsResolve(html);
@@ -248,11 +257,57 @@ describe("오늘의 결과 구간", () => {
     expect(html).toContain('href="#today-moons"');
   });
   it("뒤집기 전에는 탭이 없고 열 개의 별·다가오는 달만 있다", () => {
-    const sky = todaySky(when);
     const html = renderToStaticMarkup(createElement(TodayBody, { back: null, sky, now: when }));
     expect(html).not.toContain('aria-label="결과 구역"');
     expect(html).toContain("오늘의 하늘, 열 개의 별");
     expect(html).toContain("다가오는 달");
+  });
+
+  it("관심사에 걸리는 것이 있으면 렌즈 탭이 서고 나머지는 '그 밖의 하늘'", () => {
+    const { chart } = exampleSky();
+    const back = todayBack(sky, chart, "연애운");
+    expect(back.lensTransits.length).toBeGreaterThan(0);
+    expect(back.otherTransits.length).toBeGreaterThan(0);
+    expect(back.lensLabel).toBe("연애운");
+
+    const html = renderToStaticMarkup(createElement(TodayBody, { back, sky, now: when }));
+    expectTabsResolve(html);
+    expect(tabCount(html)).toBe(5);
+    expect(html).toContain('href="#today-lens"');
+    expect(html).toContain('href="#today-others"');
+    expect(html).toContain("당신이 궁금해한 연애운");
+    expect(html).toContain("그 밖의 하늘");
+  });
+
+  it("관심사에 걸리는 것이 없으면 렌즈 탭이 없고 나머지가 '오늘의 각'", () => {
+    const { chart } = exampleSky();
+    const back = todayBack(sky, chart, "재물운");
+    expect(back.lensTransits).toHaveLength(0);
+    expect(back.otherTransits.length).toBeGreaterThan(0);
+
+    const html = renderToStaticMarkup(createElement(TodayBody, { back, sky, now: when }));
+    expectTabsResolve(html);
+    expect(tabCount(html)).toBe(4);
+    expect(html).not.toContain('href="#today-lens"');
+    expect(html).toContain('href="#today-others"');
+    expect(html).toContain("오늘의 각");
+  });
+
+  it("조용한 날에는 목록 대신 안내 한 줄이 서고 탭이 셋", () => {
+    const { chart } = exampleSky();
+    // 트랜짓이 하나도 없는 날은 실제 차트로는 안 잡힌다 — 느린 셋을 뺀 일곱 별이
+    // 내 자리 열 곳과 다섯 각 중 어느 것과도 3도(달은 6도) 안에 들지 않아야 한다.
+    // 자리가 빈 차트가 그 상태를 결정론으로 만든다 — quiet 갈래만 보는 것이다.
+    const back = todayBack(sky, { ...chart, placements: [], aspects: [] }, "연애운");
+    expect(back.quiet).toBe(QUIET_DAY);
+    expect(back.headline).toBeNull();
+
+    const html = renderToStaticMarkup(createElement(TodayBody, { back, sky, now: when }));
+    expectTabsResolve(html);
+    expect(tabCount(html)).toBe(3);
+    expect(html).not.toContain('href="#today-lens"');
+    expect(html).not.toContain('href="#today-others"');
+    expect(html).toContain(QUIET_DAY);
   });
 });
 
@@ -269,5 +324,30 @@ describe("한 해의 사건 카드", () => {
     expect(html).toContain(`id="${events[0].id}"`);
     expect(html).toContain("힘이 도는 기간은");
     expect(html).toContain('class="reading-card');
+  });
+});
+
+describe("한 해의 탭 배선", () => {
+  // 탭은 마운트 뒤(flow === false)에만 선다. 서버 HTML에는 구역만 있으므로 탭바를
+  // 같은 해의 탭 명세로 따로 그려 붙이고, 그 앵커가 구역에 닿는지를 본다.
+  const scope = () =>
+    renderToStaticMarkup(
+      createElement(YearScope, { backdrops: [yearBackdrop(2026), yearBackdrop(2027)] }),
+    );
+
+  for (const year of [2026, 2027]) {
+    it(`${year}년을 고른 탭의 앵커마다 같은 id의 구역이 있다`, () => {
+      const tabs = renderToStaticMarkup(createElement(ResultTabs, { items: yearTabs(year) }));
+      expectTabsResolve(tabs + scope());
+      expect(tabs).toContain(`href="#year-${year}"`);
+      expect(tabs).toContain('href="#personal-year"');
+    });
+  }
+
+  it("두 해가 모두 HTML에 있고 personal-year는 하나뿐이다", () => {
+    const html = scope();
+    expect(html).toContain('id="year-2026"');
+    expect(html).toContain('id="year-2027"');
+    expect(html.match(/id="personal-year"/g)).toHaveLength(1);
   });
 });
