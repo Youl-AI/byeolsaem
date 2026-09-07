@@ -19,7 +19,11 @@
       어색한 편은 사람이 손대는 것이 맞다.
 - [x] **스펙 B — 산재 모션 다섯** (`docs/superpowers/specs/2026-09-06-scattered-motion.md`). 건마다 커밋 하나. — 2026-09-07 구현(브랜치 scattered-motion-result-grammar)
 - [x] **스펙 C — synastry·today·yearly에 ResultTabs·ReadingCard 적용.** natal에서 만든 컴포넌트 재사용. 첫 화면은 셋 다 이미 그림이 있어 natal보다 작다. — 2026-09-07 구현(브랜치 scattered-motion-result-grammar)
-- [ ] natal 재구성 배포 — main 병합 후 루트에서 `npx wrangler deploy`, 그 뒤 byeolsaem.com/natal에서 같은 실측 반복. 이 브랜치(스펙 B·C)도 같은 배포에 실린다.
+- [x] **natal 재구성 + 스펙 B·C 배포** (2026-09-07). 셋이 한 배포에 실렸다.
+      byeolsaem.com에서 실측 반복해 로컬과 같은 값을 확인했다 — 탭바 top 64,
+      오늘 탭 다섯에 앵커 전부 존재, 한 해 카드 14장에 계단 상한 0.3s, 주간
+      선 dashoffset 0, 아치는 올해 칸만 점등. 값은
+      `docs/superpowers/records/2026-09-07-result-screens.md`.
 
 ## 되돌릴지 정할 것
 
