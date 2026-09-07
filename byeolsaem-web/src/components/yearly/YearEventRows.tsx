@@ -48,7 +48,7 @@ export function YearEventRows({
             badge={
               <>
                 {event.aspectSymbol}
-                {"\u{FE0E}"}
+                {"\uFE0E"}
               </>
             }
             tech={`${event.inLens ? "● " : ""}${event.moving.ko} ${event.aspectKo} 내 ${event.fixed.ko} · ${first.month}월 ${first.day}일${
