@@ -144,7 +144,7 @@ export function YearRiver({
               <g
                 tabIndex={0}
                 role="button"
-                aria-label={`${event.dateLine} — ${event.moving.ko} ${event.aspectKo} 내 ${event.fixed.ko}`}
+                aria-label={`${event.dateLine} — ${event.moving.ko} ${event.angle === 0 ? "겹침" : `${event.angle}도`} 내 ${event.fixed.ko}`}
                 className="cursor-pointer outline-none"
                 onClick={() => onSelect(event)}
                 onKeyDown={(e) => {

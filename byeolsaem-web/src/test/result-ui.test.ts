@@ -21,6 +21,7 @@ import { YearScope, yearTabs } from "@/components/yearly/YearScope";
 import { Term } from "@/components/ui/Term";
 import { GLOSSARY } from "@/content/atoms/glossary";
 import { YearFlow } from "@/components/yearly/YearFlow";
+import { YearRiver } from "@/components/yearly/YearRiver";
 import { ExampleSky } from "@/components/chart/ExampleSky";
 import { ExampleMeeting } from "@/components/synastry/ExampleMeeting";
 import { toneLabel } from "@/components/ui/ToneBadge";
@@ -500,6 +501,20 @@ describe("카드 밖에도 각 이름이 없다", () => {
       createElement(YearFlow, { year: 2026, events }),
     );
     expect(html).not.toMatch(FORBIDDEN);
+  });
+
+  it("좁은 화면·감소 모드의 강(YearRiver)이 스크린리더에 각 이름을 말하지 않는다", () => {
+    // YearScope는 넓은 화면 + 모션 허용에서 YearFlow를, 좁은 화면이나
+    // prefers-reduced-motion에서 YearRiver를 고른다(PersonalYear). 시각으로는
+    // 안 보여도 aria-label은 스크린리더 사용자에게 그대로 말해지는 화면이다.
+    const { chart } = exampleSky();
+    const events = yearReading(chart, 2026, null).events;
+    const html = renderToStaticMarkup(
+      createElement(YearRiver, { year: 2026, events, onSelect: () => {} }),
+    );
+    const labels = [...html.matchAll(/aria-label="([^"]*)"/g)].map((m) => m[1]);
+    expect(labels.length).toBeGreaterThan(0);
+    for (const label of labels) expect(label).not.toMatch(FORBIDDEN);
   });
 
   it("천궁도의 평생 가는 각도 줄", () => {
