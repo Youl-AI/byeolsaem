@@ -110,7 +110,7 @@ export interface Transit {
  * "오늘 무슨 일이 있는가"를 말하는 것이라, 넓게 잡으면 며칠 내내 같은 항목이
  * 걸려 오늘이 어제와 다르지 않게 된다.
  */
-const TRANSIT_ORB = 3;
+export const TRANSIT_ORB = 3;
 /** 달은 하루에 13도를 가므로 같은 오브를 쓰면 하루 안에 들어왔다 나간다. */
 const MOON_ORB = 6;
 

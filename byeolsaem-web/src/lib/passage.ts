@@ -1,6 +1,7 @@
 import { longitudeOf } from "./chart";
 import { fromJulianDay, norm180 } from "./ephemeris";
 import type { PlanetKey } from "./planets";
+import { TRANSIT_ORB } from "./today";
 import { refineCrossing } from "./yearly";
 
 /**
@@ -14,8 +15,8 @@ import { refineCrossing } from "./yearly";
  * 빠른 별에는 쓰지 않는다. 몇 시간짜리에 날짜를 붙이면 과장이 된다.
  */
 
-/** `/today`의 TRANSIT_ORB와 같은 값. 여기서 갈리면 카드의 기간과 목록의 기준이 어긋난다. */
-export const PASSAGE_ORB = 3;
+/** `/today`의 TRANSIT_ORB와 일부러 같은 숫자다 — 카드의 기간과 목록의 기준이 갈리면 안 된다. */
+export const PASSAGE_ORB = TRANSIT_ORB;
 export const SLOW_MOVERS: readonly PlanetKey[] = ["jupiter", "saturn", "uranus", "neptune", "pluto"];
 /** 이보다 긴 빈틈은 다른 통과다. 토성의 역행 고리는 넉 달을 넘지 않는다. */
 const MERGE_GAP_DAYS = 120;
@@ -66,11 +67,16 @@ export function transitPassage(
   natalLongitude: number,
   angle: number,
   todayJd: number,
-  longitudeAt: LongitudeAt = longitudeOf,
+  longitudeAt?: LongitudeAt,
 ): Passage | null {
   if (!SLOW_MOVERS.includes(mover)) return null;
 
-  const orbAt = (jd: number) => Math.abs(Math.abs(norm180(longitudeAt(mover, jd) - natalLongitude)) - angle);
+  // 주입된 경도 함수가 있으면 실제 천체력을 쓰는 refineCrossing으로 좁힐 수 없다 —
+  // 그 함수는 자기 안에서 진짜 longitudeOf를 부르기 때문이다. 그때는 하루의 가운데로 둔다.
+  const injected = longitudeAt !== undefined;
+  const at: LongitudeAt = longitudeAt ?? longitudeOf;
+
+  const orbAt = (jd: number) => Math.abs(Math.abs(norm180(at(mover, jd) - natalLongitude)) - angle);
   const startJd = edge(orbAt, todayJd, -1);
   const endJd = edge(orbAt, todayJd, 1);
 
@@ -80,15 +86,14 @@ export function transitPassage(
   const targets = angle === 0 || angle === 180 ? [natalLongitude + angle] : [natalLongitude + angle, natalLongitude - angle];
   const peaks: PassageDate[] = [];
   for (const target of targets) {
-    const offset = (jd: number) => norm180(longitudeAt(mover, jd) - target);
+    const offset = (jd: number) => norm180(at(mover, jd) - target);
     let previous = offset(lo);
     for (let jd = lo + 1; jd <= hi; jd += 1) {
       const current = offset(jd);
       const crossed = Math.sign(current) !== Math.sign(previous) && Math.abs(current - previous) < WRAP_GUARD;
       previous = current;
       if (!crossed) continue;
-      // 합성 경도 함수를 쓸 때도 refineCrossing이 실제 longitudeOf를 부르지 않게, 여기서 직접 좁힌다.
-      peaks.push(kstDate(longitudeAt === longitudeOf ? refineCrossing(mover, target, jd - 1, jd) : jd - 0.5));
+      peaks.push(kstDate(injected ? jd - 0.5 : refineCrossing(mover, target, jd - 1, jd)));
     }
   }
   peaks.sort((a, b) => a.jd - b.jd);

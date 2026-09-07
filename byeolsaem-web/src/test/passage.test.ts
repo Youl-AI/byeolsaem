@@ -67,6 +67,36 @@ describe("통과 기간", () => {
     expect(passage.end).toBeNull();
     expect(passage.progress).toBeNull();
   });
+
+  it("목표 황경을 한 번만 지나가면 정점도 하나, 그 위치까지 고정한다", () => {
+    // natal 0도, 각 0도 — 목표는 0도 하나뿐. d=0과 d=1 사이에서 지나간다(정확히 d=0.5는
+    // 피한다 — jd가 항상 정수라 |d|를 그대로 쓰면 목표를 정수 날짜에 정확히 밟아 부호가
+    // 애매해진다).
+    const lon: LongitudeAt = (_planet, jd) => (Math.round(jd - TODAY) - 0.5) * 0.1;
+    const passage = transitPassage("saturn", 0, 0, TODAY, lon)!;
+    expect(Math.round(passage.start!.jd - TODAY)).toBe(-29);
+    expect(Math.round(passage.end!.jd - TODAY)).toBe(30);
+    expect(passage.peaks.length).toBe(1);
+    expect(passage.peaks[0].jd).toBe(TODAY + 0.5);
+  });
+
+  it("60도(비대칭 각) — natal±각 두 목표를 다 지나가면 정점이 둘이다", () => {
+    // d -2..3에서 +60도 목표를, d 98..103에서 -60도 목표를 지나간다. 그 사이는 두
+    // 목표 모두에서 멀리 둔다. 목표 하나만 쓰거나 부호 비교가 뒤집혔다면 정점 개수가
+    // 2가 아니게 된다.
+    const lon: LongitudeAt = (_planet, jd) => {
+      const d = Math.round(jd - TODAY);
+      if (d >= -2 && d <= 3) return 60 + (d - 0.5);
+      if (d >= 98 && d <= 103) return -60 + (d - 100.5);
+      return 0;
+    };
+    const passage = transitPassage("saturn", 0, 60, TODAY, lon)!;
+    expect(Math.round(passage.start!.jd - TODAY)).toBe(-2);
+    expect(Math.round(passage.end!.jd - TODAY)).toBe(103);
+    expect(passage.peaks.length).toBe(2);
+    expect(passage.peaks[0].jd).toBe(TODAY + 0.5);
+    expect(passage.peaks[1].jd).toBe(TODAY + 100.5);
+  });
 });
 
 describe("주기", () => {
