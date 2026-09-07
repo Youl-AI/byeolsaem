@@ -76,15 +76,22 @@
 
 ## 살펴볼 만한 것 (급하지 않음)
 
-- [ ] **달무리 호흡이 뜰 자리가 없다 — 되돌릴지 옮길지 정할 것.** 스펙 B §5는
+- [x] **달무리 호흡은 그대로 둔다** (2026-09-07 판단). 스펙 B §5는
       `hero/Moon.tsx`의 달무리를 숨쉬게 했고 그대로 구현했지만(`b0d33dc`),
       그 달을 그리는 `HeroSequence`는 `a423982`에서 수직 세계가 히어로를
       대신하며 홈에서 빠졌다. 지금 저장소 어디에서도 부르지 않는다 —
-      `app/(night)/page.tsx` 33행의 주석만 남아 있다. 그래서 이 모션은 어느
-      화면에도 나오지 않는다. 셋 중 하나를 고른다: `b0d33dc`를 되돌린다 ·
-      지금 홈의 달(그 빛무리는 `VerticalWorld`가 캔버스에 그린다)로 옮긴다 ·
-      `HeroSequence`를 다시 세울 계획이 있으면 그대로 둔다. 죽은 컴포넌트 셋
-      (`HeroSequence`·`hero/Moon`·`MockChart`)을 지울지도 같이 판단한다.
+      `app/(night)/page.tsx` 33행의 주석만 남아 있다. **그래서 이 모션은 어느
+      화면에도 나오지 않는다.** 되돌리지도 옮기지도 않기로 했다 — 지금 홈의
+      빛무리는 `VerticalWorld`가 캔버스에 그려서 CSS가 닿지 않으므로 옮기는 것은
+      새 작업이고, 코드는 `HeroSequence`가 다시 서면 그대로 산다. 비용은 아무
+      데도 걸리지 않는 `globals.css`의 `halo-breathe` 블록 한 덩이.
+      되돌리려면 `git revert b0d33dc` 하나면 된다.
+
+- [ ] **죽은 컴포넌트 둘을 지울지.** `hero/HeroSequence.tsx`와 그것만 부르는
+      `hero/Moon.tsx`. 같은 폴더의 `MockChart`(`world/DeepResult`가 쓴다)와
+      `RitualForm`·`RitualCombobox`·`ritualStyles`(`birth/BirthPanel`이 쓴다)는
+      살아 있으니 건드리지 않는다. 지울 때 `page.tsx` 33행의 낡은 주석과
+      `globals.css`의 `halo-breathe`·`.hero-halo`도 함께 간다.
 
 - [ ] **1987·1988년 서머타임 보정.** 두 해 한국은 서머타임을 시행했다(1987-05-10~10-11,
       1988-05-08~10-09). 지금 엔진은 시간대를 KST 고정(+9)으로 두므로, 이 기간에 태어난
