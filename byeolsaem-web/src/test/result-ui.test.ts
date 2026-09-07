@@ -20,6 +20,10 @@ import { QUIET_DAY } from "@/content/atoms/today";
 import { YearScope, yearTabs } from "@/components/yearly/YearScope";
 import { Term } from "@/components/ui/Term";
 import { GLOSSARY } from "@/content/atoms/glossary";
+import { YearFlow } from "@/components/yearly/YearFlow";
+import { ExampleSky } from "@/components/chart/ExampleSky";
+import { ExampleMeeting } from "@/components/synastry/ExampleMeeting";
+import { toneLabel } from "@/components/ui/ToneBadge";
 
 /** 탭바 안의 앵커 수. 본문의 다른 조각 링크에 휘둘리지 않는다. */
 function tabCount(html: string): number {
@@ -468,5 +472,64 @@ describe("용어", () => {
     // HTML escapes special chars like ' to &#x27;, so check that definition is rendered
     expect(html).toContain(GLOSSARY.하우스.replace(/'/g, "&#x27;"));
     expect(html).toContain('aria-expanded="false"');
+  });
+});
+
+describe("카드 밖에도 각 이름이 없다", () => {
+  const FORBIDDEN = /육분|삼각|사각|대립|순풍|마찰|오차/;
+
+  it("세 화면의 부적 칩", () => {
+    const { chart } = exampleSky();
+    const { mine, theirs, reading: meet } = exampleMeeting();
+    const sky = todaySky(new Date("2026-09-07T03:00:00Z"));
+    const chips = [
+      ...todayBack(sky, chart, null).chips,
+      ...yearReading(chart, 2026, null).chips,
+      ...meet.chips,
+    ];
+    expect(chips.length).toBeGreaterThan(0);
+    for (const chip of chips) expect(chip.label).not.toMatch(FORBIDDEN);
+    void mine;
+    void theirs;
+  });
+
+  it("한 해의 강이 짚어 주는 줄", () => {
+    const { chart } = exampleSky();
+    const events = yearReading(chart, 2026, null).events;
+    const html = renderToStaticMarkup(
+      createElement(YearFlow, { year: 2026, events }),
+    );
+    expect(html).not.toMatch(FORBIDDEN);
+  });
+
+  it("천궁도의 평생 가는 각도 줄", () => {
+    const { reading } = exampleSky();
+    if (reading.lifework) expect(reading.lifework.basis).not.toMatch(FORBIDDEN);
+  });
+
+  it("toneLabel도 순풍·마찰이라 부르지 않는다", () => {
+    // ToneBadge는 ExampleSky·ExampleMeeting·YearFlow 셋에서만 쓰인다 — 이 태스크가
+    // 고치는 자리와 정확히 겹친다. 이름 붙은 라벨(순풍/마찰)이지 본문 산문이 아니므로
+    // 금지어 규칙이 그대로 걸린다.
+    expect(toneLabel(1)).not.toMatch(FORBIDDEN);
+    expect(toneLabel(-1)).not.toMatch(FORBIDDEN);
+    expect(toneLabel(0)).not.toMatch(FORBIDDEN);
+  });
+
+  it("정보를 넣기 전의 예시 카드 둘", () => {
+    const natal = renderToStaticMarkup(createElement(ExampleSky, {}));
+    const meeting = renderToStaticMarkup(createElement(ExampleMeeting, {}));
+    // 두 카드는 ASPECT_MEANINGS의 본문·뉘앙스 문장을 그대로 보여준다. 예: opposition의
+    // nuance는 "이 마찰은 주로 사람이나 상황을 통해 밖에서 옵니다"처럼 "마찰"을 평범한
+    // 산문으로 쓴다 — 이 저장소의 룰링이 명시적으로 남겨 두라고 한 자리다. 그래서 카드
+    // 전체가 아니라, 이 태스크가 실제로 고치는 자리(각도·오브 표기 줄과 톤 배지)만 좁혀
+    // 확인한다.
+    const badgeLine = (html: string): string => {
+      const meta = html.match(/<span class="text-meta text-starlight-dim">([^<]*)<\/span>/);
+      const tone = html.match(/<span class="text-eyebrow tracking-\[0\.18em\][^"]*">([^<]*)<\/span>/);
+      return `${meta?.[1] ?? ""} ${tone?.[1] ?? ""}`;
+    };
+    expect(badgeLine(natal)).not.toMatch(FORBIDDEN);
+    expect(badgeLine(meeting)).not.toMatch(FORBIDDEN);
   });
 });

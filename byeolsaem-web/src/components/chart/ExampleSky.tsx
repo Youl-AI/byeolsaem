@@ -80,7 +80,8 @@ export function ExampleSky() {
                 <span className="astro-symbol">{first.b.symbol}</span> {first.b.ko}
               </span>
               <span className="text-meta text-starlight-dim">
-                {first.aspect.type.ko} · 오브 {first.aspect.orb.toFixed(1)}도 · {first.strengthKo}
+                {first.aspect.type.angle === 0 ? "겹침" : `${first.aspect.type.angle}도`} · 오브{" "}
+                {first.aspect.orb.toFixed(1)}도 · {first.strengthKo}
               </span>
               <ToneBadge harmony={first.aspect.type.harmony} />
             </p>

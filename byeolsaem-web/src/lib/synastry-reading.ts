@@ -32,6 +32,8 @@ export interface SynastryLine {
   /** "trine" 같은 각도 키. 한 줄 조립이 결을 읽는 데 쓴다. */
   aspectKey: string;
   aspectSymbol: string;
+  /** 정확한 각도 — 0 · 60 · 90 · 120 · 180. */
+  angle: number;
   orb: number;
   /** 힘이 흐르는 각도인가, 마찰이 있는 각도인가. 0은 겹침. */
   harmony: number;
@@ -113,6 +115,7 @@ function describe(aspect: CrossAspect, highlighted: boolean, house: number | nul
     aspectKo: aspect.type.ko,
     aspectKey: aspect.type.key,
     aspectSymbol: aspect.type.symbol,
+    angle: aspect.type.angle,
     orb: aspect.orb,
     harmony: aspect.type.harmony,
     meeting: `내 ${myTouch}${gwa(myTouch)} 그쪽의 ${PLANET_TOUCH[aspect.theirs]}`,
@@ -262,7 +265,7 @@ export function synastryReading(
     // 칩은 목록의 앞 세 개다. 따로 고르면 칩과 목록이 서로 다른 이야기를 한다.
     chips: lines.slice(0, 3).map((line) => ({
       symbol: line.mine.symbol,
-      label: `내 ${line.mine.ko} ${line.aspectKo} 그쪽 ${line.theirs.ko}`,
+      label: `내 ${line.mine.ko}–그쪽 ${line.theirs.ko} ${line.angle === 0 ? "겹침" : `${line.angle}도`}`,
     })),
   };
 }

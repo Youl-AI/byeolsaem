@@ -276,7 +276,7 @@ function composeLifework(aspects: ReadingAspect[]): Reading["lifework"] {
   if (!friction) return null;
   return {
     text: `${firstSentence(friction.body)} 편한 배치는 아니지만, 당신을 실제로 움직여 온 것도 이 마찰입니다.`,
-    basis: `${friction.a.ko} ${friction.aspect.type.ko} ${friction.b.ko} · 태어난 순간부터 평생 가는 각도`,
+    basis: `${friction.a.ko} ${friction.aspect.type.angle === 0 ? "겹침" : `${friction.aspect.type.angle}도`} ${friction.b.ko} · 태어난 순간부터 평생 가는 각도`,
   };
 }
 

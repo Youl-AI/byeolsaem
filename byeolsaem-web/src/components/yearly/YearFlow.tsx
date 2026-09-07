@@ -281,7 +281,8 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
                 {current.caption}
               </p>
               <p className="mt-2 text-meta text-starlight-dim">
-                {current.aspectKo} · {current.countLine} 힘이 도는 기간은 {current.span}입니다.
+                {current.angle === 0 ? "겹침" : `${current.angle}도`} · {current.countLine} 힘이 도는 기간은{" "}
+                {current.span}입니다.
               </p>
             </div>
           ) : (

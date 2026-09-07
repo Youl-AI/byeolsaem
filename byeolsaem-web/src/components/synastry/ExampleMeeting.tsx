@@ -77,7 +77,7 @@ export function ExampleMeeting() {
                 <span className="astro-symbol">{named.theirs.symbol}</span> {named.theirs.ko}
               </span>
               <span className="text-meta text-starlight-dim">
-                {named.aspectKo} · 오차 {named.orb.toFixed(1)}도
+                {named.angle === 0 ? "겹침" : `${named.angle}도`} · 오브 {named.orb.toFixed(1)}도
               </span>
               <ToneBadge harmony={named.harmony} />
             </span>

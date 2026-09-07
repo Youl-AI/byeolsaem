@@ -138,7 +138,7 @@ export function todayBack(sky: TodaySky, natal: Chart, concern?: string | null):
     // 이야기를 하게 되고, 어느 쪽이 오늘인지 알 수 없어진다.
     chips: transits.slice(0, 3).map((t) => ({
       symbol: t.moving.symbol,
-      label: `${t.moving.ko} ${t.aspectKo} ${t.fixed.ko}`,
+      label: `${t.moving.ko}–${t.fixed.ko} ${t.angle === 0 ? "겹침" : `${t.angle}도`}`,
     })),
   };
 }

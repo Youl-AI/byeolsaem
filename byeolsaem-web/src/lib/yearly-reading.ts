@@ -114,6 +114,8 @@ export interface YearReadingEvent {
   fixed: Planet;
   aspectKo: string;
   aspectSymbol: string;
+  /** 정확한 각도 — 0 · 60 · 90 · 120 · 180. */
+  angle: number;
   /** 힘이 흐르는 각도인가, 마찰이 있는 각도인가. 0은 겹침. */
   harmony: number;
   exact: YearDate[];
@@ -230,6 +232,7 @@ function describe(event: YearEvent, natal: Chart, lens: ConcernLens | null): Yea
     fixed,
     aspectKo: event.type.ko,
     aspectSymbol: event.type.symbol,
+    angle: event.type.angle,
     harmony: event.type.harmony,
     exact: event.exact,
     dateLine,
@@ -269,7 +272,7 @@ export function yearReading(natal: Chart, year: number, concern?: string | null)
     .slice(0, 3)
     .map((e) => ({
       symbol: e.moving.symbol,
-      label: `${e.moving.ko} ${e.aspectKo} 내 ${e.fixed.ko}`,
+      label: `${e.moving.ko}–내 ${e.fixed.ko} ${e.angle === 0 ? "겹침" : `${e.angle}도`}`,
     }));
 
   // 올해의 머리: 관심사에 걸린 사건이 있으면 그중 가장 오래가는 것, 없으면
