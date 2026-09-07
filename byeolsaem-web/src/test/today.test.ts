@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { computeChart } from "@/lib/chart";
 import { toJulianDay } from "@/lib/ephemeris";
+import { exampleSky } from "@/lib/example-sky";
 import { findTransits, noonJulianDay, todaySky } from "@/lib/today";
-import { todayBack, todayFront } from "@/lib/today-reading";
+import { describeTransit, todayBack, todayFront } from "@/lib/today-reading";
+import { lensFor } from "@/content/atoms/concerns";
 import { MOON_PHASE_LINES } from "@/content/atoms/today";
 import { MOON_PHASES } from "@/lib/moon";
 
@@ -149,5 +151,51 @@ describe("오늘의 카드 조립", () => {
     const count = back.lensTransits.length + back.otherTransits.length;
     if (count === 0) expect(back.quiet).not.toBeNull();
     else expect(back.quiet).toBeNull();
+  });
+});
+
+describe("오늘 카드의 재료", () => {
+  const { chart } = exampleSky();
+  const sky = todaySky(new Date("2026-09-07T03:00:00Z"));
+  const all = findTransits(sky, chart, 40);
+
+  it("느린 별 — 머리줄에 자리·기간·주기, 진행 막대, 근거 세 줄", () => {
+    const slow = all.find((t) => t.transiting === "saturn" || t.transiting === "jupiter")!;
+    const t = describeTransit(slow, chart, null, sky);
+    expect(t.meta).toMatch(/^.+ · .+ · .+년에 한 번$/);
+    expect(t.progress).not.toBeNull();
+    expect(t.basis).toHaveLength(3);
+    expect(t.basis[0]).toMatch(/^지금 하늘의 .+이 내 .+과 (\d+도를 이룹니다|겹칩니다)\.$/);
+    expect(t.advice.try.length).toBeGreaterThan(0);
+  });
+
+  it("빠른 별 — 머리줄은 자리 · 기간 말, 막대 없음", () => {
+    const moon = all.find((t) => t.transiting === "moon")!;
+    const t = describeTransit(moon, chart, null, sky);
+    expect(t.meta).toBe(`${t.area} · 반나절`);
+    expect(t.progress).toBeNull();
+  });
+
+  it("where는 plain에 들어 있지 않은 문장이다", () => {
+    for (const raw of all.slice(0, 8)) {
+      const t = describeTransit(raw, chart, null, sky);
+      expect(t.where.endsWith(".")).toBe(true);
+      expect(t.plain.includes(t.where)).toBe(false);
+    }
+  });
+
+  it("관심사에 걸리면 근거 둘째 줄에 그 말이 붙는다", () => {
+    const lens = lensFor("연애운")!;
+    const hit = all.find((raw) => describeTransit(raw, chart, lens, sky).inLens);
+    expect(hit).toBeDefined();
+    expect(describeTransit(hit!, chart, lens, sky).basis[1]).toContain("연애운이 보는 자리입니다.");
+  });
+
+  it("금지어가 없다", () => {
+    for (const raw of all.slice(0, 8)) {
+      const t = describeTransit(raw, chart, null, sky);
+      const text = [t.meta, t.plain, t.where, t.rest, ...t.basis].join(" ");
+      expect(text).not.toMatch(/오차|육분|삼각|사각|대립|순풍|마찰/);
+    }
   });
 });

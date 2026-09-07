@@ -16,8 +16,6 @@ import { ResultTabs } from "@/components/ui/ResultTabs";
 import { CardSection } from "@/components/ui/ResultSection";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { TalismanChip } from "@/components/ui/TalismanChip";
-import { toneLabel } from "@/components/ui/ToneBadge";
-import { afterFirstSentence, firstSentence } from "@/lib/text";
 import { MoonDisc } from "./MoonDisc";
 import { ComingMoons, PlanetsNow, RetroBand } from "./SkyNow";
 
@@ -355,12 +353,16 @@ function TransitCard({ t, index }: { t: TodayTransit; index: number }) {
           {"\uFE0E"}
         </>
       }
-      meta={`오늘의 ${t.moving.ko} ${t.aspectKo} 내 ${t.fixed.ko} · 오차 ${t.orb.toFixed(1)}도 · ${toneLabel(t.harmony)} · 약 ${t.span}`}
-      plain={firstSentence(t.life)}
-      where={t.area}
+      meta={t.meta}
+      progress={t.progress}
+      plain={t.plain}
+      where={t.where}
+      advice={t.advice}
+      basis={t.basis}
     >
-      {afterFirstSentence(t.life) && <p>{afterFirstSentence(t.life)}</p>}
-      <p>{t.basis}</p>
+      {/* 두 별의 주제 — natal의 각 카드가 theme를 금색으로 두는 것과 같은 자리. */}
+      <p className="text-gold-soft">{t.caption}</p>
+      {t.rest && <p>{t.rest}</p>}
     </ReadingCard>
   );
 }

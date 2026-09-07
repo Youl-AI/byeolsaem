@@ -10,8 +10,17 @@ import {
 } from "@/content/atoms/life";
 import { MOON_PHASE_LINES, QUIET_DAY, TRANSIT_FRAMES } from "@/content/atoms/today";
 import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
+import { basisLines } from "./basis";
 import type { Chart } from "./chart";
+import {
+  formatPassageDate,
+  passageRange,
+  recurrenceLabel,
+  SLOW_MOVERS,
+  transitPassage,
+} from "./passage";
 import { PLANET_BY_KEY, type Planet } from "./planets";
+import { afterFirstSentence, firstSentence } from "./text";
 import { findTransits, type TodaySky, type Transit } from "./today";
 
 /**
@@ -70,10 +79,25 @@ export interface TodayTransit {
   area: string;
   /** 생활 언어 본문. 결론부터 말한다. */
   life: string;
-  /** 별 이야기 근거 줄 — "자기 자신과 스스로에게 거는 제약 — 서로 밀어냅니다". */
-  basis: string;
   /** 고른 관심사에 걸리는가. */
   inLens: boolean;
+  /** 정확한 각도 — 0 · 60 · 90 · 120 · 180. */
+  angle: number;
+  /** 건드려지는 자리의 하우스. 시각을 모르면 null. */
+  house: number | null;
+  /** 머리줄 — 어디 · 언제 · 얼마나 드문가. */
+  meta: string;
+  /** life의 첫 문장. */
+  plain: string;
+  /** life의 둘째 문장. 카드 겉면 둘째 줄이다 — 자리 이름을 반복하지 않는다. */
+  where: string;
+  /** life의 셋째 문장부터. 없으면 "". */
+  rest: string;
+  /** 두 별의 주제 — "지키려는 구조와 그것을 깨려는 충동 — 서로 도울 수 있습니다". 옛 basis. */
+  caption: string;
+  advice: { try: string; hold: string };
+  basis: [string, string, string];
+  progress: { value: number; peaks: number[] } | null;
 }
 
 export interface TodayBack {
@@ -95,7 +119,7 @@ export interface TodayBack {
 export function todayBack(sky: TodaySky, natal: Chart, concern?: string | null): TodayBack {
   const lens = concern ? (lensFor(concern) ?? null) : null;
   const found = findTransits(sky, natal, 4);
-  const transits = found.map((transit) => describe(transit, natal, lens));
+  const transits = found.map((transit) => describeTransit(transit, natal, lens, sky));
 
   const lensTransits = transits.filter((t) => t.inLens);
   const otherTransits = transits.filter((t) => !t.inLens);
@@ -119,11 +143,6 @@ export function todayBack(sky: TodaySky, natal: Chart, concern?: string | null):
   };
 }
 
-function firstSentence(text: string): string {
-  const end = text.indexOf("다.");
-  return end === -1 ? text : text.slice(0, end + 2);
-}
-
 /** 건드려지는 자리의 생활 이름. 하우스를 알면 하우스가, 모르면 별의 자리가 말한다. */
 function areaOf(natal: Chart, planet: Planet["key"]): string {
   const placement = natal.placements.find((p) => p.planet === planet);
@@ -143,7 +162,7 @@ function matchesLens(natal: Chart, planet: Planet["key"], lens: ConcernLens): bo
   return lens.planets.includes(planet);
 }
 
-function describe(transit: Transit, natal: Chart, lens: ConcernLens | null): TodayTransit {
+export function describeTransit(transit: Transit, natal: Chart, lens: ConcernLens | null, sky: TodaySky): TodayTransit {
   const moving = PLANET_BY_KEY[transit.transiting];
   const fixed = PLANET_BY_KEY[transit.natal];
   const meaning = ASPECT_MEANINGS[transit.type.key];
@@ -151,6 +170,34 @@ function describe(transit: Transit, natal: Chart, lens: ConcernLens | null): Tod
   const theme = pairTheme(transit.transiting, transit.natal);
   const span = frame?.span ?? "며칠";
   const area = areaOf(natal, transit.natal);
+  const placement = natal.placements.find((p) => p.planet === transit.natal)!;
+  const house = placement.house;
+  const inLens = lens ? matchesLens(natal, transit.natal, lens) : false;
+
+  const life = fillLife(TRANSIT_LIFE[toneOf(transit.type.harmony)][transit.transiting], area, span);
+  const plain = firstSentence(life);
+  const tail = afterFirstSentence(life);
+  // life는 두 문장이 기본이다. 둘째 문장이 겉면 둘째 줄이 되고, 셋째부터는 접힌다.
+  const where = firstSentence(tail) || tail || plain;
+  const rest = firstSentence(tail) ? afterFirstSentence(tail) : "";
+
+  const slow = SLOW_MOVERS.includes(transit.transiting);
+  const passage = slow ? transitPassage(transit.transiting, placement.longitude, transit.type.angle, sky.julianDay) : null;
+  const nextPeak = passage?.peaks.find((p) => p.jd >= sky.julianDay) ?? null;
+  const peakLabel = nextPeak ? formatPassageDate(nextPeak, sky.date.year) : null;
+  const peakPassed = !!passage && passage.peaks.length > 0 && !nextPeak;
+
+  const range = passage ? passageRange(passage, sky.date.year) : "";
+  const every = recurrenceLabel(transit.transiting, transit.type.angle);
+  const meta = slow ? [area, range, every].filter(Boolean).join(" · ") : `${area} · ${span}`;
+
+  const progress =
+    passage && passage.progress !== null && passage.start && passage.end
+      ? {
+          value: passage.progress,
+          peaks: passage.peaks.map((p) => (p.jd - passage.start!.jd) / (passage.end!.jd - passage.start!.jd)),
+        }
+      : null;
 
   return {
     moving,
@@ -161,8 +208,27 @@ function describe(transit: Transit, natal: Chart, lens: ConcernLens | null): Tod
     harmony: transit.type.harmony,
     span,
     area,
-    life: fillLife(TRANSIT_LIFE[toneOf(transit.type.harmony)][transit.transiting], area, span),
-    basis: theme ? `${theme} — ${meaning.headline}` : meaning.headline,
-    inLens: lens ? matchesLens(natal, transit.natal, lens) : false,
+    life,
+    caption: theme ? `${theme} — ${meaning.headline}` : meaning.headline,
+    inLens,
+    angle: transit.type.angle,
+    house,
+    meta,
+    plain,
+    where,
+    rest,
+    advice: TRANSIT_ADVICE[transit.transiting],
+    basis: basisLines({
+      tense: "transit",
+      a: transit.transiting,
+      b: transit.natal,
+      angle: transit.type.angle,
+      orb: transit.orb,
+      house,
+      lens: inLens && lens ? lens.label : null,
+      peakLabel,
+      peakPassed,
+    }),
+    progress,
   };
 }
