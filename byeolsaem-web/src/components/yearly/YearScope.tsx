@@ -4,7 +4,7 @@ import { RETROGRADE_YEAR_LINE } from "@/content/atoms/yearly";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { computeChart } from "@/lib/chart";
-import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
+import { coordinatesFor, koreaOffsetHours } from "@/lib/coordinates";
 import { getFortuneYear } from "@/lib/date";
 import { pinCapable } from "@/lib/pin";
 import { requestRitual } from "@/lib/ritual";
@@ -342,7 +342,7 @@ function PersonalYear({ year, flow }: { year: number; flow: boolean }) {
       time: profile.time,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
-      timezoneOffsetHours: KOREA_UTC_OFFSET_HOURS,
+      timezoneOffsetHours: koreaOffsetHours(profile.date, profile.time),
     });
     return yearReading(natal, year, profile.concern);
   }, [profile, year]);

@@ -4,7 +4,7 @@ import { UnknownPlace } from "@/components/chart/NoProfile";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { computeChart, type BirthMoment, type Chart } from "@/lib/chart";
-import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
+import { coordinatesFor, koreaOffsetHours } from "@/lib/coordinates";
 import { requestRitual } from "@/lib/ritual";
 import { currentProfection, profectionYears } from "@/lib/time-lords";
 import { ProfectionSection } from "./ProfectionSection";
@@ -32,7 +32,7 @@ export function ChaptersScope() {
       time: profile.time,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
-      timezoneOffsetHours: KOREA_UTC_OFFSET_HOURS,
+      timezoneOffsetHours: koreaOffsetHours(profile.date, profile.time),
     };
     return { natal, chart: computeChart(natal) };
   }, [profile, now]);

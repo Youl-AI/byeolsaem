@@ -45,6 +45,33 @@ const PROVINCE_COORDINATES: Record<string, Coordinates> = {
 export const KOREA_UTC_OFFSET_HOURS = 9;
 
 /**
+ * 1987·1988년의 서머타임 구간(KST 기준 벽시계 시각).
+ *
+ * 두 해 모두 5월 둘째 일요일 02시에 03시로 뛰었고, 10월 둘째 일요일 03시에
+ * 02시로 돌아왔다. 그 사이는 UTC+10이다.
+ */
+const KOREA_DST_SPANS = [
+  { from: "1987-05-10T02:00", until: "1987-10-11T03:00" },
+  { from: "1988-05-08T02:00", until: "1988-10-09T03:00" },
+] as const;
+
+/**
+ * 그 순간 한국의 UTC 오프셋.
+ *
+ * 1987·1988년에 태어난 사람은 기록에 적힌 시각이 서머타임 시각이다. 그대로
+ * +9로 계산하면 한 시간이 밀려 상승궁이 반 자리쯤 어긋난다 — 본인은 알 길이
+ * 없는 오차라, 물어보지 않고 여기서 잡는다.
+ *
+ * 시각을 모르면 그날 정오로 판정한다. 구간의 시작·끝 당일에만 갈리고, 그날
+ * 정오는 두 경우 모두 이미 바뀐 뒤다.
+ */
+export function koreaOffsetHours(date: string, time: string | null): number {
+  const stamp = `${date}T${time ?? "12:00"}`;
+  const dst = KOREA_DST_SPANS.some((span) => stamp >= span.from && stamp < span.until);
+  return dst ? KOREA_UTC_OFFSET_HOURS + 1 : KOREA_UTC_OFFSET_HOURS;
+}
+
+/**
  * "서울특별시 강남구" 같은 표기에서 좌표를 찾는다.
  *
  * 앞에서부터 광역자치단체 이름을 찾는 방식이라 시·군·구가 붙어 있어도 되고

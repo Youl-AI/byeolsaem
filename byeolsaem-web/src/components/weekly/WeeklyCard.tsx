@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@/components/ui/Link";
 import { computeChart } from "@/lib/chart";
-import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
+import { coordinatesFor, koreaOffsetHours } from "@/lib/coordinates";
 import { eventDescription, eventHref, eventTitle } from "@/lib/calendar-copy";
 import { kstParts } from "@/lib/retrograde-clock";
 import { requestRitual } from "@/lib/ritual";
@@ -77,7 +77,7 @@ export function WeeklyCard({ initial, builtAt }: { initial: WeeklyData; builtAt:
       time: profile.time,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
-      timezoneOffsetHours: KOREA_UTC_OFFSET_HOURS,
+      timezoneOffsetHours: koreaOffsetHours(profile.date, profile.time),
     });
     return weeklyPersonal(kstWeekStart(now ?? new Date(builtAt)), natal);
   }, [profile, now, builtAt]);

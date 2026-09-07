@@ -9,7 +9,7 @@ import type { RitualData } from "@/components/hero/RitualForm";
 import type { BirthProfile } from "@/lib/birth-profile";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { ASPECT_TYPES, computeChart, type Chart } from "@/lib/chart";
-import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
+import { coordinatesFor, koreaOffsetHours } from "@/lib/coordinates";
 import { AspectBadge } from "@/components/ui/AspectBadge";
 import { NameTag, chartPillars } from "@/components/chart/NameTag";
 import { ReadingCard } from "@/components/ui/ReadingCard";
@@ -452,7 +452,7 @@ function useChartOf(data: RitualData | null): Chart | null {
       time: data.time,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
-      timezoneOffsetHours: KOREA_UTC_OFFSET_HOURS,
+      timezoneOffsetHours: koreaOffsetHours(data.date, data.time),
     });
   }, [data]);
 }

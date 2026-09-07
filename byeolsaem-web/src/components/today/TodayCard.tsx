@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { computeChart } from "@/lib/chart";
-import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
+import { coordinatesFor, koreaOffsetHours } from "@/lib/coordinates";
 import { requestRitual } from "@/lib/ritual";
 import { todaySky, type TodaySky } from "@/lib/today";
 import { moonArt } from "@/lib/share-card";
@@ -67,7 +67,7 @@ export function TodayCard({
       time: profile.time,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
-      timezoneOffsetHours: KOREA_UTC_OFFSET_HOURS,
+      timezoneOffsetHours: koreaOffsetHours(profile.date, profile.time),
     });
     return todayBack(sky, natal, profile.concern);
   }, [sky, profile]);

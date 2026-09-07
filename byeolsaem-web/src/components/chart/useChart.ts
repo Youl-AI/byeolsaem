@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { computeChart, type Chart } from "@/lib/chart";
-import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
+import { coordinatesFor, koreaOffsetHours } from "@/lib/coordinates";
 import { assembleReading, type Reading } from "@/lib/reading";
 import type { BirthProfile } from "@/lib/birth-profile";
 
@@ -30,7 +30,7 @@ export function useChart(profile: BirthProfile | null): ChartState | null {
       time: profile.time,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
-      timezoneOffsetHours: KOREA_UTC_OFFSET_HOURS,
+      timezoneOffsetHours: koreaOffsetHours(profile.date, profile.time),
     });
 
     return { status: "ready" as const, chart, reading: assembleReading(chart, profile.concern) };

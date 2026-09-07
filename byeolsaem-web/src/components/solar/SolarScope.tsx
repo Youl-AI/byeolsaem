@@ -3,7 +3,7 @@ import { useMemo, useState, useEffect } from "react";
 import { ChartWheel, ChartWheelLegend } from "@/components/chart/ChartWheel";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
-import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
+import { coordinatesFor, koreaOffsetHours } from "@/lib/coordinates";
 import { EXAMPLE_BIRTH, exampleSolarReturn } from "@/lib/example-sky";
 import { formatKstDate } from "@/lib/retrograde-clock";
 import { requestRitual } from "@/lib/ritual";
@@ -40,7 +40,7 @@ export function SolarScope({ builtAt }: { builtAt: string }) {
         time: profile.time,
         latitude: coordinates.latitude,
         longitude: coordinates.longitude,
-        timezoneOffsetHours: KOREA_UTC_OFFSET_HOURS,
+        timezoneOffsetHours: koreaOffsetHours(profile.date, profile.time),
       },
       now,
     );
