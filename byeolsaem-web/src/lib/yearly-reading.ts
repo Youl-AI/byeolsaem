@@ -197,6 +197,10 @@ function describe(event: YearEvent, natal: Chart, lens: ConcernLens | null): Yea
   const span = frame?.span ?? "그 무렵";
   const area = areaOf(natal, event.natal);
   const dateLine = event.exact.map(formatYearDate).join(" · ");
+  // 머리줄은 줄인 꼴을 쓴다(스펙 §3.3 "3월 14일 외 2") — 전체 목록은 근거 셋째
+  // 줄(basis[2])이 이미 말한다. dateLine(전체 목록)은 강(YearRiver·YearFlow)이
+  // 여전히 쓴다.
+  const dateAbbrev = `${formatYearDate(event.exact[0])}${event.exact.length > 1 ? ` 외 ${event.exact.length - 1}` : ""}`;
   const every = recurrenceLabel(event.transiting, event.type.angle);
 
   const placement = natal.placements.find((p) => p.planet === event.natal)!;
@@ -240,7 +244,7 @@ function describe(event: YearEvent, natal: Chart, lens: ConcernLens | null): Yea
     span,
     area,
     life,
-    meta: [area, dateLine, every].filter(Boolean).join(" · "),
+    meta: [area, dateAbbrev, every].filter(Boolean).join(" · "),
     plain,
     where,
     rest,

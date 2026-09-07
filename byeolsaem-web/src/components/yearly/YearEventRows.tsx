@@ -70,7 +70,9 @@ export function YearEventRows({
             <p className="text-gold-soft">{event.caption}</p>
             {event.rest && <p>{event.rest}</p>}
             <p className="text-meta">
-              {event.dateLine} · {event.countLine} 힘이 도는 기간은 {event.span}입니다.
+              {/* 정확한 날짜 전체 목록은 바로 위 근거 셋째 줄(basis[2])이 이미 말한다 —
+                  여기서 또 쓰면 같은 날짜가 세 번째로 찍힌다. */}
+              {event.countLine} 힘이 도는 기간은 {event.span}입니다.
             </p>
           </ReadingCard>
         );
