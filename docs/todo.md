@@ -87,11 +87,14 @@
       데도 걸리지 않는 `globals.css`의 `halo-breathe` 블록 한 덩이.
       되돌리려면 `git revert b0d33dc` 하나면 된다.
 
-- [ ] **죽은 컴포넌트 둘을 지울지.** `hero/HeroSequence.tsx`와 그것만 부르는
-      `hero/Moon.tsx`. 같은 폴더의 `MockChart`(`world/DeepResult`가 쓴다)와
-      `RitualForm`·`RitualCombobox`·`ritualStyles`(`birth/BirthPanel`이 쓴다)는
-      살아 있으니 건드리지 않는다. 지울 때 `page.tsx` 33행의 낡은 주석과
-      `globals.css`의 `halo-breathe`·`.hero-halo`도 함께 간다.
+- [x] **죽은 컴포넌트 둘을 지웠다** (2026-09-07). `hero/HeroSequence.tsx`와
+      그것만 부르던 `hero/Moon.tsx`, 그리고 `globals.css`의
+      `halo-breathe`·`.hero-halo`·`--animate-halo-breathe`. `page.tsx`의
+      낡은 주석은 `VerticalWorld` 기준으로 고쳤다. 같은 폴더의
+      `MockChart`(`world/DeepResult`)와
+      `RitualForm`·`RitualCombobox`·`ritualStyles`(`birth/BirthPanel`)는
+      살아 있어 그대로 뒀다. 되살리려면 `git revert`가 아니라
+      `git checkout ec65d64 -- byeolsaem-web/src/components/hero/`로 꺼낸다.
 
 - [ ] **1987·1988년 서머타임 보정.** 두 해 한국은 서머타임을 시행했다(1987-05-10~10-11,
       1988-05-08~10-09). 지금 엔진은 시간대를 KST 고정(+9)으로 두므로, 이 기간에 태어난
