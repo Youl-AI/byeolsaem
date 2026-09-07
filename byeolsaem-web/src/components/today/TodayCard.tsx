@@ -339,9 +339,12 @@ function TransitList({ back, hasLens }: { back: TodayBack; hasLens: boolean }) {
 }
 
 /**
- * 트랜짓 한 장. 옛 TransitItem의 모든 것이 자리만 바꿔 들어 있다 — 별 표기와
- * 오차·결·기간은 용어 줄로, 생활 문장의 첫 문장은 크게, 건드려지는 자리의 생활
- * 이름은 그 밑, 나머지 문장과 근거는 접힌 본문으로.
+ * 트랜짓 한 장 — 네 자리에 네 질문의 답이 선다(스펙 2026-09-08 §3).
+ * 위 용어 줄(meta)이 자리 · 기간 · 얼마나 드문가를, 그 옆 진행 막대가 느린
+ * 별의 통과를 말한다. 그 아래 크게 plain, 다시 그 아래 where — life의 둘째
+ * 문장이라 plain을 반복하지 않는다. 접힌 본문에는 위에서부터 해 볼 것/미룰
+ * 것(advice), 두 별의 주제(caption, 금색), life의 나머지(rest), 마지막으로
+ * "왜 이게 보이나요" 아래 근거 세 줄(basis)이 선다.
  */
 function TransitCard({ t, index }: { t: TodayTransit; index: number }) {
   return (

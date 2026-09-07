@@ -174,18 +174,33 @@ export function describeTransit(transit: Transit, natal: Chart, lens: ConcernLen
   const house = placement.house;
   const inLens = lens ? matchesLens(natal, transit.natal, lens) : false;
 
-  const life = fillLife(TRANSIT_LIFE[toneOf(transit.type.harmony)][transit.transiting], area, span);
-  const plain = firstSentence(life);
-  const tail = afterFirstSentence(life);
-  // life는 두 문장이 기본이다. 둘째 문장이 겉면 둘째 줄이 되고, 셋째부터는 접힌다.
-  const where = firstSentence(tail) || tail || plain;
-  const rest = firstSentence(tail) ? afterFirstSentence(tail) : "";
-
   const slow = SLOW_MOVERS.includes(transit.transiting);
   const passage = slow ? transitPassage(transit.transiting, placement.longitude, transit.type.angle, sky.julianDay) : null;
   const nextPeak = passage?.peaks.find((p) => p.jd >= sky.julianDay) ?? null;
   const peakLabel = nextPeak ? formatPassageDate(nextPeak, sky.date.year) : null;
   const peakPassed = !!passage && passage.peaks.length > 0 && !nextPeak;
+
+  // where의 마지막 대비책(아래)이 basis[0]을 가리키므로 life보다 먼저 만든다.
+  const basis = basisLines({
+    tense: "transit",
+    a: transit.transiting,
+    b: transit.natal,
+    angle: transit.type.angle,
+    orb: transit.orb,
+    house,
+    lens: inLens && lens ? lens.label : null,
+    peakLabel,
+    peakPassed,
+  });
+
+  const life = fillLife(TRANSIT_LIFE[toneOf(transit.type.harmony)][transit.transiting], area, span);
+  const plain = firstSentence(life);
+  const tail = afterFirstSentence(life);
+  // life는 두 문장이 기본이다. 둘째 문장이 겉면 둘째 줄이 되고, 셋째부터는 접힌다.
+  // life가 혹시라도 한 문장뿐이면 근거 첫 줄로 대신한다 — 그 줄은 늘 별 이름과
+  // 각도를 말하므로 plain의 부분 문자열이 될 수 없다(plain을 그대로 반복하면 안 된다).
+  const where = firstSentence(tail) || tail || basis[0];
+  const rest = firstSentence(tail) ? afterFirstSentence(tail) : "";
 
   const range = passage ? passageRange(passage, sky.date.year) : "";
   const every = recurrenceLabel(transit.transiting, transit.type.angle);
@@ -218,17 +233,7 @@ export function describeTransit(transit: Transit, natal: Chart, lens: ConcernLen
     where,
     rest,
     advice: TRANSIT_ADVICE[transit.transiting],
-    basis: basisLines({
-      tense: "transit",
-      a: transit.transiting,
-      b: transit.natal,
-      angle: transit.type.angle,
-      orb: transit.orb,
-      house,
-      lens: inLens && lens ? lens.label : null,
-      peakLabel,
-      peakPassed,
-    }),
+    basis,
     progress,
   };
 }

@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import { computeChart } from "@/lib/chart";
 import { toJulianDay } from "@/lib/ephemeris";
 import { exampleSky } from "@/lib/example-sky";
+import { afterFirstSentence } from "@/lib/text";
 import { findTransits, noonJulianDay, todaySky } from "@/lib/today";
 import { describeTransit, todayBack, todayFront } from "@/lib/today-reading";
 import { lensFor } from "@/content/atoms/concerns";
+import { fillLife, TRANSIT_LIFE } from "@/content/atoms/life";
 import { MOON_PHASE_LINES } from "@/content/atoms/today";
 import { MOON_PHASES } from "@/lib/moon";
 
@@ -194,8 +196,20 @@ describe("오늘 카드의 재료", () => {
   it("금지어가 없다", () => {
     for (const raw of all.slice(0, 8)) {
       const t = describeTransit(raw, chart, null, sky);
-      const text = [t.meta, t.plain, t.where, t.rest, ...t.basis].join(" ");
+      const text = [t.meta, t.plain, t.where, t.rest, t.caption, ...t.basis].join(" ");
       expect(text).not.toMatch(/오차|육분|삼각|사각|대립|순풍|마찰/);
+    }
+  });
+
+  it("TRANSIT_LIFE는 모두 두 문장 이상이다 — where가 plain으로 새지 않는 전제", () => {
+    // describeTransit의 where는 life의 둘째 문장이 없을 때만 근거 첫 줄로
+    // 대신한다. 이 전제가 깨지면(문장이 하나로 줄면) plain을 그대로 반복하게
+    // 되므로, 문장 개수 자체를 여기서 지킨다 — 문구가 아니라 개수만 본다.
+    for (const tone of Object.keys(TRANSIT_LIFE) as (keyof typeof TRANSIT_LIFE)[]) {
+      for (const planet of Object.keys(TRANSIT_LIFE[tone]) as (keyof (typeof TRANSIT_LIFE)[typeof tone])[]) {
+        const life = fillLife(TRANSIT_LIFE[tone][planet], "어떤 자리", "며칠");
+        expect(afterFirstSentence(life).length).toBeGreaterThan(0);
+      }
     }
   });
 });
