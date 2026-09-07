@@ -234,7 +234,15 @@ describe("궁합 첫 화면", () => {
   it("탭의 앵커마다 같은 id의 구역이 있다", () => {
     const { mine, theirs, reading } = exampleMeeting();
     const html = renderToStaticMarkup(
-      createElement(SynastryBody, { mine, theirs, reading, chosen: null, onPick: () => {}, onActive: () => {} }),
+      createElement(SynastryBody, {
+        mine,
+        theirs,
+        reading,
+        chosen: null,
+        activeId: null,
+        onPick: () => {},
+        onActive: () => {},
+      }),
     );
     expectTabsResolve(html);
     // 이름 붙은 조합은 펼쳐져 있고 나머지는 접혀 있다.
@@ -349,5 +357,40 @@ describe("한 해의 탭 배선", () => {
     expect(html).toContain('id="year-2026"');
     expect(html).toContain('id="year-2027"');
     expect(html.match(/id="personal-year"/g)).toHaveLength(1);
+  });
+});
+
+describe("궁합의 금실 축소판", () => {
+  const body = (activeId: string | null) => {
+    const { mine, theirs, reading } = exampleMeeting();
+    return renderToStaticMarkup(
+      createElement(SynastryBody, {
+        mine,
+        theirs,
+        reading,
+        chosen: null,
+        activeId,
+        onPick: () => {},
+        onActive: () => {},
+      }),
+    );
+  };
+
+  it("카드 목록 위에 축소판이 서고 짚고 있는 실만 밝다", () => {
+    const { reading } = exampleMeeting();
+    const html = body(reading.lines[1].id);
+    expect(html).toContain('data-threads="compact"');
+    // 밝은 실은 하나뿐이다 — 카드 열 장이 서로 다른 실을 가리킨다.
+    expect(html.match(/stroke-width="2.4"/g)).toHaveLength(1);
+  });
+
+  it("짚는 것이 없으면 밝은 실도 없다", () => {
+    expect(body(null)).not.toContain('stroke-width="2.4"');
+  });
+
+  it("축소판은 첫 화면 그림과 같은 내용이라 스크린리더에는 읽히지 않는다", () => {
+    const html = body(null);
+    expect(html).not.toContain("두 사람의 별 배치와 그 사이를 잇는");
+    expect(html).toContain('data-threads="compact"');
   });
 });

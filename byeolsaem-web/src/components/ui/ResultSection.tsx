@@ -40,11 +40,17 @@ export function CardSection({
   id,
   title,
   intro,
+  aside,
   children,
 }: {
   id: string;
   title: string;
   intro?: string;
+  /**
+   * 카드 위에 서는 그림. 카드 묶음 div 밖에 둔다 — 진입 규칙이 그 div의 직계
+   * 자식만 보므로, 안에 넣으면 카드가 아닌 것이 카드 계단에 끼어든다.
+   */
+  aside?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [ref, inView] = useInView<HTMLDivElement>(0.2);
@@ -53,6 +59,7 @@ export function CardSection({
       {intro && (
         <p className="mb-4 max-w-[52ch] break-keep text-guide text-starlight-dim">{intro}</p>
       )}
+      {aside}
       <div ref={ref} data-in={inView ? "true" : "false"} className="space-y-2.5">
         {children}
       </div>

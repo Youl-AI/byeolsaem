@@ -186,6 +186,7 @@ export function SynastryReading() {
               theirs={theirChart}
               reading={reading}
               chosen={chosen}
+              activeId={activeId}
               onPick={setConcern}
               onActive={setActiveId}
             />
@@ -316,6 +317,7 @@ export function SynastryBody({
   theirs,
   reading,
   chosen,
+  activeId,
   onPick,
   onActive,
 }: {
@@ -323,6 +325,8 @@ export function SynastryBody({
   theirs: Chart;
   reading: SynastryReadingData;
   chosen: string | null;
+  /** 지금 짚고 있는 만남 — 카드 위 축소판이 그 실을 밝힌다. */
+  activeId: string | null;
   onPick: (concern: string) => void;
   onActive: (id: string | null) => void;
 }) {
@@ -370,7 +374,21 @@ export function SynastryBody({
           <CardSection
             id="lines"
             title="두 하늘이 닿는 자리"
-            intro={`${chosen ? `${chosen}에 걸리는 것을 앞에 두고, ` : ""}이름이 붙어 있는 조합과 무게가 실린 것부터 ${reading.lines.length}개입니다. 이름 붙은 조합(✦)은 펼쳐 두었고 나머지는 눌러서 엽니다. 한 줄에 커서를 올리면 위 그림에서 그 실이 밝아집니다.`}
+            intro={`${chosen ? `${chosen}에 걸리는 것을 앞에 두고, ` : ""}이름이 붙어 있는 조합과 무게가 실린 것부터 ${reading.lines.length}개입니다. 이름 붙은 조합(✦)은 펼쳐 두었고 나머지는 눌러서 엽니다. 한 줄에 커서를 올리거나 눌러서 열면 바로 위 그림에서 그 실이 밝아집니다.`}
+            aside={
+              /* 큰 그림은 첫 화면에 있어 여기서는 안 보인다. 축소판을 카드 바로 위에
+                 두고, 넓은 화면에서는 탭바 아래에 붙여 카드를 지나는 동안에도 남긴다.
+                 좁은 화면은 hover가 없으므로 카드를 여는 것이 짚는 동작이다. */
+              <div className="mb-5 border-b border-gold/15 pb-4 md:sticky md:top-[7.25rem] md:z-10 md:bg-ink/95 md:pt-2 md:backdrop-blur">
+                <GoldThreads
+                  mine={mine}
+                  theirs={theirs}
+                  lines={reading.lines}
+                  activeId={activeId}
+                  compact
+                />
+              </div>
+            }
           >
             {reading.lines.map((line, i) => (
               <ReadingCard
@@ -379,6 +397,9 @@ export function SynastryBody({
                 defaultOpen={line.highlight !== null}
                 onPointerEnter={() => onActive(line.id)}
                 onPointerLeave={() => onActive(null)}
+                // 손가락에는 hover가 없다. 카드를 여닫는 것이 그 자리에서 짚는
+                // 동작이므로, 방금 만진 줄의 실을 밝힌다.
+                onToggle={() => onActive(line.id)}
                 badge={
                   <AspectBadge
                     angle={aspectAngle(line.aspectKey)}

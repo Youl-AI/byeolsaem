@@ -43,30 +43,55 @@ export function GoldThreads({
   theirs,
   lines,
   activeId,
+  compact = false,
 }: {
   mine: Chart;
   theirs: Chart;
   lines: SynastryLine[];
   /** 아래 목록에서 지금 짚고 있는 만남. 그 실만 밝아진다. */
   activeId: string | null;
+  /**
+   * 카드 목록 옆에 서는 축소판.
+   *
+   * 큰 그림은 첫 화면에 있고 카드는 한 화면 넘게 아래라, 짚어도 밝아지는 것을
+   * 볼 수 없었다(2026-09-07 판단). 축소판이 그 거리를 없앤다. 같은 그림이므로
+   * 스크린리더에는 큰 그림 하나만 읽히게 두고, 글리프 이름은 지운다 — 그 자리에서
+   * 읽을 크기가 아니고 카드가 이미 말로 적는다.
+   */
+  compact?: boolean;
 }) {
   // 실도 화면에 들어올 때 그어진다. 마운트에 맞춰 그으면 스크롤로 내려오는 동안
-  // 끝나 버려 아무도 그어지는 것을 보지 못한다.
-  const [frame, drawn] = useInView<HTMLDivElement>(0.3);
+  // 끝나 버려 아무도 그어지는 것을 보지 못한다. 축소판은 짚는 순간 이미 서 있어야
+  // 하므로 기다리지 않는다.
+  const [frame, inView] = useInView<HTMLDivElement>(0.3);
+  const drawn = compact || inView;
 
   const myLongitudes = longitudesOf(mine);
   const theirLongitudes = longitudesOf(theirs);
 
   return (
-    <div ref={frame} className="-mx-6 overflow-x-auto px-6 md:mx-0 md:px-0">
+    <div
+      ref={frame}
+      data-threads={compact ? "compact" : "hero"}
+      className={
+        compact
+          ? "mx-auto w-full max-w-[380px]"
+          : "-mx-6 overflow-x-auto px-6 md:mx-0 md:px-0"
+      }
+    >
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="h-auto w-full min-w-[560px]"
-        role="img"
-        aria-label={`두 사람의 별 배치와 그 사이를 잇는 ${lines.length}개의 각도를 그린 그림. 같은 내용이 아래 목록에 글로 있습니다.`}
+        className={compact ? "h-auto w-full" : "h-auto w-full min-w-[560px]"}
+        role={compact ? "presentation" : "img"}
+        aria-hidden={compact || undefined}
+        aria-label={
+          compact
+            ? undefined
+            : `두 사람의 별 배치와 그 사이를 잇는 ${lines.length}개의 각도를 그린 그림. 같은 내용이 아래 목록에 글로 있습니다.`
+        }
       >
-        <Cluster center={LEFT} longitudes={myLongitudes} label="나" />
-        <Cluster center={RIGHT} longitudes={theirLongitudes} label="그쪽" />
+        <Cluster center={LEFT} longitudes={myLongitudes} label="나" compact={compact} />
+        <Cluster center={RIGHT} longitudes={theirLongitudes} label="그쪽" compact={compact} />
 
         {lines.map((line, index) => {
           const from = pointAt(LEFT, myLongitudes[line.mine.key]);
@@ -105,10 +130,13 @@ function Cluster({
   center,
   longitudes,
   label,
+  compact = false,
 }: {
   center: { x: number; y: number };
   longitudes: Record<PlanetKey, number>;
   label: string;
+  /** 축소판에서는 글자가 작아지므로 이름표를 키우고 글리프 이름을 뺀다. */
+  compact?: boolean;
 }) {
   return (
     <g>
@@ -125,7 +153,7 @@ function Cluster({
         y={center.y + RADIUS + 46}
         textAnchor="middle"
         className="font-display"
-        fontSize="17"
+        fontSize={compact ? "34" : "17"}
         fill="var(--color-starlight-dim)"
       >
         {label}
@@ -134,17 +162,20 @@ function Cluster({
         const point = pointAt(center, longitude);
         return (
           <g key={planet}>
-            <circle cx={point.x} cy={point.y} r="3" fill="var(--color-gold-soft)" />
-            <text
-              x={point.x}
-              y={point.y - 9}
-              textAnchor="middle"
-              className="astro-symbol"
-              fontSize="13"
-              fill="var(--color-starlight-dim)"
-            >
-              {PLANET_BY_KEY[planet as PlanetKey].symbol}
-            </text>
+            <circle cx={point.x} cy={point.y} r={compact ? 4 : 3} fill="var(--color-gold-soft)" />
+            {/* 축소판에서 13px 기호는 6px로 줄어 읽히지 않는다. 별 이름은 카드가 글로 적는다. */}
+            {!compact && (
+              <text
+                x={point.x}
+                y={point.y - 9}
+                textAnchor="middle"
+                className="astro-symbol"
+                fontSize="13"
+                fill="var(--color-starlight-dim)"
+              >
+                {PLANET_BY_KEY[planet as PlanetKey].symbol}
+              </text>
+            )}
           </g>
         );
       })}
