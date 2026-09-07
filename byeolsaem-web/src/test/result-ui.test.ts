@@ -60,7 +60,7 @@ describe("카드", () => {
     const html = renderToStaticMarkup(
       createElement(ReadingCard, {
         badge: "♂",
-        tech: "화성 · 처녀자리 25° · 1하우스",
+        meta: "화성 · 처녀자리 25° · 1하우스",
         plain: "밀어붙이는 힘이 당신 자신과 첫인상에 있습니다",
         where: "따져서 이깁니다.",
         index: 3,
@@ -79,7 +79,7 @@ describe("카드", () => {
         ReadingCard,
         {
           badge: "♂",
-          tech: "화성 · 처녀자리 25° · 1하우스",
+          meta: "화성 · 처녀자리 25° · 1하우스",
           plain: "밀어붙이는 힘이 당신 자신과 첫인상에 있습니다",
           where: "A다.",
           index: 3,
@@ -89,6 +89,53 @@ describe("카드", () => {
     );
     expect(html).toContain("B다.");
     expect(html).not.toContain("A다. B다.");
+  });
+
+  it("근거가 있으면 접힘 안 맨 아래에 세 줄, 하우스에 점선", () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        ReadingCard,
+        {
+          badge: "♄",
+          meta: "마주 앉는 관계 · 9월 2일 – 11월 14일 · 15년에 한 번",
+          plain: "관계가 단단해지는 몇 달입니다.",
+          where: "여기서 만든 것은 오래 남습니다.",
+          basis: [
+            "지금 하늘의 토성이 내 천왕성과 60도를 이룹니다.",
+            "그 천왕성이 7하우스(마주 앉는 관계)에 있습니다.",
+            "0.3도 차이라 지금이 가장 진합니다.",
+          ],
+        },
+        createElement("p", null, "본문"),
+      ),
+    );
+    expect(html).toContain("왜 이게 보이나요");
+    expect(html.match(/data-basis-line/g)).toHaveLength(3);
+    expect(html.indexOf("본문")).toBeLessThan(html.indexOf("왜 이게 보이나요"));
+    expect(html).toContain(">하우스</button>"); // Term
+  });
+
+  it("해 볼 것·미룰 것은 접힘 안 첫머리", () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        ReadingCard,
+        { badge: "♄", meta: "m", plain: "p.", where: "w.", advice: { try: "정리", hold: "덮기" } },
+        createElement("p", null, "본문"),
+      ),
+    );
+    expect(html.indexOf("해 볼 것")).toBeLessThan(html.indexOf("본문"));
+    expect(html).toContain("정리");
+    expect(html).toContain("덮기");
+  });
+
+  it("진행 막대는 머리줄 아래, 값과 정점이 백분율로", () => {
+    const html = renderToStaticMarkup(
+      createElement(ReadingCard, { badge: "♄", meta: "m", plain: "p.", where: "w.", progress: { value: 0.4, peaks: [0.55] } }),
+    );
+    expect(html).toContain('data-progress="40"');
+    expect(html).toContain("left:55%");
+    const none = renderToStaticMarkup(createElement(ReadingCard, { badge: "♄", meta: "m", plain: "p.", where: "w." }));
+    expect(none).not.toContain("data-progress");
   });
 });
 
@@ -186,7 +233,7 @@ describe("첫 화면", () => {
 describe("카드 prop", () => {
   const base = {
     badge: "♂",
-    tech: "화성 · 처녀자리 25° · 1하우스",
+    meta: "화성 · 처녀자리 25° · 1하우스",
     plain: "밀어붙이는 힘이 당신 자신과 첫인상에 있습니다",
     where: "따져서 이깁니다.",
   };

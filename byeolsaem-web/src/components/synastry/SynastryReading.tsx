@@ -411,7 +411,7 @@ export function SynastryBody({
                     className="w-8"
                   />
                 }
-                tech={
+                meta={
                   <>
                     {/* 별표는 sr-only 문장(아래 plain)이 같은 말을 하므로 스크린리더에는
                         숨긴다 — 안 그러면 도형 이름과 문장이 겹쳐 두 번 읽힌다. */}

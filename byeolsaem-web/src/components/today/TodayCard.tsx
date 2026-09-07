@@ -355,7 +355,7 @@ function TransitCard({ t, index }: { t: TodayTransit; index: number }) {
           {"\uFE0E"}
         </>
       }
-      tech={`오늘의 ${t.moving.ko} ${t.aspectKo} 내 ${t.fixed.ko} · 오차 ${t.orb.toFixed(1)}도 · ${toneLabel(t.harmony)} · 약 ${t.span}`}
+      meta={`오늘의 ${t.moving.ko} ${t.aspectKo} 내 ${t.fixed.ko} · 오차 ${t.orb.toFixed(1)}도 · ${toneLabel(t.harmony)} · 약 ${t.span}`}
       plain={firstSentence(t.life)}
       where={t.area}
     >

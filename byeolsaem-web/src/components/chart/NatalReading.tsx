@@ -284,7 +284,7 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
               {"\uFE0E"}
             </>
           }
-          tech={`태양 · ${formatPlacement(core.sun.placement)}`}
+          meta={`태양 · ${formatPlacement(core.sun.placement)}`}
           plain={
             <>
               겉으로는{" "}
@@ -306,7 +306,7 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
               {"\uFE0E"}
             </>
           }
-          tech={`달 · ${formatPlacement(core.moon.placement)}`}
+          meta={`달 · ${formatPlacement(core.moon.placement)}`}
           plain={
             <>
               혼자일 때는{" "}
@@ -324,7 +324,7 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
           <ReadingCard
             index={2}
             badge="ASC"
-            tech={`상승궁 · ${core.ascendant.sign.ko}`}
+            meta={`상승궁 · ${core.ascendant.sign.ko}`}
             plain={
               <>
                 남들이 처음 보는 나는{" "}
@@ -417,7 +417,7 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
               }
               /* 결(순풍·마찰·겹침)을 글자로 붙인다 — 인장은 aria-hidden이라
                  접힌 카드에서는 색 말고 아무것도 말하지 않는다. */
-              tech={`${item.a.ko} ${item.aspect.type.ko} ${item.b.ko} · 오브 ${item.aspect.orb.toFixed(1)}도 · ${item.strengthKo} · ${toneLabel(item.aspect.type.harmony)}`}
+              meta={`${item.a.ko} ${item.aspect.type.ko} ${item.b.ko} · 오브 ${item.aspect.orb.toFixed(1)}도 · ${item.strengthKo} · ${toneLabel(item.aspect.type.harmony)}`}
               plain={item.headline}
               where={firstSentence(item.body)}
             >
@@ -548,7 +548,7 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
  * `PlacementBody`가 그대로 들어 있다 — 자리 문장, 하우스 문장, 세대 행성 안내.
  */
 function PlanetCard({ item, index }: { item: ReadingPlacement; index: number }) {
-  const tech = `${item.planet.ko} · ${formatPlacement(item.placement)}${
+  const meta = `${item.planet.ko} · ${formatPlacement(item.placement)}${
     item.house ? ` · ${item.house.number}하우스` : ""
   }${item.placement.retrograde ? " · ℞" : ""}`;
   return (
@@ -561,7 +561,7 @@ function PlanetCard({ item, index }: { item: ReadingPlacement; index: number }) 
           {"\uFE0E"}
         </>
       }
-      tech={tech}
+      meta={meta}
       plain={plainLine(item.planet.key, item.house?.number ?? null, item.placement.sign)}
       where={firstSentence(item.inSign)}
     >
