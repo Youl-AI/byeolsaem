@@ -196,7 +196,7 @@ describe("한 해의 조립", () => {
   it("항목마다 날짜 줄과 풀이가 채워진다", () => {
     for (const event of yearReading(NATAL, 2027).events) {
       expect(event.dateLine).toMatch(/^\d+월 \d+일/);
-      expect(event.headline.length).toBeGreaterThan(5);
+      expect(event.caption.length).toBeGreaterThan(5);
       expect(event.body.length).toBeGreaterThan(40);
     }
   });

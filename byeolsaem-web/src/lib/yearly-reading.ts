@@ -112,7 +112,6 @@ export interface YearReadingEvent {
   id: string;
   moving: Planet;
   fixed: Planet;
-  aspectKo: string;
   aspectSymbol: string;
   /** 정확한 각도 — 0 · 60 · 90 · 120 · 180. */
   angle: number;
@@ -141,7 +140,6 @@ export interface YearReadingEvent {
   basis: [string, string, string];
   /** 고른 관심사에 걸리는가. */
   inLens: boolean;
-  headline: string;
   body: string;
 }
 
@@ -234,7 +232,6 @@ function describe(event: YearEvent, natal: Chart, lens: ConcernLens | null): Yea
     id: eventDomId(event),
     moving,
     fixed,
-    aspectKo: event.type.ko,
     aspectSymbol: event.type.symbol,
     angle: event.type.angle,
     harmony: event.type.harmony,
@@ -252,7 +249,6 @@ function describe(event: YearEvent, natal: Chart, lens: ConcernLens | null): Yea
     advice: TRANSIT_ADVICE[event.transiting],
     basis,
     inLens,
-    headline: theme ? `${theme} — ${meaning.headline}` : meaning.headline,
     body: `${meaning.body} ${frame?.brings ?? ""}`.trim(),
   };
 }

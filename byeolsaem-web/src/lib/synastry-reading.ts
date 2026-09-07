@@ -28,7 +28,6 @@ export interface SynastryLine {
   id: string;
   mine: Planet;
   theirs: Planet;
-  aspectKo: string;
   /** "trine" 같은 각도 키. 한 줄 조립이 결을 읽는 데 쓴다. */
   aspectKey: string;
   aspectSymbol: string;
@@ -112,7 +111,6 @@ function describe(aspect: CrossAspect, highlighted: boolean, house: number | nul
     id: crossAspectId(aspect),
     mine,
     theirs,
-    aspectKo: aspect.type.ko,
     aspectKey: aspect.type.key,
     aspectSymbol: aspect.type.symbol,
     angle: aspect.type.angle,

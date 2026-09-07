@@ -264,7 +264,10 @@ describe("천궁도 각 카드", () => {
     const { chart, reading } = exampleSky();
     expect(reading.aspects.length).toBeGreaterThan(0);
     for (const item of reading.aspects) {
-      expect(item.meta).not.toMatch(/오브|육분|삼각|사각|대립|순풍|마찰|합\b/);
+      // '합'은 여기서 뺀다 — \b는 아스키 전용이라 한글 앞뒤에서 경계로 서지 않고,
+      // 흔한 음절이라 어차피 스펙이 금지어에서 뺐다(§2). '합'을 빼도 검사하는 것은
+      // '육분'·'삼각'·'사각'·'대립'·'순풍'·'마찰'·'오브' 그대로다.
+      expect(item.meta).not.toMatch(/오브|육분|삼각|사각|대립|순풍|마찰/);
       expect(item.basis[0]).toMatch(/^태어날 때 .+ (\d+도였습니다|한자리에 겹쳐 있었습니다)\.$/);
       expect(item.basis[2]).toMatch(/배선입니다\.$/);
     }
@@ -546,6 +549,10 @@ describe("카드 밖에도 각 이름이 없다", () => {
       const tone = html.match(/<span class="text-eyebrow tracking-\[0\.18em\][^"]*">([^<]*)<\/span>/);
       return `${meta?.[1] ?? ""} ${tone?.[1] ?? ""}`;
     };
+    // badgeLine()의 두 정규식이 빗나가면 ""를 돌려주고, ""는 무엇에도 안 걸려
+    // not.toMatch가 공허하게 통과한다 — 실제로 내용을 봤다는 것부터 확인한다.
+    expect(badgeLine(natal).trim().length).toBeGreaterThan(0);
+    expect(badgeLine(meeting).trim().length).toBeGreaterThan(0);
     expect(badgeLine(natal)).not.toMatch(FORBIDDEN);
     expect(badgeLine(meeting)).not.toMatch(FORBIDDEN);
   });
@@ -607,6 +614,10 @@ describe("카드 문법 불변식 — 네 화면", () => {
       const cards = cardsOf(html);
       expect(cards.length, name).toBeGreaterThan(0);
       for (const c of cards) {
+        // plain도 비어 있으면 안 된다 — where만 지키면, 렌더 클래스가 바뀌어
+        // plain 정규식이 조용히 빗나가도(""가 되어도) includes(where) 검사는
+        // "" 안에 아무것도 없다는 이유로 계속 통과해 버린다.
+        expect(c.plain.length, name).toBeGreaterThan(0);
         expect(c.where.length, `${name}: ${c.plain}`).toBeGreaterThan(0);
         expect(c.plain.includes(c.where), `${name}: "${c.where}"가 "${c.plain}" 안에 있다`).toBe(false);
       }
