@@ -33,6 +33,17 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: "트랜짓-읽는-법",
+    title: "트랜짓 읽는 법 — 지금 하늘을 내 차트에 겹치기",
+    summary:
+      "네이탈이 사진이라면 트랜짓은 그 위를 지나는 날씨입니다. 느린 별부터 보는 우선순위와, 예보를 예언으로 만들지 않는 태도까지.",
+    category: "실전 점성학",
+    published: "2026-09-07",
+    readingMinutes: 5,
+    image: "/og/blog/transit-guide.png",
+    load: () => import("./transit-guide.mdx"),
+  },
+  {
     slug: "프로그레션",
     title: "프로그레션 — 하루를 일 년으로 세는 법",
     summary:
