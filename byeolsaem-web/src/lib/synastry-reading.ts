@@ -11,6 +11,7 @@ import {
   SYNASTRY_ASPECTS,
   SYNASTRY_HIGHLIGHTS,
 } from "@/content/atoms/synastry";
+import { basisLines } from "./basis";
 import type { Chart } from "./chart";
 import { gwa, iga } from "./josa";
 import { PLANET_BY_KEY, type Planet, type PlanetKey } from "./planets";
@@ -42,6 +43,9 @@ export interface SynastryLine {
   highlight: string | null;
   /** 고른 관심사에 걸리는가. 걸리는 것이 목록 앞으로 온다. */
   highlighted: boolean;
+  /** 그쪽 별이 든 내 하우스. 내 시각을 모르면 null. */
+  house: number | null;
+  basis: [string, string, string];
 }
 
 /** 관심사가 보는 방 하나와, 그 방에 든 상대의 별. */
@@ -96,7 +100,7 @@ export function crossAspectId(aspect: CrossAspect): string {
 /** 화면에 세울 만남의 수. 이보다 아래는 오브가 넓어 이 관계만의 특징이라 하기 어렵다. */
 const SHOWN = 10;
 
-function describe(aspect: CrossAspect, highlighted: boolean): SynastryLine {
+function describe(aspect: CrossAspect, highlighted: boolean, house: number | null): SynastryLine {
   const mine = PLANET_BY_KEY[aspect.mine];
   const theirs = PLANET_BY_KEY[aspect.theirs];
   const meaning = SYNASTRY_ASPECTS[aspect.type.key];
@@ -115,6 +119,15 @@ function describe(aspect: CrossAspect, highlighted: boolean): SynastryLine {
     headline: meaning.headline,
     body: meaning.body,
     highlight: SYNASTRY_HIGHLIGHTS[pairKey(aspect.mine, aspect.theirs)] ?? null,
+    house,
+    basis: basisLines({
+      tense: "synastry",
+      a: aspect.mine,
+      b: aspect.theirs,
+      angle: aspect.type.angle,
+      orb: aspect.orb,
+      house,
+    }),
     highlighted,
   };
 }
@@ -217,7 +230,7 @@ export function synastryReading(
   // "아래 목록에서 그대로 세어 볼 수 있다"는 약속이 깨진다.
   const cut = result.aspects.slice(0, Math.max(SHOWN, result.named));
   const described = cut.map((aspect) =>
-    describe(aspect, lens ? matchesLens(aspect, lens, roomOf) : false),
+    describe(aspect, lens ? matchesLens(aspect, lens, roomOf) : false, roomOf.get(aspect.theirs) ?? null),
   );
   // 걸리는 것을 앞으로. 같은 무리 안의 차례는 그대로 둔다.
   const lines = [

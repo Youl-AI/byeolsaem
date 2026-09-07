@@ -15,11 +15,10 @@ import { NameTag, chartPillars } from "@/components/chart/NameTag";
 import { ReadingCard } from "@/components/ui/ReadingCard";
 import { ResultTabs } from "@/components/ui/ResultTabs";
 import { CardSection, ResultSection } from "@/components/ui/ResultSection";
-import { toneLabel } from "@/components/ui/ToneBadge";
 import { Link } from "@/components/ui/Link";
 import { SIGN_SYMBOL, getSunSign } from "@/lib/zodiac";
 import { signArt } from "@/lib/share-card";
-import { firstSentence } from "@/lib/text";
+import { afterFirstSentence, firstSentence } from "@/lib/text";
 import { openBirthPanel, requestRitual } from "@/lib/ritual";
 import { consumeInviteHash, type InvitePayload } from "@/lib/invite";
 import {
@@ -416,7 +415,7 @@ export function SynastryBody({
                     {/* 별표는 sr-only 문장(아래 plain)이 같은 말을 하므로 스크린리더에는
                         숨긴다 — 안 그러면 도형 이름과 문장이 겹쳐 두 번 읽힌다. */}
                     {line.highlighted && <span aria-hidden>✦ </span>}
-                    {`내 ${line.mine.ko} ${line.aspectKo} 그쪽 ${line.theirs.ko} · 오차 ${line.orb.toFixed(1)}도 · ${toneLabel(line.harmony)}`}
+                    {line.meeting}
                   </>
                 }
                 plain={
@@ -425,9 +424,10 @@ export function SynastryBody({
                     {line.highlighted && <span className="sr-only"> 고른 관심사에 걸리는 항목입니다.</span>}
                   </>
                 }
-                where={line.meeting}
+                where={firstSentence(line.body)}
+                basis={line.basis}
               >
-                <p>{line.body}</p>
+                {afterFirstSentence(line.body) && <p>{afterFirstSentence(line.body)}</p>}
                 {line.highlight && (
                   <p className="border-l-2 border-gold/40 pl-4 text-starlight">{line.highlight}</p>
                 )}

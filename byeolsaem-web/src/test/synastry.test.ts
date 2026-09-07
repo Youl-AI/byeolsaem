@@ -9,6 +9,7 @@ import {
 import { pairKey } from "@/content/atoms/aspects";
 import { CONCERN_LENSES } from "@/content/atoms/concerns";
 import { ASPECT_TYPES, angleBetween, computeChart } from "@/lib/chart";
+import { exampleMeeting } from "@/lib/example-sky";
 import { PLANETS } from "@/lib/planets";
 import { crossAspects, houseOverlay, synastry } from "@/lib/synastry";
 import { synastryReading } from "@/lib/synastry-reading";
@@ -277,5 +278,19 @@ describe("관심사 렌즈", () => {
     expect(JSON.stringify(synastryReading(A, B, "직업운"))).toBe(
       JSON.stringify(synastryReading(A, B, "직업운")),
     );
+  });
+});
+
+describe("궁합 카드의 재료", () => {
+  it("근거 세 줄이 궁합 시제고 겉면에 각 이름이 없다", () => {
+    const { reading } = exampleMeeting();
+    expect(reading.lines.length).toBeGreaterThan(0);
+    for (const line of reading.lines) {
+      expect(line.basis).toHaveLength(3);
+      expect(line.basis[0]).toMatch(/^내 .+이 그쪽 .+과 (\d+도를 이룹니다|겹칩니다)\.$/);
+      expect(line.basis[1]).toMatch(/^그쪽 .+(내 \d+하우스\(.+\)에 있습니다|을 맡고 있습니다|를 맡고 있습니다)\.$/);
+      expect(line.basis[2]).toMatch(/만남입니다\.$/);
+      expect([line.meeting, line.headline, line.body].join(" ")).not.toMatch(/오차|육분|삼각|사각|대립|순풍|마찰/);
+    }
   });
 });
