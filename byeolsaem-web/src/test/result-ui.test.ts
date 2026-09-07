@@ -133,6 +133,7 @@ describe("카드", () => {
       createElement(ReadingCard, { badge: "♄", meta: "m", plain: "p.", where: "w.", progress: { value: 0.4, peaks: [0.55] } }),
     );
     expect(html).toContain('data-progress="40"');
+    expect(html).toContain("width:40%");
     expect(html).toContain("left:55%");
     const none = renderToStaticMarkup(createElement(ReadingCard, { badge: "♄", meta: "m", plain: "p.", where: "w." }));
     expect(none).not.toContain("data-progress");
