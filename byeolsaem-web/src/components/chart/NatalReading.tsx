@@ -23,7 +23,7 @@ import { ChartWheel, ChartWheelLegend } from "./ChartWheel";
 import { NameTag } from "./NameTag";
 import { ChartLoading, UnknownPlace } from "./NoProfile";
 import { SkyLapse } from "./SkyLapse";
-import { Term } from "./Term";
+import { Term } from "@/components/ui/Term";
 import { useChart } from "./useChart";
 
 /**

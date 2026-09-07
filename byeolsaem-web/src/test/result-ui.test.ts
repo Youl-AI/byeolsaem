@@ -18,6 +18,8 @@ import { todaySky } from "@/lib/today";
 import { todayBack } from "@/lib/today-reading";
 import { QUIET_DAY } from "@/content/atoms/today";
 import { YearScope, yearTabs } from "@/components/yearly/YearScope";
+import { Term } from "@/components/ui/Term";
+import { GLOSSARY } from "@/content/atoms/glossary";
 
 /** 탭바 안의 앵커 수. 본문의 다른 조각 링크에 휘둘리지 않는다. */
 function tabCount(html: string): number {
@@ -392,5 +394,14 @@ describe("궁합의 금실 축소판", () => {
     const html = body(null);
     expect(html).not.toContain("두 사람의 별 배치와 그 사이를 잇는");
     expect(html).toContain('data-threads="compact"');
+  });
+});
+
+describe("용어", () => {
+  it("점선 용어를 누르면 나오는 정의가 아톰의 것이다", () => {
+    const html = renderToStaticMarkup(createElement(Term, { name: "하우스" }));
+    // HTML escapes special chars like ' to &#x27;, so check that definition is rendered
+    expect(html).toContain(GLOSSARY.하우스.replace(/'/g, "&#x27;"));
+    expect(html).toContain('aria-expanded="false"');
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 import { useId, useState } from "react";
+import { GLOSSARY, type TermName } from "@/content/atoms/glossary";
 
 /**
  * 점성술 용어에 붙이는 한 줄 정의.
@@ -12,7 +13,7 @@ import { useId, useState } from "react";
  * 점선 밑줄은 "눌러 볼 수 있다"는 표시다. 실선 밑줄은 이 사이트에서 링크의
  * 표시이므로 쓰지 않는다 — 눌렀는데 페이지가 바뀌지 않으면 그것도 배신이다.
  */
-export function Term({ name }: { name: keyof typeof GLOSSARY }) {
+export function Term({ name }: { name: TermName }) {
   const [open, setOpen] = useState(false);
   const id = useId();
   const definition = GLOSSARY[name];
@@ -50,23 +51,3 @@ export function Term({ name }: { name: keyof typeof GLOSSARY }) {
     </>
   );
 }
-
-/**
- * 정의는 한 문장으로 끝낸다. 두 문장이 되는 순간 본문 흐름을 끊는 분량이 되고,
- * 그럴 것이면 본문에 쓰는 편이 낫다.
- */
-const GLOSSARY = {
-  상승궁:
-    "태어난 순간 동쪽 지평선에 막 떠오르던 별자리. 남들이 처음 보는 나의 겉모습을 말합니다.",
-  하우스:
-    "하늘을 열둘로 나눈 방. 별자리가 '어떻게'라면 하우스는 '어디서'입니다 — 일터인지 집인지 관계 안인지.",
-  어스펙트:
-    "두 별이 이루는 각도. 특정 각도에서 두 별의 작용이 서로 섞입니다.",
-  오브: "정확한 각도에서 얼마나 벗어났는지. 작을수록 그 각도의 성질이 뚜렷합니다.",
-  역행:
-    "행성이 하늘에서 거꾸로 가는 것처럼 보이는 기간. 실제로 거꾸로 도는 것이 아니라, 지구가 안쪽 궤도에서 추월하며 생기는 착시입니다.",
-  중천:
-    "태어난 순간 하늘 꼭대기에 있던 지점. 사회에서 도달하려는 자리를 말합니다.",
-  홀사인:
-    "하우스를 나누는 방식 중 하나. 상승궁이 든 별자리 전체가 1하우스가 되고, 다음 별자리가 차례로 2, 3하우스가 됩니다.",
-} as const;
