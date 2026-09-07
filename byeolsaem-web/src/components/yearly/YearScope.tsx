@@ -76,6 +76,7 @@ export function YearScope({ backdrops }: { backdrops: YearBackdrop[] }) {
             key={backdrop.year}
             backdrop={backdrop}
             hidden={backdrop.year !== current.year}
+            spaced={flow === false}
           />
         ))}
         <PersonalYear year={current.year} flow={flow === true} />
@@ -149,7 +150,16 @@ function YearRail({
  * 그래서 프로필이 있으면 두 줄 요약으로 접고, 원하면 펼친다. 서버 HTML은 언제나
  * 전체를 담는다 — 검색엔진과 첫 방문자가 보는 것이 그 HTML이다.
  */
-function BackdropSection({ backdrop, hidden }: { backdrop: YearBackdrop; hidden: boolean }) {
+function BackdropSection({
+  backdrop,
+  hidden,
+  spaced,
+}: {
+  backdrop: YearBackdrop;
+  hidden: boolean;
+  /** 탭바를 비켜야 하는가 — 탭은 flow === false일 때만 있으므로 그때만 mt-10을 준다. */
+  spaced: boolean;
+}) {
   const { profile, ready } = useBirthProfile();
   const [open, setOpen] = useState(false);
   const collapsed = ready && profile !== null && !open;
@@ -158,7 +168,7 @@ function BackdropSection({ backdrop, hidden }: { backdrop: YearBackdrop; hidden:
     <section
       id={`year-${backdrop.year}`}
       hidden={hidden}
-      className="mt-10 scroll-mt-32"
+      className={spaced ? "mt-10 scroll-mt-32" : "scroll-mt-32"}
       aria-labelledby={`year-${backdrop.year}-title`}
     >
       <h2
@@ -515,10 +525,12 @@ function scrollToEvent(event: YearReadingEvent): void {
     // 스크롤을 강제하면 안 된다(lib/scroll.ts와 같은 분기).
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+    // 두 번째 키프레임은 투명이 아니라 카드 자신의 배경(ink-raised)으로 돌아간다 —
+    // 카드가 이제 배경을 지니므로, 투명으로 두면 패널이 완전히 사라졌다 돌아온다.
     target.animate(
       [
         { backgroundColor: "color-mix(in srgb, var(--color-gold) 14%, transparent)" },
-        { backgroundColor: "transparent" },
+        { backgroundColor: "var(--color-ink-raised)" },
       ],
       { duration: 1600, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
     );

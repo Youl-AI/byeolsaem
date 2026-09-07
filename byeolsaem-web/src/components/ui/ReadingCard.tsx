@@ -23,7 +23,7 @@ export const ReadingCard: React.FC<
   React.PropsWithChildren<{
     id?: string;
     badge: React.ReactNode;
-    tech: string;
+    tech: React.ReactNode;
     plain: React.ReactNode;
     where: string;
     index?: number;

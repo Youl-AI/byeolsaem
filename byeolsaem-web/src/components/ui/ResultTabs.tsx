@@ -21,8 +21,14 @@ export function ResultTabs({ items }: { items: { id: string; label: string }[] }
   const nav = useRef<HTMLElement>(null);
   const [bar, setBar] = useState<{ left: number; width: number } | null>(null);
 
-  // 스크롤 스파이 — 화면 가운데 띠(40%~45%)를 지나는 섹션이 현재다.
+  // 스크롤 스파이 — 화면 가운데 띠(40%~45%)를 지나는 섹션이 현재다. items가
+  // 바뀌었는데 지금 current가 더는 그 안에 없으면(예: 해를 바꿔 탭 id가 통째로
+  // 갈릴 때) 첫 항목으로 되돌린다 — 그대로 두면 아무 탭도 aria-current를 갖지
+  // 못한 채 스크롤 스파이가 다시 지나갈 때까지 밑줄이 멈춰 있는다.
   useEffect(() => {
+    if (items.length > 0 && !items.some((item) => item.id === current)) {
+      setCurrent(items[0].id);
+    }
     const sections = items
       .map((item) => document.getElementById(item.id))
       .filter((el): el is HTMLElement => el !== null);

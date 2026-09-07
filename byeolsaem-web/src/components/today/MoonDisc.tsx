@@ -1,11 +1,19 @@
 "use client";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import type { MoonPhaseKey } from "@/lib/moon";
 import { moonPath } from "@/lib/moon-path";
 import { onceInSession } from "@/lib/once";
 
 /** 신월에서 오늘까지 차오르는 시간. 36프레임 — 보이되 기다리게 하지 않는다. */
 const FILL_MS = 600;
+
+/**
+ * 서버에서는 useLayoutEffect가 경고를 낸다(실행될 수 없으므로). 하지만 이 원반은
+ * 서버가 미리 그려 `/today`의 빌드된 HTML 안에 이미 들어 있으므로, 첫 페인트
+ * **전에** 0으로 내려야 한다 — useEffect로 미루면 오늘 값이 한 프레임 그려진 뒤
+ * 0으로 꺼져 깜박인다(Astrolabe.tsx의 같은 분기 참고).
+ */
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 /**
  * 오늘의 달. 카드 안 아치에 앉는다.
@@ -20,7 +28,8 @@ const FILL_MS = 600;
  * 컴포넌트를 쓰지 않으므로 정적이다.
  *
  * useLayoutEffect인 이유: 첫 페인트 전에 0으로 내려야 한다. useEffect면 오늘 값이
- * 한 프레임 그려진 뒤 0으로 꺼져 깜박인다.
+ * 한 프레임 그려진 뒤 0으로 꺼져 깜박인다. 다만 이 컴포넌트는 서버에서도 미리
+ * 그려지므로 실제로는 useIsoLayoutEffect(아래)를 쓴다.
  */
 export function MoonDisc({
   illumination,
@@ -36,7 +45,7 @@ export function MoonDisc({
   const r = 46;
   const [shown, setShown] = useState(illumination);
 
-  useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (
       !fill ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches ||

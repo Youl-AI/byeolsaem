@@ -42,7 +42,10 @@ export function YearEventRows({
           <ReadingCard
             key={`${year}-${event.id}`}
             id={event.id}
-            index={i}
+            // 계단은 5에서 멈춘다 — 옆의 강은 해를 바꿀 때마다 1800ms에 걸쳐 다시
+            // 그려지는데, 목록이 그 뒤로도 계속 계단을 밟으면 강과 따로 노는 화면으로
+            // 읽힌다.
+            index={Math.min(i, 5)}
             open={open}
             onToggle={() => onToggle(open ? null : event.id)}
             badge={
@@ -51,9 +54,16 @@ export function YearEventRows({
                 {"\uFE0E"}
               </>
             }
-            tech={`${event.inLens ? "● " : ""}${event.moving.ko} ${event.aspectKo} 내 ${event.fixed.ko} · ${first.month}월 ${first.day}일${
-              event.exact.length > 1 ? ` 외 ${event.exact.length - 1}` : ""
-            } · ${toneLabel(event.harmony)}`}
+            tech={
+              <>
+                {/* 별표는 sr-only 문장(아래 plain)이 같은 말을 하므로 스크린리더에는
+                    숨긴다 — 안 그러면 도형 이름과 문장이 겹쳐 두 번 읽힌다. */}
+                {event.inLens && <span aria-hidden>● </span>}
+                {`${event.moving.ko} ${event.aspectKo} 내 ${event.fixed.ko} · ${first.month}월 ${first.day}일${
+                  event.exact.length > 1 ? ` 외 ${event.exact.length - 1}` : ""
+                } · ${toneLabel(event.harmony)}`}
+              </>
+            }
             plain={
               <>
                 {firstSentence(event.life)}

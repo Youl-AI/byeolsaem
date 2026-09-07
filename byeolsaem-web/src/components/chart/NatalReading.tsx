@@ -634,11 +634,13 @@ function scrollToPlacement(planet: PlanetKey): void {
   const target = document.getElementById(placementDomId(planet));
   if (!target) return;
   target.scrollIntoView({ behavior: "smooth", block: "center" });
-  // 스크롤만 하면 열 개가 비슷하게 생겨 어느 것을 보러 왔는지 놓친다.
+  // 스크롤만 하면 열 개가 비슷하게 생겨 어느 것을 보러 왔는지 놓친다. 두 번째
+  // 키프레임은 카드 자신의 배경(ink-raised)으로 돌아간다 — 투명으로 두면 카드가
+  // 완전히 사라졌다 돌아온다.
   target.animate(
     [
       { backgroundColor: "color-mix(in srgb, var(--color-gold) 14%, transparent)" },
-      { backgroundColor: "transparent" },
+      { backgroundColor: "var(--color-ink-raised)" },
     ],
     { duration: 1600, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
   );
