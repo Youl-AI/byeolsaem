@@ -19,7 +19,7 @@ import {
 import { angleLabel, basisLines } from "./basis";
 import type { Chart } from "./chart";
 import { recurrenceLabel } from "./passage";
-import { afterFirstSentence, firstSentence } from "./text";
+import { firstSentence, splitLife } from "./text";
 import { PLANET_BY_KEY, type Planet, type PlanetKey } from "./planets";
 import { formatZodiacDegree } from "./retrograde";
 import type { RetrogradePeriod } from "./retrograde-clock";
@@ -223,10 +223,7 @@ function describe(event: YearEvent, natal: Chart, lens: ConcernLens | null): Yea
     area,
     span.replace(/^그 무렵 /, ""),
   );
-  const plain = firstSentence(life);
-  const tail = afterFirstSentence(life);
-  const where = firstSentence(tail) || tail || basis[0];
-  const rest = firstSentence(tail) ? afterFirstSentence(tail) : "";
+  const { plain, where, rest } = splitLife(life, basis[0]);
 
   return {
     id: eventDomId(event),

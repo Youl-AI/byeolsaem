@@ -20,7 +20,7 @@ import {
   transitPassage,
 } from "./passage";
 import { PLANET_BY_KEY, type Planet } from "./planets";
-import { afterFirstSentence, firstSentence } from "./text";
+import { firstSentence, splitLife } from "./text";
 import { findTransits, type TodaySky, type Transit } from "./today";
 
 /**
@@ -198,13 +198,8 @@ export function describeTransit(transit: Transit, natal: Chart, lens: ConcernLen
   });
 
   const life = fillLife(TRANSIT_LIFE[toneOf(transit.type.harmony)][transit.transiting], area, span);
-  const plain = firstSentence(life);
-  const tail = afterFirstSentence(life);
   // life는 두 문장이 기본이다. 둘째 문장이 겉면 둘째 줄이 되고, 셋째부터는 접힌다.
-  // life가 혹시라도 한 문장뿐이면 근거 첫 줄로 대신한다 — 그 줄은 늘 별 이름과
-  // 각도를 말하므로 plain의 부분 문자열이 될 수 없다(plain을 그대로 반복하면 안 된다).
-  const where = firstSentence(tail) || tail || basis[0];
-  const rest = firstSentence(tail) ? afterFirstSentence(tail) : "";
+  const { plain, where, rest } = splitLife(life, basis[0]);
 
   const range = passage ? passageRange(passage, sky.date.year) : "";
   const every = recurrenceLabel(transit.transiting, transit.type.angle);

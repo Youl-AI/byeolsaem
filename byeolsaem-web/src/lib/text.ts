@@ -20,3 +20,19 @@ export function afterFirstSentence(text: string): string {
   const end = text.indexOf("다.");
   return end === -1 ? "" : text.slice(end + 2).trim();
 }
+
+/**
+ * life를 카드의 세 자리로 나눈다 — `plain`(첫 문장), `where`(둘째 문장, 겉면
+ * 둘째 줄), `rest`(셋째 문장부터, 접힌 본문). life는 두 문장이 기본이다. life가
+ * 혹시라도 한 문장뿐이면 `where`는 `fallback`을 쓴다 — 보통 근거 첫 줄이다.
+ * 그 줄은 늘 별 이름과 각도를 말하므로 plain의 부분 문자열이 될 수 없다(plain을
+ * 그대로 반복하면 안 된다). today-reading.ts와 yearly-reading.ts가 바이트 단위로
+ * 같은 네 줄을 갖고 있던 것을 여기로 모았다.
+ */
+export function splitLife(life: string, fallback: string): { plain: string; where: string; rest: string } {
+  const plain = firstSentence(life);
+  const tail = afterFirstSentence(life);
+  const where = firstSentence(tail) || tail || fallback;
+  const rest = firstSentence(tail) ? afterFirstSentence(tail) : "";
+  return { plain, where, rest };
+}
