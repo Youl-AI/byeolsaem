@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { BasisLines } from "@/components/ui/BasisLines";
 import { Link } from "@/components/ui/Link";
 import { computeChart } from "@/lib/chart";
 import { coordinatesFor, koreaOffsetHours } from "@/lib/coordinates";
@@ -13,7 +14,7 @@ import { WeekPath } from "./WeekPath";
 const DOW_KO = ["일", "월", "화", "수", "목", "금", "토"];
 
 /** 트랜싯 한 줄 + 눌러 펼치는 풀이. 천궁도 별 사전의 아코디언과 같은 몸짓. */
-function TouchRow({
+export function TouchRow({
   touch,
   open,
   onToggle,
@@ -48,12 +49,7 @@ function TouchRow({
         <div className="overflow-hidden">
           <div className="max-w-[48ch] break-keep pb-4 pl-6 text-meta leading-relaxed text-starlight-dim">
             <p>{touch.detail}</p>
-            <p className="mt-3 font-latin text-eyebrow tracking-[0.2em] text-gold">왜 이게 보이나요</p>
-            {touch.basis.map((line, i) => (
-              <p key={i} data-basis-line className="mt-1.5">
-                {line}
-              </p>
-            ))}
+            <BasisLines lines={touch.basis} />
           </div>
         </div>
       </div>

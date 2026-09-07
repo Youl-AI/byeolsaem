@@ -25,6 +25,8 @@ import { YearRiver } from "@/components/yearly/YearRiver";
 import { ExampleSky } from "@/components/chart/ExampleSky";
 import { ExampleMeeting } from "@/components/synastry/ExampleMeeting";
 import { toneLabel } from "@/components/ui/ToneBadge";
+import { TouchRow } from "@/components/weekly/WeeklyCard";
+import { kstWeekStart, weeklyPersonal } from "@/lib/weekly-reading";
 
 /** 탭바 안의 앵커 수. 본문의 다른 조각 링크에 휘둘리지 않는다. */
 function tabCount(html: string): number {
@@ -581,7 +583,12 @@ function cardsOf(html: string): { meta: string; plain: string; where: string; ba
   });
 }
 
-describe("카드 문법 불변식 — 다섯 화면", () => {
+// 이름을 "다섯 화면"이 아니라 "네 화면"으로 쓴다. screens()는 카드가 있는 네 화면만
+// 렌더한다 — 주간은 카드가 아니라 TouchRow다(스펙 §6 "카드가 아니라 TouchRow.
+// 머리줄 없음"). TouchRow를 여기 끼워 넣으면 cardsOf()가 찾는 것(meta·plain·where)이
+// 애초에 없어 "카드 수 > 0" 같은 불변식이 화면 하나만 공허하게 실패한다 — 카드
+// 전용으로 좁히고 주간은 아래 별도 describe에서 근거 세 줄만 확인한다.
+describe("카드 문법 불변식 — 네 화면", () => {
   const when = new Date("2026-09-07T03:00:00Z");
   const screens = (): [string, string][] => {
     const { chart, reading } = exampleSky();
@@ -647,5 +654,26 @@ describe("카드 문법 불변식 — 다섯 화면", () => {
         expect(c.basis.length, `${name}: ${c.plain}`).toBe(3);
       }
     }
+  });
+});
+
+// 주간은 카드가 아니라 TouchRow라 위 "네 화면" 불변식에 끼울 수 없다(cardsOf가
+// 찾는 meta·plain·where가 애초에 없다). 그래도 다섯 화면이 한 문법을 쓴다는
+// 원칙(스펙 §5)은 TouchRow의 접힘에도 적용된다 — 여기서 근거 세 줄과 하우스
+// 점선 용어만 따로 확인한다(BasisLines 추출 전에는 TouchRow가 이 둘을 손으로
+// 다시 쓰며 하우스 용어를 빠뜨렸다).
+describe("주간 TouchRow — 근거 세 줄", () => {
+  it("왜 이게 보이나요와 세 줄, 하우스에 점선 용어", () => {
+    const { chart } = exampleSky();
+    const touches = weeklyPersonal(kstWeekStart(new Date("2026-09-07T03:00:00Z")), chart);
+    expect(touches.length).toBeGreaterThan(0);
+    const withHouse = touches.find((t) => t.basis[1].includes("하우스"));
+    expect(withHouse).toBeDefined();
+    const html = renderToStaticMarkup(
+      createElement(TouchRow, { touch: withHouse!, open: true, onToggle: () => {} }),
+    );
+    expect(html).toContain("왜 이게 보이나요");
+    expect(html.match(/data-basis-line/g)).toHaveLength(3);
+    expect(html).toContain(">하우스</button>"); // Term
   });
 });

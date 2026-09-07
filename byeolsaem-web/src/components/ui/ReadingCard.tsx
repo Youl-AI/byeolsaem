@@ -1,6 +1,6 @@
 "use client";
 import React, { useId, useState } from "react";
-import { Term } from "./Term";
+import { BasisLines } from "./BasisLines";
 
 /**
  * 결과 카드 한 장 — The Pattern의 카드 문법.
@@ -126,32 +126,10 @@ export const ReadingCard: React.FC<
               </div>
             )}
             {children}
-            {basis && basis.length > 0 && (
-              <div className="border-t border-gold/15 pt-3">
-                <p className="font-latin text-eyebrow tracking-[0.2em] text-gold">왜 이게 보이나요</p>
-                {basis.map((line, i) => (
-                  <p key={i} data-basis-line className="mt-1.5 text-meta">
-                    {withHouseTerm(line)}
-                  </p>
-                ))}
-              </div>
-            )}
+            {basis && <BasisLines lines={basis} />}
           </div>
         </div>
       </div>
     </article>
   );
 };
-
-/** "7하우스(마주 앉는 관계)"의 '하우스'에 점선 용어를 붙인다. 없으면 그대로. */
-function withHouseTerm(line: string): React.ReactNode {
-  const at = line.indexOf("하우스");
-  if (at === -1) return line;
-  return (
-    <>
-      {line.slice(0, at)}
-      <Term name="하우스" />
-      {line.slice(at + "하우스".length)}
-    </>
-  );
-}
