@@ -337,6 +337,11 @@ export function ChartWheelLegend() {
   );
 }
 
+/**
+ * 이 범례는 이름을 일부러 남겨 둔다. SynastryPrimer·구역 소개문과 같은 자리 —
+ * 각 이름을 그 각도 옆에 나란히 보여 주며 가르치는 곳이라, 이제 카드가 각을 숫자로
+ * 말하는 이 화면에서 그 말을 배울 수 있는 유일한 자리다(2026-09-08 결정).
+ */
 function aspectNames(harmony: number): string {
   return ASPECT_TYPES.filter((t) => t.harmony === harmony)
     .map((t) => `${t.ko} ${t.angle}도`)

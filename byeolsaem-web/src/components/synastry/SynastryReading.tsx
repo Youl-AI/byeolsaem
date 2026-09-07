@@ -558,7 +558,7 @@ function Resonance({ reading }: { reading: SynastryReadingData }) {
           <li>흐르는 각도 {reading.flowing}</li>
           <li>부딪히는 각도 {reading.friction}</li>
           <li>겹치는 각도 {reading.overlapping}</li>
-          {reading.tightest !== null && <li>가장 정확한 오차 {reading.tightest.toFixed(1)}도</li>}
+          {reading.tightest !== null && <li>가장 정확한 오브 {reading.tightest.toFixed(1)}도</li>}
         </ul>
         <p className="mt-5 max-w-[52ch] break-keep text-meta text-starlight-dim">
           {RESONANCE_NOTE}

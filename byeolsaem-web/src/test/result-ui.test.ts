@@ -547,4 +547,23 @@ describe("카드 밖에도 각 이름이 없다", () => {
     expect(badgeLine(natal)).not.toMatch(FORBIDDEN);
     expect(badgeLine(meeting)).not.toMatch(FORBIDDEN);
   });
+
+  it("궁합 카드 목록의 RESONANCE 통계 줄", () => {
+    // Resonance는 export되어 있지 않다 — SynastryBody가 그것을 그린다(같은 파일,
+    // "궁합의 금실 축소판" describe의 body() 헬퍼와 같은 방식).
+    const { mine, theirs, reading } = exampleMeeting();
+    expect(reading.tightest).not.toBeNull();
+    const html = renderToStaticMarkup(
+      createElement(SynastryBody, {
+        mine,
+        theirs,
+        reading,
+        chosen: null,
+        activeId: null,
+        onPick: () => {},
+        onActive: () => {},
+      }),
+    );
+    expect(html).not.toMatch(FORBIDDEN);
+  });
 });
