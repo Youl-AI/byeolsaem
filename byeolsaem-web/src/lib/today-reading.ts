@@ -136,9 +136,13 @@ export function todayBack(sky: TodaySky, natal: Chart, concern?: string | null):
     quiet: transits.length === 0 ? QUIET_DAY : null,
     // 칩은 목록의 앞 세 개를 그대로 쓴다. 따로 고르면 목록과 칩이 서로 다른
     // 이야기를 하게 되고, 어느 쪽이 오늘인지 알 수 없어진다.
+    // 칩 모양(세 조립 함수가 함께 쓴다): "A–B 각도". 소유가 갈리는 쪽에만
+    // '내'/'그쪽'을 붙인다 — A(하늘의 움직이는 별)는 문맥이 이미 하늘이라 안
+    // 붙이고, B(내 자리)에는 '내'를 붙인다. yearly-reading.ts·synastry-reading.ts와
+    // 같은 규칙.
     chips: transits.slice(0, 3).map((t) => ({
       symbol: t.moving.symbol,
-      label: `${t.moving.ko}–${t.fixed.ko} ${angleLabel(t.angle)}`,
+      label: `${t.moving.ko}–내 ${t.fixed.ko} ${angleLabel(t.angle)}`,
     })),
   };
 }

@@ -261,6 +261,9 @@ export function synastryReading(
     lens: lens ? buildLens(mine, theirs, lens) : null,
     empty: result.aspects.length === 0 ? NO_CONTACT : null,
     // 칩은 목록의 앞 세 개다. 따로 고르면 칩과 목록이 서로 다른 이야기를 한다.
+    // 칩 모양은 today-reading.ts·yearly-reading.ts와 같은 규칙 — "A–B 각도",
+    // 소유가 갈리는 쪽에만 '내'/'그쪽'을 붙인다. 여기는 두 소유(나·상대)가 다
+    // 있어 둘 다 붙는다.
     chips: lines.slice(0, 3).map((line) => ({
       symbol: line.mine.symbol,
       label: `내 ${line.mine.ko}–그쪽 ${line.theirs.ko} ${angleLabel(line.angle)}`,

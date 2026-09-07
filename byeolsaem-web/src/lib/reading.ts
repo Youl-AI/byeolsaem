@@ -276,7 +276,10 @@ function composeLifework(aspects: ReadingAspect[]): Reading["lifework"] {
   if (!friction) return null;
   return {
     text: `${firstSentence(friction.body)} 편한 배치는 아니지만, 당신을 실제로 움직여 온 것도 이 마찰입니다.`,
-    basis: `${friction.a.ko} ${angleLabel(friction.aspect.type.angle)} ${friction.b.ko} · 태어난 순간부터 평생 가는 각도`,
+    // 칩 모양은 today-reading.ts 등 세 조립 함수와 같은 "A–B 각도" 규칙. 여기는
+    // 두 별 다 한 사람의 natal 안에 있어 소유가 갈리지 않으므로 '내'/'그쪽'은
+    // 붙이지 않는다.
+    basis: `${friction.a.ko}–${friction.b.ko} ${angleLabel(friction.aspect.type.angle)} · 태어난 순간부터 평생 가는 각도`,
   };
 }
 

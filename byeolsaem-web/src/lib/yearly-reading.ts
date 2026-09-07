@@ -263,6 +263,8 @@ export function yearReading(natal: Chart, year: number, concern?: string | null)
 
   // 칩은 가장 오래 가는 셋이다. 날짜순으로 앞의 셋을 쓰면 1월에 몰린 해에는
   // 한 해 전체가 1월처럼 보인다.
+  // 칩 모양은 today-reading.ts와 같은 규칙 — "A–B 각도", 하늘의 별(A)에는 안
+  // 붙이고 내 자리(B)에만 '내'를 붙인다.
   const chips = [...events]
     .sort(
       (a, b) =>
