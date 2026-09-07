@@ -278,7 +278,7 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
                 {current.life}
               </p>
               <p className="mt-2 max-w-[52ch] break-keep text-guide text-starlight-dim">
-                {current.basis}
+                {current.caption}
               </p>
               <p className="mt-2 text-meta text-starlight-dim">
                 {current.aspectKo} · {current.countLine} 힘이 도는 기간은 {current.span}입니다.

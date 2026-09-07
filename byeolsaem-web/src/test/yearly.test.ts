@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { computeChart, longitudeOf } from "@/lib/chart";
 import { toJulianDay } from "@/lib/ephemeris";
+import { exampleSky } from "@/lib/example-sky";
 import { findYearEvents, signSpans, yearRetrogrades, yearStartJd } from "@/lib/yearly";
 import { yearBackdrop, yearReading } from "@/lib/yearly-reading";
 import { EXACT_COUNT_LINES, JUPITER_YEAR, SATURN_YEAR } from "@/content/atoms/yearly";
@@ -197,6 +198,23 @@ describe("한 해의 조립", () => {
       expect(event.dateLine).toMatch(/^\d+월 \d+일/);
       expect(event.headline.length).toBeGreaterThan(5);
       expect(event.body.length).toBeGreaterThan(40);
+    }
+  });
+});
+
+describe("한 해 카드의 재료", () => {
+  const { chart } = exampleSky();
+  const events = yearReading(chart, 2026, null).events;
+
+  it("머리줄은 자리 · 날짜 · 주기, 근거 셋째 줄은 정확한 날", () => {
+    expect(events.length).toBeGreaterThan(0);
+    for (const e of events) {
+      expect(e.meta).toMatch(/년에 한 번$|평생 한 번$/);
+      expect(e.meta.startsWith(`${e.area} · `)).toBe(true);
+      expect(e.basis).toHaveLength(3);
+      expect(e.basis[2]).toMatch(/에 정확히 맞습니다\.$|번에 걸쳐 맞습니다\.$/);
+      expect(e.plain.includes(e.where)).toBe(false);
+      expect([e.meta, e.plain, e.where, e.rest, ...e.basis].join(" ")).not.toMatch(/오차|육분|삼각|사각|대립|순풍|마찰/);
     }
   });
 });

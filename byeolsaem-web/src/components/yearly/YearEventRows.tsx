@@ -1,8 +1,6 @@
 "use client";
 import { useInView } from "@/hooks/useInView";
 import { ReadingCard } from "@/components/ui/ReadingCard";
-import { toneLabel } from "@/components/ui/ToneBadge";
-import { afterFirstSentence, firstSentence } from "@/lib/text";
 import type { YearReadingEvent } from "@/lib/yearly-reading";
 
 /**
@@ -37,7 +35,6 @@ export function YearEventRows({
     <div ref={frame} data-in={inView ? "true" : "false"} className="mt-8 space-y-2.5">
       {events.map((event, i) => {
         const open = event.id === openId;
-        const first = event.exact[0];
         return (
           <ReadingCard
             key={`${year}-${event.id}`}
@@ -56,26 +53,24 @@ export function YearEventRows({
             }
             meta={
               <>
-                {/* 별표는 sr-only 문장(아래 plain)이 같은 말을 하므로 스크린리더에는
-                    숨긴다 — 안 그러면 도형 이름과 문장이 겹쳐 두 번 읽힌다. */}
                 {event.inLens && <span aria-hidden>● </span>}
-                {`${event.moving.ko} ${event.aspectKo} 내 ${event.fixed.ko} · ${first.month}월 ${first.day}일${
-                  event.exact.length > 1 ? ` 외 ${event.exact.length - 1}` : ""
-                } · ${toneLabel(event.harmony)}`}
+                {event.meta}
               </>
             }
             plain={
               <>
-                {firstSentence(event.life)}
+                {event.plain}
                 {event.inLens && <span className="sr-only"> 관심사에 걸리는 날입니다.</span>}
               </>
             }
-            where={event.area}
+            where={event.where}
+            advice={event.advice}
+            basis={event.basis}
           >
-            {afterFirstSentence(event.life) && <p>{afterFirstSentence(event.life)}</p>}
-            <p>{event.basis}</p>
+            <p className="text-gold-soft">{event.caption}</p>
+            {event.rest && <p>{event.rest}</p>}
             <p className="text-meta">
-              {event.dateLine} · {event.aspectKo} · {event.countLine} 힘이 도는 기간은 {event.span}입니다.
+              {event.dateLine} · {event.countLine} 힘이 도는 기간은 {event.span}입니다.
             </p>
           </ReadingCard>
         );

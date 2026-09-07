@@ -16,8 +16,10 @@ import {
   SATURN_YEAR,
   YEAR_FRAMES,
 } from "@/content/atoms/yearly";
+import { basisLines } from "./basis";
 import type { Chart } from "./chart";
-import { firstSentence } from "./text";
+import { recurrenceLabel } from "./passage";
+import { afterFirstSentence, firstSentence } from "./text";
 import { PLANET_BY_KEY, type Planet, type PlanetKey } from "./planets";
 import { formatZodiacDegree } from "./retrograde";
 import type { RetrogradePeriod } from "./retrograde-clock";
@@ -123,8 +125,18 @@ export interface YearReadingEvent {
   area: string;
   /** 생활 언어 본문. 결론부터 말한다. */
   life: string;
-  /** 별 이야기 근거 줄. */
-  basis: string;
+  /** 머리줄 — 자리 · 날짜 · 얼마나 드문가. */
+  meta: string;
+  /** life의 첫 문장. */
+  plain: string;
+  /** life의 둘째 문장. 카드 겉면 둘째 줄이다 — 자리 이름을 반복하지 않는다. */
+  where: string;
+  /** life의 셋째 문장부터. 없으면 "". */
+  rest: string;
+  /** 두 별의 주제 — 옛 basis. */
+  caption: string;
+  advice: { try: string; hold: string };
+  basis: [string, string, string];
   /** 고른 관심사에 걸리는가. */
   inLens: boolean;
   headline: string;
@@ -182,6 +194,35 @@ function describe(event: YearEvent, natal: Chart, lens: ConcernLens | null): Yea
   const theme = pairTheme(event.transiting, event.natal);
   const span = frame?.span ?? "그 무렵";
   const area = areaOf(natal, event.natal);
+  const dateLine = event.exact.map(formatYearDate).join(" · ");
+  const every = recurrenceLabel(event.transiting, event.type.angle);
+
+  const placement = natal.placements.find((p) => p.planet === event.natal)!;
+  const inLens = lens ? matchesLens(natal, event.natal, lens) : false;
+
+  // where의 마지막 대비책(아래)이 basis[0]을 가리키므로 life보다 먼저 만든다
+  // — today-reading.describeTransit과 같은 이유.
+  const basis = basisLines({
+    tense: "transit",
+    a: event.transiting,
+    b: event.natal,
+    angle: event.type.angle,
+    orb: null,
+    house: placement.house,
+    lens: inLens && lens ? lens.label : null,
+    exactLabels: event.exact.map(formatYearDate),
+  });
+
+  // "그 무렵 서너 달"은 날짜 뒤에 붙는 표현이라, 문장 속에서는 "서너 달"만 쓴다.
+  const life = fillLife(
+    TRANSIT_LIFE[toneOf(event.type.harmony)][event.transiting],
+    area,
+    span.replace(/^그 무렵 /, ""),
+  );
+  const plain = firstSentence(life);
+  const tail = afterFirstSentence(life);
+  const where = firstSentence(tail) || tail || basis[0];
+  const rest = firstSentence(tail) ? afterFirstSentence(tail) : "";
 
   return {
     id: eventDomId(event),
@@ -191,18 +232,19 @@ function describe(event: YearEvent, natal: Chart, lens: ConcernLens | null): Yea
     aspectSymbol: event.type.symbol,
     harmony: event.type.harmony,
     exact: event.exact,
-    dateLine: event.exact.map(formatYearDate).join(" · "),
+    dateLine,
     countLine: EXACT_COUNT_LINES[event.exact.length] ?? EXACT_COUNT_LINES[3],
     span,
     area,
-    // "그 무렵 서너 달"은 날짜 뒤에 붙는 표현이라, 문장 속에서는 "서너 달"만 쓴다.
-    life: fillLife(
-      TRANSIT_LIFE[toneOf(event.type.harmony)][event.transiting],
-      area,
-      span.replace(/^그 무렵 /, ""),
-    ),
-    basis: theme ? `${theme} — ${meaning.headline}` : meaning.headline,
-    inLens: lens ? matchesLens(natal, event.natal, lens) : false,
+    life,
+    meta: [area, dateLine, every].filter(Boolean).join(" · "),
+    plain,
+    where,
+    rest,
+    caption: theme ? `${theme} — ${meaning.headline}` : meaning.headline,
+    advice: TRANSIT_ADVICE[event.transiting],
+    basis,
+    inLens,
     headline: theme ? `${theme} — ${meaning.headline}` : meaning.headline,
     body: `${meaning.body} ${frame?.brings ?? ""}`.trim(),
   };

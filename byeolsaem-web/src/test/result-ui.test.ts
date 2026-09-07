@@ -377,7 +377,9 @@ describe("한 해의 사건 카드", () => {
     const html = renderToStaticMarkup(
       createElement(YearEventRows, { year: 2026, events, openId: events[0].id, onToggle: () => {} }),
     );
-    expect(html.match(/aria-expanded=/g)).toHaveLength(events.length);
+    // 근거 줄이 하우스를 말하면 그 안의 용어(하우스)도 자기 버튼을 갖는다 —
+    // 카드 자체의 열고 닫기 버튼만 "접기"/"더 읽기"로 세어야 겹치지 않는다.
+    expect(html.match(/>(?:접기|더 읽기)</g)).toHaveLength(events.length);
     expect(html.match(/aria-expanded="true"/g)).toHaveLength(1);
     expect(html).toContain(`id="${events[0].id}"`);
     expect(html).toContain("힘이 도는 기간은");
