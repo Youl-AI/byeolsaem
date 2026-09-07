@@ -1,14 +1,15 @@
 import { ASPECT_MEANINGS, PAIR_READINGS, modeOf, pairKey, pairTheme } from "@/content/atoms/aspects";
 import { ASCENDANT_ATOMS, MIDHEAVEN_ATOMS } from "@/content/atoms/ascendant";
 import { lensFor, type ConcernLens } from "@/content/atoms/concerns";
-import { SIGN_FACES } from "@/content/atoms/life";
+import { HOUSE_AREAS, PLANET_AREAS, SIGN_FACES } from "@/content/atoms/life";
+import { basisLines } from "./basis";
 import { eun, iga } from "./josa";
 import { firstSentence } from "./text";
 import { HOUSE_BY_NUMBER, type House } from "@/content/atoms/houses";
 import { PLANET_IN_HOUSE } from "@/content/atoms/planet-in-house";
 import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
 import type { Aspect, Chart, Placement } from "./chart";
-import { PLANET_BY_KEY, TIER_RANK, type Planet, type PlanetTier } from "./planets";
+import { PLANET_BY_KEY, TIER_RANK, type Planet, type PlanetKey, type PlanetTier } from "./planets";
 import { ZODIAC_SIGNS, type ZodiacSign } from "./zodiac";
 
 /**
@@ -44,6 +45,9 @@ export interface ReadingAspect {
   body: string;
   /** "거의 정확" — 오브 세기를 말로. */
   strengthKo: string;
+  /** 머리줄 — 두 별이 앉은 자리의 생활 이름. */
+  meta: string;
+  basis: [string, string, string];
 }
 
 export interface Reading {
@@ -135,7 +139,7 @@ const GENERATIONAL_NOTE = "비슷한 시기에 태어난 사람들이 함께 가
  * 어스펙트를 문장으로. 본문은 행성 쌍이 정하고(PAIR_READINGS), 각도는 headline과
  * nuance 한 줄로 5방의 구분을 지킨다 (content/atoms/aspects.ts 참고).
  */
-function toReadingAspect(aspect: Aspect): ReadingAspect | null {
+function toReadingAspect(aspect: Aspect, chart: Chart): ReadingAspect | null {
   const theme = pairTheme(aspect.a, aspect.b);
   if (!theme) return null;
   const meaning = ASPECT_MEANINGS[aspect.type.key];
@@ -144,6 +148,24 @@ function toReadingAspect(aspect: Aspect): ReadingAspect | null {
   const bothNonPersonal = a.tier !== "personal" && b.tier !== "personal";
   // 쌍의 문단 + 각도의 꼬리. 세대끼리의 각도에는 그 사실을 밝히는 문장이 하나 더 붙는다.
   const paragraph = `${PAIR_READINGS[pairKey(aspect.a, aspect.b)][modeOf(aspect.type.key)]} ${meaning.nuance}`;
+
+  const at = (key: PlanetKey) => chart.placements.find((p) => p.planet === key)!;
+  const areaOf = (key: PlanetKey) => {
+    const h = at(key).house;
+    return h === null ? PLANET_AREAS[key] : HOUSE_AREAS[h];
+  };
+  const areaA = areaOf(aspect.a);
+  const areaB = areaOf(aspect.b);
+  const meta = areaA === areaB ? areaA : `${areaA} · ${areaB}`;
+  const basis = basisLines({
+    tense: "natal",
+    a: aspect.a,
+    b: aspect.b,
+    angle: aspect.type.angle,
+    orb: aspect.orb,
+    house: at(aspect.b).house,
+  });
+
   return {
     aspect,
     a,
@@ -152,6 +174,8 @@ function toReadingAspect(aspect: Aspect): ReadingAspect | null {
     headline: meaning.headline,
     body: bothNonPersonal ? `${paragraph} ${GENERATIONAL_NOTE}` : paragraph,
     strengthKo: strengthLabel(aspect.strength),
+    meta,
+    basis,
   };
 }
 
@@ -177,7 +201,7 @@ export function assembleReading(
 
   // chart.ts의 순수 세기 순서 위에 개인성 가중치를 곱해 다시 세운다
   const aspects = chart.aspects
-    .map(toReadingAspect)
+    .map((aspect) => toReadingAspect(aspect, chart))
     .filter((a): a is ReadingAspect => a !== null)
     .sort(
       (x, y) =>

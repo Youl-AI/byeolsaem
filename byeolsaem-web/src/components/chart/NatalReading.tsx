@@ -18,7 +18,6 @@ import { ReadingCard } from "@/components/ui/ReadingCard";
 import { CardSection, ResultSection } from "@/components/ui/ResultSection";
 import { ResultTabs } from "@/components/ui/ResultTabs";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
-import { toneLabel } from "@/components/ui/ToneBadge";
 import { ChartWheel, ChartWheelLegend } from "./ChartWheel";
 import { NameTag } from "./NameTag";
 import { ChartLoading, UnknownPlace } from "./NoProfile";
@@ -415,11 +414,10 @@ function NatalBody({ chart, reading, now }: { chart: Chart; reading: Reading; no
                   className="w-8"
                 />
               }
-              /* 결(순풍·마찰·겹침)을 글자로 붙인다 — 인장은 aria-hidden이라
-                 접힌 카드에서는 색 말고 아무것도 말하지 않는다. */
-              meta={`${item.a.ko} ${item.aspect.type.ko} ${item.b.ko} · 오브 ${item.aspect.orb.toFixed(1)}도 · ${item.strengthKo} · ${toneLabel(item.aspect.type.harmony)}`}
+              meta={item.meta}
               plain={item.headline}
               where={firstSentence(item.body)}
+              basis={item.basis}
             >
               <p className="text-gold-soft">{item.theme}</p>
               {afterFirstSentence(item.body) && <p>{afterFirstSentence(item.body)}</p>}

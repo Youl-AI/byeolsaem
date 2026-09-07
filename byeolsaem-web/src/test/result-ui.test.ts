@@ -252,6 +252,19 @@ describe("카드 prop", () => {
   });
 });
 
+describe("천궁도 각 카드", () => {
+  it("겉면에 별 표기가 없고 근거 세 줄이 natal 시제다", () => {
+    const { chart, reading } = exampleSky();
+    expect(reading.aspects.length).toBeGreaterThan(0);
+    for (const item of reading.aspects) {
+      expect(item.meta).not.toMatch(/오브|육분|삼각|사각|대립|순풍|마찰|합\b/);
+      expect(item.basis[0]).toMatch(/^태어날 때 .+ (\d+도였습니다|한자리에 겹쳐 있었습니다)\.$/);
+      expect(item.basis[2]).toMatch(/배선입니다\.$/);
+    }
+    void chart;
+  });
+});
+
 describe("세 기둥 읽기", () => {
   it("예시 하늘의 태양은 게자리, 상승궁이 있다", () => {
     const { chart } = exampleSky();
