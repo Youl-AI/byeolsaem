@@ -352,7 +352,7 @@ function TransitCard({ t, index }: { t: TodayTransit; index: number }) {
       badge={
         <>
           {t.aspectSymbol}
-          {"\u{FE0E}"}
+          {"\uFE0E"}
         </>
       }
       tech={`오늘의 ${t.moving.ko} ${t.aspectKo} 내 ${t.fixed.ko} · 오차 ${t.orb.toFixed(1)}도 · ${toneLabel(t.harmony)} · 약 ${t.span}`}
