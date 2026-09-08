@@ -3,9 +3,10 @@
 정리 2026-09-04. 끝난 항목은 지우지 말고 `[x]`로 두되, 분기가 지나면 접는다.
 칼럼 발행 순서는 여기 적지 않는다 — `docs/column-queue.md`가 맡는다.
 
-결과 화면(natal·synastry·today·yearly)을 다시 건드릴 때는
-`docs/superpowers/records/2026-09-07-result-screens.md`를 먼저 읽는다. 스펙과
-다르게 간 결정, 배포 전 실측값, 알면서 안 고친 것, 화면별 되돌릴 커밋이 거기 있다.
+결과 화면(natal·synastry·today·yearly·weekly)을 다시 건드릴 때는
+`docs/superpowers/records/2026-09-07-result-screens.md`와
+`docs/superpowers/records/2026-09-08-reading-card-grammar.md`를 먼저 읽는다. 스펙과
+다르게 간 결정, 배포 전후 실측값, 알면서 안 고친 것, 화면별 되돌릴 커밋이 거기 있다.
 
 ## 다음에 바로 할 것
 
@@ -128,8 +129,8 @@
       "오늘의 각"은 새로 지은 말이라 아직 자리를 잡는 중이다. 문구를 고치고 싶어질 때
       natal·궁합·한 해의 제목까지 넷을 함께 아톰으로 올린다.
 
-      카드 문법은 2026-09-08에 다시 세웠다(스펙 reading-card-grammar). 구역 제목 셋은
-      그대로 남아 있다.
+      카드 문법은 2026-09-08에 다시 세웠다(스펙 reading-card-grammar, 기록
+      `records/2026-09-08-reading-card-grammar.md`). 구역 제목 셋은 그대로 남아 있다.
 
 - [ ] **호라삿타이(태국 점성술).** 넣는다면 계산 축이 하나 더 생긴다 — 항성시라
       아야남사(회귀↔항성 보정, 현재 약 24도) 처리와 태국 요일 체계가 따로 필요하다.

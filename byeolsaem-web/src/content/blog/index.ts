@@ -33,6 +33,17 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: "보이드문",
+    title: "보이드 문 — 달이 약속을 비운 시간",
+    summary:
+      "이틀 반에 한 번, 달의 수첩이 비는 몇 시간이 옵니다. 계약과 시작을 피하라는 오래된 경고와, 달의 도수로 어림하는 요령까지.",
+    category: "실전 점성학",
+    published: "2026-09-08",
+    readingMinutes: 4,
+    image: "/og/blog/void-moon.png",
+    load: () => import("./void-moon.mdx"),
+  },
+  {
     slug: "트랜짓-읽는-법",
     title: "트랜짓 읽는 법 — 지금 하늘을 내 차트에 겹치기",
     summary:
