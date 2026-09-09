@@ -33,6 +33,17 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: "점성술-역사",
+    title: "점성술은 어디서 왔나 — 왕의 하늘에서 개인의 차트로",
+    summary:
+      "3천 년 전 바빌로니아의 징조 목록에서 기원전 410년의 첫 출생 차트까지. 지금 쓰는 차트의 부품이 각각 어디서 왔는지 갈라서 짚었습니다.",
+    category: "점성술의 역사",
+    published: "2026-09-09",
+    readingMinutes: 5,
+    image: "/og/blog/astrology-origins.png",
+    load: () => import("./astrology-origins.mdx"),
+  },
+  {
     slug: "보이드문",
     title: "보이드 문 — 달이 약속을 비운 시간",
     summary:
