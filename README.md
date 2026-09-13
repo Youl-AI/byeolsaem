@@ -174,8 +174,12 @@ cd .. && npx wrangler deploy        # out/ 을 Cloudflare Workers 로
 엔드포인트로 되살릴 계획이기 때문이다. kerykeion(스위스 천문력)은 파이썬 전용이고,
 개인 천궁도의 정밀도를 올리려면 결국 이쪽이 필요하다.
 
-> Render 서비스 이름은 아직 `star-sync`다. 대시보드에서 바꾸면
-> `measure_latency.py`와 `../byeolsaem-keepalive/worker.js` 두 곳을 함께 고쳐야 한다.
+> Render 서비스 이름은 아직 `star-sync`다. 대시보드에서 바꾸면 `measure_latency.py`를
+> 고친다. 예전에는 `../byeolsaem-keepalive/worker.js`도 같이 고쳐야 했는데, 그 keep-alive
+> 워커는 서비스가 suspend된 뒤 2026-09-14에 삭제했다.
+>
+> 그 서비스는 **2026-09-05부터 suspend 상태**다(무료 한도 소진). 되살리는 조건은
+> `docs/todo.md`의 "잠재워 둔 것"에 적어 두었다.
 
 ---
 

@@ -32,8 +32,12 @@ import time
 import urllib.error
 import urllib.request
 
-# Render 서비스 이름은 아직 star-sync 다. 대시보드에서 바꾸면 여기와
-# ../byeolsaem-keepalive/worker.js 두 곳을 함께 고쳐야 한다.
+# Render 서비스 이름은 아직 star-sync 다. 대시보드에서 바꾸면 여기를 고친다.
+# 예전에는 ../byeolsaem-keepalive/worker.js도 같이 고쳐야 했지만 그 워커는
+# 2026-09-14에 삭제했다(HANDOFF.md의 "콜드 스타트 제거" 항목).
+#
+# 이 서비스는 2026-09-05부터 suspend 상태다 — 지금 이 스크립트를 돌리면 503만
+# 나온다. 되살린 뒤에 쓴다.
 URL = "https://star-sync.onrender.com/analyze"
 
 CITIES = [("Seoul", "KR"), ("Busan", "KR"), ("Incheon", "KR"),

@@ -390,7 +390,9 @@ kerykeion이 이미 11종 어스펙트를 오브 설정과 함께 계산한다. 
 5. 구조화 출력 (§6.3) — 옵트인 LLM 경로에 적용
 6. SSE 스트리밍 — 옵트인 LLM 경로에만 (기본 경로는 즉시 응답이라 불필요)
 7. 일일 운세 cron: Cloudflare Worker cron → Render → KV
-   (기존 `byeolsaem-keepalive` Worker에 트리거 추가)
+   (**새 Worker를 만든다.** 여기 적혀 있던 "기존 `byeolsaem-keepalive` Worker에 트리거
+   추가"는 이제 못 한다 — 그 워커는 핑 대상인 Render가 suspend된 뒤 2026-09-14에
+   삭제했다. `HANDOFF.md`의 "콜드 스타트 제거" 항목 참고)
 8. 모델 고정: `gemini-3-flash-preview` → GA 출시 확인 후 고정
 
 ---
