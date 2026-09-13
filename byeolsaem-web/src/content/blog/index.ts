@@ -33,6 +33,17 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: "점성술-아랍-전승",
+    title: "바그다드를 거쳐 온 점성술 — 700년의 번역",
+    summary:
+      "유럽이 그리스어를 잃은 사이 프톨레마이오스는 아랍어로 남았습니다. 아부 마샤르와 톨레도의 번역가들이 그 책을 다시 라틴어로 돌려놓기까지.",
+    category: "점성술의 역사",
+    published: "2026-09-14",
+    readingMinutes: 5,
+    image: "/og/blog/arabic-transmission.png",
+    load: () => import("./arabic-transmission.mdx"),
+  },
+  {
     slug: "점성술-역사",
     title: "점성술은 어디서 왔나 — 왕의 하늘에서 개인의 차트로",
     summary:
