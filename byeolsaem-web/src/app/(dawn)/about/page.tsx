@@ -76,10 +76,31 @@ export default function AboutPage() {
           그 문장이 어떤 계산에서 나왔는지 밝히는 곳은 찾기 어려웠습니다. 계산을 직접 하고
           그 방법을 공개하면 적어도 그 부분에서는 정직할 수 있겠다고 생각했습니다.
         </p>
+      </DawnSection>
+
+      <DawnSection title="문의">
         <p>
-          이상한 점이나 틀린 계산을 발견하시면{" "}
-          <a href="mailto:hayoul1999@gmail.com">hayoul1999@gmail.com</a>으로 알려 주세요.
-          어느 날짜의 무엇이 어떻게 달랐는지만 적어 주시면 확인하고 고칩니다.
+          무엇이든 <a href="mailto:hayoul1999@gmail.com">hayoul1999@gmail.com</a>으로
+          보내 주세요. 받는 사람도 답하는 사람도 한 명이라 며칠 걸릴 때가 있습니다.
+        </p>
+        <p>
+          <b className="font-normal text-gold-dark">계산이 틀렸을 때</b>가 가장 반갑습니다.
+          어느 날짜의 무엇이 어떻게 달랐는지만 적어 주시면 확인하고 고칩니다. 태어난 날짜와
+          시각, 태어난 곳을 함께 주시면 같은 화면을 그대로 재현해 볼 수 있습니다.
+        </p>
+        <p>
+          <b className="font-normal text-gold-dark">글에 사실이 틀린 곳</b>이 있을 때도
+          알려 주세요. 칼럼은 출처를 확인하고 쓰지만 놓치는 곳이 생깁니다.
+        </p>
+        <p>
+          <b className="font-normal text-gold-dark">개인정보 관련 요청</b>은{" "}
+          <Link href="/privacy">개인정보 처리방침</Link>에 절차를 적어 두었습니다. 별샘은
+          출생 정보를 서버로 보내지 않고 브라우저에만 두므로, 지우고 싶으시면 브라우저의
+          저장 데이터를 비우면 그것으로 끝납니다.
+        </p>
+        <p>
+          운세를 대신 봐 드리거나 개인 상담을 해 드리지는 않습니다. 화면이 내놓는 것이
+          별샘이 드릴 수 있는 전부입니다.
         </p>
         <p>
           <Link href="/">밤하늘로 돌아가 내 천궁도를 보려면 여기를 누르세요.</Link>

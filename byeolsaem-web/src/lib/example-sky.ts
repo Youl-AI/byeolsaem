@@ -1,4 +1,4 @@
-import { computeChart, type Chart } from "./chart";
+import { computeChart, type BirthMoment, type Chart } from "./chart";
 import { assembleReading, type Reading } from "./reading";
 import { solarReturnChart } from "./solar-return";
 import { synastryReading, type SynastryReading } from "./synastry-reading";
@@ -25,18 +25,25 @@ export const EXAMPLE_BIRTH = {
 } as const;
 
 /** 모듈 로드 시 한 번만 계산한다. 결정론이라 캐시가 곧 정답이다. */
-let cached: { chart: Chart; reading: Reading } | null = null;
+let cached: { natal: BirthMoment; chart: Chart; reading: Reading } | null = null;
 
-export function exampleSky(): { chart: Chart; reading: Reading } {
+/**
+ * `natal`도 함께 돌려준다 — 차트만으로는 안 되는 계산이 있다. /chapters의
+ * 프로펙션과 릴리징은 태어난 **날짜**에서 나이를 세므로 `BirthMoment`가 필요하다.
+ * 부르는 쪽에서 EXAMPLE_BIRTH를 다시 조립하면 그 조립이 여기와 어긋날 수 있어
+ * 만든 자리에서 함께 내보낸다.
+ */
+export function exampleSky(): { natal: BirthMoment; chart: Chart; reading: Reading } {
   if (!cached) {
-    const chart = computeChart({
+    const natal: BirthMoment = {
       date: EXAMPLE_BIRTH.date,
       time: EXAMPLE_BIRTH.time,
       latitude: EXAMPLE_BIRTH.latitude,
       longitude: EXAMPLE_BIRTH.longitude,
       timezoneOffsetHours: EXAMPLE_BIRTH.timezoneOffsetHours,
-    });
-    cached = { chart, reading: assembleReading(chart, null) };
+    };
+    const chart = computeChart(natal);
+    cached = { natal, chart, reading: assembleReading(chart, null) };
   }
   return cached;
 }

@@ -43,7 +43,7 @@ export default function ChaptersPage() {
         </p>
       </header>
 
-      <ChaptersScope />
+      <ChaptersScope builtAt={new Date().toISOString()} />
 
       <section className="mt-20 border-t border-gold/15 pt-12">
         <h2 className="mb-6 break-keep font-display text-xl text-starlight">자주 묻는 것</h2>
