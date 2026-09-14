@@ -208,11 +208,47 @@ README에는 "GA 연결"이라 적혀 있으나 **배포본에 추적 코드가 
       없애고 있었다. 그런데 Render `star-sync`가 2026-09-05에 suspend되면서(무료 한도 소진)
       핑이 503만 받아 오게 됐고, 워커를 삭제했다. 이 항목의 원래 조건("Render 백엔드를
       옮기거나 유료 전환하면 이 Worker는 삭제할 것")이 그대로 발동한 셈이다.
-      **되살리는 법:** 코드는 15줄이고 `worker.js` + `wrangler.jsonc`가 전부다.
-      `scheduled()`에서 백엔드 `/`를 fetch하고 `wrangler.jsonc`에
-      `"triggers": { "crons": ["*/10 * * * *"] }`를 두면 된다. 로컬 폴더
-      `Desktop\Github\byeolsaem-keepalive\`는 남아 있다(배포만 지웠다).
+      로컬 폴더 `Desktop\Github\byeolsaem-keepalive\`도 함께 지웠다 — git 저장소가
+      아니어서 지우면 코드가 사라지므로, 전부를 아래에 옮겨 둔다.
       Render를 되살릴 때 유료 플랜이면 콜드 스타트가 없으므로 이 워커 자체가 불필요하다.
+      무료로 되살린다면 빈 폴더에 아래 두 파일을 만들고 `npx wrangler deploy`만 하면 된다.
+
+      `worker.js`:
+
+      ```js
+      // Render 무료 티어 콜드 스타트 방지용 keep-alive 핑
+      // 10분마다 백엔드를 깨워서 첫 방문자의 ~50초 대기를 없앤다.
+      export default {
+        async scheduled(event, env, ctx) {
+          try {
+            const res = await fetch("https://star-sync.onrender.com/", {
+              signal: AbortSignal.timeout(60000),
+            });
+            console.log(`ping ${res.status}`);
+          } catch (e) {
+            console.log(`ping failed: ${e.message}`);
+          }
+        },
+      };
+      ```
+
+      `wrangler.jsonc`:
+
+      ```jsonc
+      {
+        "name": "byeolsaem-keepalive",
+        "main": "worker.js",
+        "compatibility_date": "2026-08-01",
+        "triggers": {
+          "crons": ["*/10 * * * *"]
+        }
+      }
+      ```
+
+      **계정 주의:** 이 워커도 byeolsaem 본체도 Cloudflare 계정 `55fb977e…`에 있다.
+      wrangler 자격증명은 전역 파일 하나(`AppData\Roaming\xdg.config\.wrangler\config\default.toml`)라
+      다른 프로젝트에서 `wrangler login`을 하면 덮어쓴다. 배포가 `Authentication error
+      [code: 10000]`으로 막히면 그 계정으로 다시 로그인하면 된다(2026-09-14에 실제로 겪었다).
 - [ ] **지오코딩 로컬화** — 매 요청 Nominatim 외부 호출(초당 1회 제한, 장애 시
       `logic.py:64-68` 이 **조용히 서울 좌표로 잘못된 차트를 계산**하는 버그).
       script.js의 160개 도시 목록에 좌표·타임존을 내장하고 Nominatim은 미지 도시 fallback으로만.
