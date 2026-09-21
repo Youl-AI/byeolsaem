@@ -33,6 +33,17 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: "점성술-천문학-분리",
+    title: "점성술과 천문학이 갈라선 자리",
+    summary:
+      "케플러는 차트를 팔았고 대학은 점성술을 가르쳤습니다. 두 학문이 한 몸이던 시절과, 계산만 천문학이 가져간 17세기의 갈림길.",
+    category: "점성술의 역사",
+    published: "2026-09-22",
+    readingMinutes: 5,
+    image: "/og/blog/astrology-astronomy-split.png",
+    load: () => import("./astrology-astronomy-split.mdx"),
+  },
+  {
     slug: "점성술-아랍-전승",
     title: "바그다드를 거쳐 온 점성술 — 700년의 번역",
     summary:
