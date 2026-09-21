@@ -1,5 +1,8 @@
 {
   "name": "byeolsaem",
+  // 이 계정에만 byeolsaem 워커가 있다. 계정이 둘 이상 보이면 wrangler가
+  // 비대화형에서 하나를 못 고르고 멈추므로 여기에 박아 둔다(2026-09-22).
+  "account_id": "55fb977ed45b54f3ef40abcb1ad807b1",
   "compatibility_date": "2026-08-01",
   // 리뉴얼(2026-08-14): 루트의 구사이트 대신 Next 정적 export를 서빙한다.
   // 배포 절차: byeolsaem-web에서 `npm run build` → 루트에서 `npx wrangler deploy`.
