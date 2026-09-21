@@ -70,7 +70,7 @@ export default async function EphemerisMonthPage({ params }: { params: Promise<{
         { name: `${year}년 ${month}월`, path: monthHref({ year, month }) },
       ])} />
       <JsonLd data={faqSchema(faqs)} />
-      <PlaceBand src="/world/place-retro.webp" />
+      <PlaceBand src="/world/place-ephemeris.webp" />
       <header className="mb-10 text-center">
         <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">EPHEMERIS</p>
       </header>

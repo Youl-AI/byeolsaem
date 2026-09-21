@@ -57,6 +57,13 @@
 
 ## 기다리는 것 (날짜가 오면)
 
+- [x] **장소 그림 전면 교체 — 2026-09-22 완료.** 위 두 장에 이어 같은 날 여섯 장을 더 뽑았다.
+      `place-retro.webp` 한 장이 weekly·calendar·ephemeris·retrograde 일곱 페이지를 덮고 있던 것을
+      넷으로 갈랐고(`place-weekly`·`place-calendar`·`place-ephemeris`·`place-retro`),
+      화풍이 어긋나던 synastry·today와 메인의 `spring-above`·`spring-below`를 다시 그렸다.
+      이제 장소 그림 한 장이 여러 페이지를 겸하지 않는다.
+      **메인 두 장은 반드시 1536×2752로 인코딩한다** — `VerticalWorld`의 `width`/`height`와
+      `.vw-below`의 `-50.4vw`·마스크 구간이 전부 이 비율에 맞춰 조율돼 있다(CLS 2.07의 원인이었다).
 - [x] **장소 그림 두 장 — 2026-09-22 완료.** `place-chapters.webp`(표석이 늘어선
       평원에 선 모래시계)와 `place-solar-return.webp`(해시계와 하늘에서 제자리로
       닫히는 한 해의 호)를 새로 뽑아 넣었다. 이제 `place-natal.webp`는 /natal만 쓴다.

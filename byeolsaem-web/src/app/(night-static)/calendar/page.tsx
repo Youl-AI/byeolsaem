@@ -29,7 +29,7 @@ export default function CalendarPage() {
   return (
     <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "하늘의 달력", path: "/calendar" }])} />
-      <PlaceBand src="/world/place-retro.webp" />
+      <PlaceBand src="/world/place-calendar.webp" />
       <header className="mx-auto mb-12 max-w-xl text-center">
         <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">SKY CALENDAR</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">하늘의 달력</h1>

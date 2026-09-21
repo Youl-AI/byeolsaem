@@ -31,7 +31,7 @@ export default function EphemerisPage() {
   return (
     <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "천문력", path: "/ephemeris" }])} />
-      <PlaceBand src="/world/place-retro.webp" />
+      <PlaceBand src="/world/place-ephemeris.webp" />
       <header className="mx-auto mb-12 max-w-xl text-center">
         <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">EPHEMERIS</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">천문력</h1>
