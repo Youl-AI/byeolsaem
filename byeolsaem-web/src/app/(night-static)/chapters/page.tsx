@@ -32,7 +32,7 @@ export default function ChaptersPage() {
     <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "인생의 시간표", path: "/chapters" }])} />
       <JsonLd data={faqSchema(FAQS)} />
-      <PlaceBand src="/world/place-natal.webp" />
+      <PlaceBand src="/world/place-chapters.webp" />
       <header className="mx-auto mb-12 max-w-xl text-center">
         <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">TIME LORDS</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">인생의 시간표</h1>
