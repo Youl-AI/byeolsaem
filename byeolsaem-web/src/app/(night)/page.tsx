@@ -6,6 +6,7 @@ import { TimePath } from "@/components/sections/TimePath";
 import { TwelveRooms } from "@/components/sections/TwelveRooms";
 import { NightsEndCall } from "@/components/sections/NightsEndCall";
 import { ResultPreview } from "@/components/sections/ResultPreview";
+import { WhyDifferent } from "@/components/sections/WhyDifferent";
 import { Footer } from "@/components/sections/Footer";
 import { Reveal } from "@/components/Reveal";
 import { JsonLd, siteSchema } from "@/components/seo/JsonLd";
@@ -65,6 +66,13 @@ export default function Home() {
         </NightPhase>
       </WithoutBirthProfile>
       <NightPhase index={3}>
+        {/* 문을 고르기 직전이 근거를 읽을 자리다. ResultPreview가 "무엇을 받는가"를
+            보여준 다음, 문으로 들어가기 전에 "그런데 이걸 왜 믿나"에 답한다.
+            WithoutBirthProfile 밖에 둔다 — 돌아온 사람에게도 계산 방법으로 가는
+            길은 열려 있어야 하고, 홈에서 /method·/about으로 가는 길이 여태 푸터뿐이었다. */}
+        <Reveal>
+          <WhyDifferent />
+        </Reveal>
         <Reveal>
           <ThreeDoors />
         </Reveal>
